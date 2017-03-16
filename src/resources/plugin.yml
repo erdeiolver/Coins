@@ -1,0 +1,7 @@
+name: Coins
+softdepend: [MVdWPlaceholderAPI, PlaceholderAPI]
+main: net.nifheim.broxxx.coins.Main
+version: ${project.version}
+author: Broxxx
+commands:
+    coins:
