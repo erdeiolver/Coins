@@ -1,0 +1,66 @@
+#
+# TODO: Update config >:c
+#
+
+version: 1
+
+Online Mode: true
+
+MySQL:
+    Host: localhost
+    Port: 3306
+    Database: minecraft
+    User: plugin
+    Password: S3CUR3P4SSW0RD
+    
+Connection Interval: 1
+
+Messages:
+    Prefix: "&8[&cCoins&8] &7"
+    Help:
+        User:
+        - |-
+         &8&m+-------------------------------------------------+
+         %prefix%Avaliable commands:
+         &f 
+         &a /coins help &f- &7Show this help message.
+         &a /coins &f- &7Show your coins.
+         &a /coins <name> &f- &7Show the coins of the user.
+         &a /coins pay <name> <amount> &f- &7Pay to the user the selected amount.
+         &8&m+-------------------------------------------------+
+        Admin:
+        - |-
+         &8&m+-------------------------------------------------+
+         %prefix%Admin commands:
+         &f
+         &c /coins give <name> <amount> &f- &7Give coins to a user.
+         &c /coins take <name> <amount> &f- &7Take coins from a user.
+         &c /coins set <name> <amount> &f- &7Set coins of a user.
+         &c /coins reset <name> &f- &7Reset the coins of a user.
+         &8&m+-------------------------------------------------+
+        Pay Usage: "%prefix%&cPlease use &f/coins pay <name> <coins>"
+        Give Usage: "%prefix%&cPlease use &f/coins give <name> <coins>"
+        Take Usage: "%prefix%&cPlease use &f/coins take <name> <coins>"
+        Reset Usage: "%prefix%&cPlease use &f/coins reset <name>"
+        Set Usage: "%prefix%&cPlease use &f/coins set <name> <coins>"
+    Errors:
+        No permissions: "%prefix%&cYou don't have permissions."
+        Unknow command: "%prefix%&cUnknow command, try &f/coins help &cto see all avalable commands."
+        Unknow player: "%prefix%&cThe player %target% can't be found in the database."
+        Console: "%prefix%&cYou need to be a Player."
+        No Negative: "%prefix%&cThe negative coins are disabled."
+        No Zero: "%prefix%&cThe amount can't be zero."
+        No Coins: "%prefix%&cYou don't have that coins."
+    Coins:
+        Get: "%prefix%&a%target% &7has &f%coins%&7 coins."
+        Own coins: "%prefix%Your has &f%coins%&7 coins."
+        Pay: "%prefix%You paid &f%coins%&7 coins to &f%target%&7."
+        Pay target: "%prefix%&f%from%&7 paid you &f%coins%&7 coins."
+        Give: "%prefix%You gived &f%coins%&7 coins to &f%target%&7."
+        Give target: "%prefix%You recived &f%coins%&7."
+        Take: "%prefix%You removed &f%coins%&7 from &f%target%&7."
+        Take target: "%prefix%Your coins has been modified to &f%coins%&7."
+        Set: "%prefix%The coins of %target% has been set to &f%coins%&7."
+        Set target: "%prefix%Your coins has been set in &f%coins%&7."
+        Reset: "%prefix%The coins of %target% has been reset."
+        Reset target: "%prefix%Your coins has been reset."
