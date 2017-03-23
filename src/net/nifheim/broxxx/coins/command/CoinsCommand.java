@@ -67,13 +67,11 @@ public class CoinsCommand implements CommandExecutor {
                 return this._multiplier(sender, args);
             } else if (args[0].equalsIgnoreCase("reload")) {
                 return this._reload(sender, args);
+            } else if (args[0].equalsIgnoreCase("top") && args.length == 1) {
+                return this._top(sender, args);
             } else if (args.length == 1) {
-                if (args[0].equalsIgnoreCase("top")) {
-                    return this._top(sender, args);
-                } else if (args[0].equalsIgnoreCase(Bukkit.getOfflinePlayer(args[0]).getName()) && (Bukkit.getOfflinePlayer(args[0])) != null) {
-                    if (CoinsAPI.isindb(Bukkit.getOfflinePlayer(args[0]))) {
-                        return this._target(sender, args);
-                    }
+                if (CoinsAPI.isindb(Bukkit.getOfflinePlayer(args[0]))) {
+                    return this._target(sender, args);
                 } else if (args[0].equalsIgnoreCase(Bukkit.getPlayer(args[0]).getName()) && (Bukkit.getPlayer(args[0])) != null) {
                     return this._target(sender, args);
                 } else {
@@ -83,7 +81,11 @@ public class CoinsCommand implements CommandExecutor {
                 sender.sendMessage(rep(config.getString("Messages.Errors.Unknow command")));
             }
         } catch (SQLException ex) {
-            Logger.getLogger(CoinsCommand.class.getName()).log(Level.SEVERE, null, ex);
+            if (ex.getSQLState().equals("closed")) {
+                Logger.getLogger(CoinsCommand.class.getName()).log(Level.WARNING, "Seems that the database connection is closed.");
+            } else {
+                Logger.getLogger(CoinsCommand.class.getName()).log(Level.WARNING, "Something was wrong executing this command, the error code is: " + ex.getErrorCode(), ex);
+            }
         }
         return true;
     }

@@ -19,7 +19,7 @@ public class CoinsAPI {
     private static boolean online() {
         return config.getBoolean("Online Mode");
     }
-    
+
     public static Integer getCoins(Player p) throws SQLException {
         String name;
         if (online()) {
@@ -300,22 +300,6 @@ public class CoinsAPI {
         return res.getString("player") != null;
     }
 
-    /*
-    public static List<String> getTop() throws SQLException {
-        ResultSet res = seleDataTop(10);
-        ArrayList top = new ArrayList();
-        try {
-            int i = 0;
-            while (res.next()) {
-                i++;
-
-                String str = res.getString("player");
-                int j = res.getInt("balance");
-                top.add(/*Main.getInstance().getConfig().getString("fg"));"&8" + i + ". &c" + str + "&7: &f" + j);
-            }
-        } catch (SQLException e) {}
-        return top;
-    }*/
     public static ResultSet getDataTop(int top) throws SQLException {
         Statement check = c.createStatement();
         ResultSet res = check.executeQuery("SELECT * FROM Coins ORDER BY balance DESC LIMIT " + top + ";");
