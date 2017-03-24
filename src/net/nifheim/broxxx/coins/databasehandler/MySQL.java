@@ -41,7 +41,7 @@ public class MySQL {
                 + "`nick` VARCHAR (50) NOT NULL,"
                 + "`balance` DOUBLE NOT NULL,"
                 + "`lastlogin` INT NOT NULL,"
-                + "PRIMARY KEY (`uuid`));"
+                + "PRIMARY KEY (`uuid`));" /*
                 + "CREATE TABLE IF NOT EXISTS `" + prefix + "Multipliers`"
                 + "(`uuid` VARCHAR(50) NOT NULL,"
                 + "`nick` VARCHAR (50) NOT NULL,"
@@ -49,7 +49,8 @@ public class MySQL {
                 + "`active` INT,"
                 + "`starttime` INT,"
                 + "`endtime` INT,"
-                + "PRIMARY KEY (`uuid`));";
+                + "PRIMARY KEY (`uuid`));"
+                 */;
 
         Statement update = c.createStatement();
         update.execute(createdb);
