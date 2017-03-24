@@ -1,10 +1,7 @@
 package net.nifheim.broxxx.coins;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.nifheim.broxxx.coins.command.CoinsCommand;
@@ -40,8 +37,8 @@ public class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         /*
-        Test
-        */
+        Test with messages
+         */
         this.loadMessages();
 
         instance = this;
@@ -50,10 +47,7 @@ public class Main extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new CommandListener(), this);
 
-        try {
-            SQLConnection();
-        } catch (Exception e) {
-        }
+        SQLConnection();
 
         /*
         Hook placeholders
@@ -137,12 +131,24 @@ public class Main extends JavaPlugin {
     private void loadMessages() {
         File messagesFile = new File(getDataFolder(), "messages.yml");
         if (!messagesFile.exists()) {
-            
+
         }
         FileConfiguration msgs = YamlConfiguration.loadConfiguration(messagesFile);
-        msgs.options().header("dlhjnkfkhflgjh");
+        msgs.options().header("Coins messages file");
         msgs.addDefault("Prefix", "&8&l[&c&lCoins&8&l]&7");
-        msgs.addDefault("#cfhgh", "");
+        msgs.createSection("Help");
+        /*
+        TODO: Help messages
+         */
+        msgs.createSection("Errors");
+        /*
+        TODO: Error messages
+         */
+        msgs.createSection("Coins");
+        /*
+        TODO: Coins command messages
+         */
+        msgs.options().copyDefaults();
         try {
             msgs.save(messagesFile);
         } catch (IOException ex) {
@@ -151,47 +157,27 @@ public class Main extends JavaPlugin {
     }
 
     /*
-    public void startMultiplierTime() {
-        if (startTime < 0) {
-            startTime = System.currentTimeMillis();
-        }
-    }
-
-    public String getMultiplierTime() {
-        clockTime = now - startTime;
-        Bukkit.getServer().getScheduler().scheduleAsyncRepeatingTask(Main.getInstance(), new Runnable() {
-            @Override
-            public void run() {
-                if (clockTime >= multiplierTime) {
-                    clockTime = multiplierTime;
-                    startTime = -1;
-                }
-            }
-        }, 0L, 20L);
-
         SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
-        return (df.format(multiplierTime - clockTime));
-    }
      */
     public void SQLConnection() {
         try {
             MySQL.Connect();
 
             if (!MySQL.getConnection().isClosed()) {
-                console.sendMessage(replacener("%prefix%Plugin conected sucesful to the MySQL."));
+                console.sendMessage(replacener("%prefix% Plugin conected sucesful to the MySQL."));
             }
         } catch (Exception e) {
-            console.sendMessage(replacener("%prefix%Can't connect to the database, disabling plugin..."));
+            console.sendMessage(replacener("%prefix% Can't connect to the database, disabling plugin..."));
             Bukkit.getServer().getPluginManager().disablePlugin(Main.getInstance());
         }
 
         Bukkit.getServer().getScheduler().scheduleAsyncRepeatingTask(Main.getInstance(), () -> {
-            console.sendMessage(replacener("%prefix%Checking the database connection ..."));
+            console.sendMessage(replacener("%prefix% Checking the database connection ..."));
             if (MySQL.getConnection() == null) {
-                console.sendMessage(replacener("%prefix%The database connection is null, reconnecting ..."));
+                console.sendMessage(replacener("%prefix% The database connection is null, reconnecting ..."));
                 MySQL.Reconnect();
             } else {
-                console.sendMessage(replacener("%prefix%The connection to the database is still active."));
+                console.sendMessage(replacener("%prefix% The connection to the database is still active."));
             }
         }, 0L, checkdb);
     }
