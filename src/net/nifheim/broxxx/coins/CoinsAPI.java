@@ -40,6 +40,7 @@ public class CoinsAPI {
         return 0;
     }
 
+    @Deprecated
     public static Integer getOfflineCoins(OfflinePlayer p) throws SQLException {
         String name;
         if (online()) {
@@ -84,6 +85,7 @@ public class CoinsAPI {
         }
     }
 
+    @Deprecated
     public static String getCoinsStringOffline(OfflinePlayer p) throws SQLException {
         String name;
         if (online()) {
@@ -128,6 +130,7 @@ public class CoinsAPI {
         }
     }
 
+    @Deprecated
     public static void addCoinsOffline(OfflinePlayer p, int coins) throws SQLException {
         String name;
         if (online()) {
@@ -178,6 +181,7 @@ public class CoinsAPI {
         }
     }
 
+    @Deprecated
     public static void takeCoinsOffline(OfflinePlayer p, int coins) throws SQLException {
         String name;
         if (online()) {
@@ -230,6 +234,7 @@ public class CoinsAPI {
         }
     }
 
+    @Deprecated
     public static void resetCoinsOffline(OfflinePlayer p) throws SQLException {
         String name;
         if (online()) {
@@ -266,6 +271,7 @@ public class CoinsAPI {
         }
     }
 
+    @Deprecated
     public static void setCoinsOffline(OfflinePlayer p, int coins) throws SQLException {
         String name;
         if (online()) {
