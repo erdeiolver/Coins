@@ -12,8 +12,7 @@ MySQL:
     Database: minecraft
     User: plugin
     Password: S3CUR3P4SSW0RD
-    
-Connection Interval: 1
+    Connection Interval: 5
 
 Messages:
     Prefix: "&8[&cCoins&8] &7"
