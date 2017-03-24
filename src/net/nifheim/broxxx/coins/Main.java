@@ -1,5 +1,12 @@
 package net.nifheim.broxxx.coins;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.nifheim.broxxx.coins.command.CoinsCommand;
 
 import net.nifheim.broxxx.coins.listener.PlayerJoinListener;
@@ -13,6 +20,8 @@ import net.nifheim.broxxx.coins.databasehandler.MySQL;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 public class Main extends JavaPlugin {
 
@@ -22,7 +31,7 @@ public class Main extends JavaPlugin {
     private PlaceholderAPI placeholderAPI;
 
     private static Main instance;
-    private final int checkdb = getConfig().getInt("Connection Interval") * 1200;
+    private final int checkdb = getConfig().getInt("MySQL.Connection Interval") * 1200;
 
     public static Main getInstance() {
         return instance;
@@ -30,6 +39,10 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        /*
+        Test
+        */
+        this.loadMessages();
 
         instance = this;
         saveDefaultConfig();
@@ -106,15 +119,35 @@ public class Main extends JavaPlugin {
     }
 
     private void loadConfig() {
-        getConfig().addDefault("version", "1");
-        getConfig().addDefault("Online Mode", "true");
-        getConfig().createSection("MySQL");
-        getConfig().addDefault("MySQL.Host", "localhost");
-        getConfig().addDefault("MySQL.Port", "3306");
-        getConfig().addDefault("MySQL.Database", "minecraft");
-        getConfig().addDefault("MySQL.User", "root");
-        getConfig().addDefault("MySQL.Password", "warlus");
-        getConfig().addDefault("Connection Invterval", 1);
+        if (getConfig() == null) {
+            getConfig().addDefault("version", "1");
+            getConfig().addDefault("Online Mode", "true");
+            getConfig().createSection("MySQL");
+            getConfig().addDefault("MySQL.Host", "localhost");
+            getConfig().addDefault("MySQL.Port", "3306");
+            getConfig().addDefault("MySQL.Database", "minecraft");
+            getConfig().addDefault("MySQL.User", "root");
+            getConfig().addDefault("MySQL.Password", "warlus");
+            getConfig().addDefault("MySQL.Connection Invterval", 1);
+            saveConfig();
+        }
+        saveConfig();
+    }
+
+    private void loadMessages() {
+        File messagesFile = new File(getDataFolder(), "messages.yml");
+        if (!messagesFile.exists()) {
+            
+        }
+        FileConfiguration msgs = YamlConfiguration.loadConfiguration(messagesFile);
+        msgs.options().header("dlhjnkfkhflgjh");
+        msgs.addDefault("Prefix", "&8&l[&c&lCoins&8&l]&7");
+        msgs.addDefault("#cfhgh", "");
+        try {
+            msgs.save(messagesFile);
+        } catch (IOException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Can't save messages file", ex);
+        }
     }
 
     /*
@@ -139,8 +172,7 @@ public class Main extends JavaPlugin {
         SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
         return (df.format(multiplierTime - clockTime));
     }
-    */
-
+     */
     public void SQLConnection() {
         try {
             MySQL.Connect();

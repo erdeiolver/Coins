@@ -1,6 +1,5 @@
 package net.nifheim.broxxx.coins.listener;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,18 +35,18 @@ public class PlayerJoinListener implements Listener {
 
                 Connection c = MySQL.getConnection();
                 Statement check = null;
-                try {
-                    check = c.createStatement();
-                } catch (SQLException ex) {
-                    Logger.getLogger(PlayerJoinListener.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                check = c.createStatement();
                 ResultSet res = check.executeQuery("SELECT player FROM Coins WHERE player = '" + name + "';");
                 if (!res.next()) {
                     Statement update = c.createStatement();
                     update.executeUpdate("INSERT INTO Coins VALUES ('" + name + "',0);");
                 }
             } catch (SQLException ex) {
-                Logger.getLogger(PlayerJoinListener.class.getName()).log(Level.SEVERE, null, ex);
+                if (ex.getSQLState().equals("closed")) {
+                    Logger.getLogger(PlayerJoinListener.class.getName()).log(Level.WARNING, "Seems that the database connection is closed.");
+                } else {
+                    Logger.getLogger(PlayerJoinListener.class.getName()).log(Level.WARNING, "Something was wrong executing this command, the error code is: " + ex.getErrorCode(), ex);
+                }
             }
         }, 5L);
     }
