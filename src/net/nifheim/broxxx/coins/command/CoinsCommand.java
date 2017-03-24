@@ -312,13 +312,13 @@ public class CoinsCommand implements CommandExecutor {
                     OfflinePlayer targetOffline = Bukkit.getServer().getOfflinePlayer(args[1]);
                     if (CoinsAPI.isindb(targetOffline)) {
                         CoinsAPI.setCoinsOffline(targetOffline, coins);
-                        sender.sendMessage(rep(config.getString("Messages.Coins.Set").replaceAll("%target%", targetOffline.getName().replaceAll("%coins%", String.valueOf(coins)))));
+                        sender.sendMessage(rep(config.getString("Messages.Coins.Set").replaceAll("%target%", targetOffline.getName()).replaceAll("%coins%", String.valueOf(coins))));
                     } else {
                         sender.sendMessage(rep(config.getString("Messages.Errors.Unknow player").replaceAll("%target%", targetOffline.getName())));
                     }
                 } else if (target.isOnline()) {
                     CoinsAPI.setCoins(target, coins);
-                    sender.sendMessage(rep(config.getString("Messages.Coins.Set").replaceAll("%target%", target.getName().replaceAll("%coins%", String.valueOf(coins)))));
+                    sender.sendMessage(rep(config.getString("Messages.Coins.Set").replaceAll("%target%", target.getName()).replaceAll("%coins%", String.valueOf(coins))));
                     target.sendMessage(rep(config.getString("Messages.Coins.Set target").replaceAll("%coins%", args[2])));
                     return true;
                 }
