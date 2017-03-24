@@ -1,9 +1,13 @@
 package net.nifheim.broxxx.coins;
 
+import java.sql.SQLException;
+
 import java.io.File;
 import java.io.IOException;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.nifheim.broxxx.coins.command.CoinsCommand;
 
 import net.nifheim.broxxx.coins.listener.PlayerJoinListener;
@@ -122,6 +126,7 @@ public class Main extends JavaPlugin {
             getConfig().addDefault("MySQL.Database", "minecraft");
             getConfig().addDefault("MySQL.User", "root");
             getConfig().addDefault("MySQL.Password", "warlus");
+            getConfig().addDefault("MySQL.Prefix", "");
             getConfig().addDefault("MySQL.Connection Invterval", 1);
             saveConfig();
         }
@@ -166,7 +171,9 @@ public class Main extends JavaPlugin {
             if (!MySQL.getConnection().isClosed()) {
                 console.sendMessage(replacener("%prefix% Plugin conected sucesful to the MySQL."));
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Something was wrong with the connection, the error code is: " + e.getErrorCode(), e);
+            Bukkit.getScheduler().cancelTasks(this);
             console.sendMessage(replacener("%prefix% Can't connect to the database, disabling plugin..."));
             Bukkit.getServer().getPluginManager().disablePlugin(Main.getInstance());
         }
