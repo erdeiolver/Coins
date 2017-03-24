@@ -286,7 +286,7 @@ public class CoinsAPI {
 
         if (res.getString("player") != null) {
             Statement update = c.createStatement();
-            update.executeUpdate("UPDATE Coins SET balance =" + coins + "WHERE player =" + name + ";");
+            update.executeUpdate("UPDATE Coins SET balance =" + coins + "WHERE player = '" + name + "';");
         }
     }
 
