@@ -23,7 +23,7 @@ public class PlayerJoinListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
-        Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {
+        Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
             try {
                 Player p = e.getPlayer();
                 String name = null;
@@ -36,16 +36,16 @@ public class PlayerJoinListener implements Listener {
                 Connection c = MySQL.getConnection();
                 Statement check = null;
                 check = c.createStatement();
-                ResultSet res = check.executeQuery("SELECT player FROM Coins WHERE player = '" + name + "';");
+                ResultSet res = check.executeQuery("SELECT uuid FROM Coins WHERE uuid = '" + name + "';");
                 if (!res.next()) {
                     Statement update = c.createStatement();
-                    update.executeUpdate("INSERT INTO Coins VALUES ('" + name + "',0);");
+                    update.executeUpdate("INSERT INTO Coins VALUES ('" + p.getUniqueId() +"', '"+ p.getName() + "', 0, " + System.currentTimeMillis() + ");");
                 }
             } catch (SQLException ex) {
                 if (ex.getSQLState().equals("closed")) {
                     Logger.getLogger(PlayerJoinListener.class.getName()).log(Level.WARNING, "Seems that the database connection is closed.");
                 } else {
-                    Logger.getLogger(PlayerJoinListener.class.getName()).log(Level.WARNING, "Something was wrong executing this command, the error code is: " + ex.getErrorCode(), ex);
+                    Logger.getLogger(PlayerJoinListener.class.getName()).log(Level.WARNING, "Something was wrong executing this command, the error code is: " + ex.getErrorCode(), ex.getCause());
                 }
             }
         }, 5L);

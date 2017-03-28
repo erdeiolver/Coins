@@ -126,7 +126,7 @@ public class Main extends JavaPlugin {
             getConfig().addDefault("MySQL.Database", "minecraft");
             getConfig().addDefault("MySQL.User", "root");
             getConfig().addDefault("MySQL.Password", "warlus");
-            getConfig().addDefault("MySQL.Prefix", "");
+            getConfig().addDefault("MySQL.Prefix", "Coins_");
             getConfig().addDefault("MySQL.Connection Invterval", 1);
             saveConfig();
         }
@@ -135,25 +135,27 @@ public class Main extends JavaPlugin {
 
     private void loadMessages() {
         File messagesFile = new File(getDataFolder(), "messages.yml");
-        if (!messagesFile.exists()) {
-
-        }
         FileConfiguration msgs = YamlConfiguration.loadConfiguration(messagesFile);
-        msgs.options().header("Coins messages file");
-        msgs.addDefault("Prefix", "&8&l[&c&lCoins&8&l]&7");
-        msgs.createSection("Help");
-        /*
-        TODO: Help messages
-         */
-        msgs.createSection("Errors");
-        /*
-        TODO: Error messages
-         */
-        msgs.createSection("Coins");
-        /*
-        TODO: Coins command messages
-         */
-        msgs.options().copyDefaults();
+        if (!messagesFile.exists()) {
+            msgs.options().header("-------------------- #\n"
+                    + "Coins messages file #");
+            msgs.addDefault("Prefix", "&8&l[&c&lCoins&8&l]&7");
+            msgs.createSection("Help");
+            msgs.addDefault("Help.asd", "asdad");
+            /*
+            TODO: Help messages
+             */
+            msgs.createSection("Errors");
+            /*
+            TODO: Error messages
+             */
+            msgs.createSection("Coins");
+            /*
+            TODO: Coins command messages
+             */
+            msgs.options().copyDefaults();
+        }
+
         try {
             msgs.save(messagesFile);
         } catch (IOException ex) {
@@ -178,7 +180,7 @@ public class Main extends JavaPlugin {
             Bukkit.getServer().getPluginManager().disablePlugin(Main.getInstance());
         }
 
-        Bukkit.getServer().getScheduler().scheduleAsyncRepeatingTask(Main.getInstance(), () -> {
+        Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(Main.getInstance(), () -> {
             console.sendMessage(replacener("%prefix% Checking the database connection ..."));
             if (MySQL.getConnection() == null) {
                 console.sendMessage(replacener("%prefix% The database connection is null, reconnecting ..."));

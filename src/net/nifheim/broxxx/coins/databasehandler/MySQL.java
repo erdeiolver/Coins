@@ -35,25 +35,26 @@ public class MySQL {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
         }
         c = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + name + "?autoReconnect=true", user, passwd);
-        String createdb
+        String createData
                 = "CREATE TABLE IF NOT EXISTS `" + prefix + "Data`"
                 + "(`uuid` VARCHAR(50) NOT NULL,"
                 + "`nick` VARCHAR (50) NOT NULL,"
                 + "`balance` DOUBLE NOT NULL,"
                 + "`lastlogin` INT NOT NULL,"
-                + "PRIMARY KEY (`uuid`));" /*
-                + "CREATE TABLE IF NOT EXISTS `" + prefix + "Multipliers`"
+                + "PRIMARY KEY (`uuid`));";
+        String createMultiplier
+                = "CREATE TABLE IF NOT EXISTS `" + prefix + "Multipliers`"
                 + "(`uuid` VARCHAR(50) NOT NULL,"
                 + "`nick` VARCHAR (50) NOT NULL,"
                 + "`multipliers` VARCHAR(666),"
                 + "`active` INT,"
                 + "`starttime` INT,"
                 + "`endtime` INT,"
-                + "PRIMARY KEY (`uuid`));"
-                 */;
+                + "PRIMARY KEY (`uuid`));";
 
         Statement update = c.createStatement();
-        update.execute(createdb);
+        update.execute(createData);
+        update.execute(createMultiplier);
     }
 
     public static void Reconnect() {

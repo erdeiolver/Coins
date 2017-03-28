@@ -20,7 +20,14 @@ public class CoinsAPI {
         return config.getBoolean("Online Mode");
     }
 
-    public static Integer getCoins(Player p) throws SQLException {
+    /**
+     * Get the coins of a Online Player.
+     *
+     * @param p Player to get the coins.
+     * @return
+     * @throws SQLException
+     */
+    public static Double getCoins(Player p) throws SQLException {
         String name;
         if (online()) {
             name = p.getUniqueId().toString();
@@ -33,15 +40,23 @@ public class CoinsAPI {
         res.next();
 
         if (res.getString("player") != null) {
-            int coins = res.getInt("balance");
+            double coins = res.getDouble("balance");
 
             return coins;
         }
-        return 0;
+        return 0.0;
     }
 
+    /**
+     * Get the coins of a Offline Player.
+     *
+     * @param p Player to get the coins.
+     * @return
+     * @throws SQLException
+     * @deprecated Avoid using this method.
+     */
     @Deprecated
-    public static Integer getOfflineCoins(OfflinePlayer p) throws SQLException {
+    public static Double getOfflineCoins(OfflinePlayer p) throws SQLException {
         String name;
         if (online()) {
             name = p.getUniqueId().toString();
@@ -54,13 +69,20 @@ public class CoinsAPI {
         res.next();
 
         if (res.getString("player") != null) {
-            int coins = res.getInt("balance");
+            double coins = res.getDouble("balance");
 
             return coins;
         }
-        return 0;
+        return 0.0;
     }
 
+    /**
+     * Get the coins String of a Online Player.
+     *
+     * @param p Player to get the coins string.
+     * @return
+     * @throws SQLException
+     */
     public static String getCoinsString(Player p) throws SQLException {
         String name;
         if (online()) {
@@ -74,7 +96,7 @@ public class CoinsAPI {
         res.next();
 
         if (res.getString("player") != null) {
-            int coins = res.getInt("balance");
+            double coins = res.getDouble("balance");
             if (coins == 0) {
                 return "0";
             } else {
@@ -85,6 +107,14 @@ public class CoinsAPI {
         }
     }
 
+    /**
+     * Get the coins String of a Offline Player.
+     *
+     * @param p Player to get the coins string.
+     * @return
+     * @throws SQLException
+     * @deprecated
+     */
     @Deprecated
     public static String getCoinsStringOffline(OfflinePlayer p) throws SQLException {
         String name;
@@ -99,7 +129,7 @@ public class CoinsAPI {
         res.next();
 
         if (res.getString("player") != null) {
-            int coins = res.getInt("balance");
+            double coins = res.getDouble("balance");
             if (coins == 0) {
                 return "0";
             } else {
@@ -110,7 +140,14 @@ public class CoinsAPI {
         }
     }
 
-    public static void addCoins(Player p, int coins) throws SQLException {
+    /**
+     * Add coins to a Online Player.
+     *
+     * @param p The player to add the coins.
+     * @param coins The coins to add.
+     * @throws SQLException
+     */
+    public static void addCoins(Player p, double coins) throws SQLException {
         String name;
         if (online()) {
             name = p.getUniqueId().toString();
@@ -123,15 +160,23 @@ public class CoinsAPI {
         res.next();
 
         if (res.getString("player") != null) {
-            int oldCoins = res.getInt("balance");
+            double oldCoins = res.getDouble("balance");
 
             Statement update = c.createStatement();
             update.executeUpdate("UPDATE Coins SET balance = " + (oldCoins + (coins * config.getInt("Multiplier"))) + " WHERE player = '" + name + "';");
         }
     }
 
+    /**
+     * Add coins to a Offline Player.
+     *
+     * @param p
+     * @param coins
+     * @throws SQLException
+     * @deprecated
+     */
     @Deprecated
-    public static void addCoinsOffline(OfflinePlayer p, int coins) throws SQLException {
+    public static void addCoinsOffline(OfflinePlayer p, double coins) throws SQLException {
         String name;
         if (online()) {
             name = p.getUniqueId().toString();
@@ -144,14 +189,21 @@ public class CoinsAPI {
         res.next();
 
         if (res.getString("player") != null) {
-            int oldCoins = res.getInt("balance");
+            double oldCoins = res.getDouble("balance");
 
             Statement update = c.createStatement();
             update.executeUpdate("UPDATE Coins SET balance = " + (oldCoins + coins) + " WHERE player = '" + name + "';");
         }
     }
 
-    public static void takeCoins(Player p, int coins) throws SQLException {
+    /**
+     * Take coins of a Online Player.
+     *
+     * @param p
+     * @param coins
+     * @throws SQLException
+     */
+    public static void takeCoins(Player p, double coins) throws SQLException {
         String name;
         if (online()) {
             name = p.getUniqueId().toString();
@@ -162,9 +214,8 @@ public class CoinsAPI {
         Statement check = c.createStatement();
         ResultSet res = check.executeQuery("SELECT * FROM Coins WHERE player = '" + name + "';");
         res.next();
-        int beforeCoins = res.getInt("balance");
+        double beforeCoins = res.getDouble("balance");
         if (res.getString("player") != null) {
-            /*int beforeCoins = res.getInt("balance");*/
 
             if (beforeCoins - coins < 0) {
                 if (!config.getBoolean("Allow Negative")) {
@@ -181,8 +232,16 @@ public class CoinsAPI {
         }
     }
 
+    /**
+     * Take coins of a Offline Player.
+     *
+     * @param p
+     * @param coins
+     * @throws SQLException
+     * @deprecated
+     */
     @Deprecated
-    public static void takeCoinsOffline(OfflinePlayer p, int coins) throws SQLException {
+    public static void takeCoinsOffline(OfflinePlayer p, double coins) throws SQLException {
         String name;
         if (online()) {
             name = p.getUniqueId().toString();
@@ -195,7 +254,7 @@ public class CoinsAPI {
         res.next();
 
         if (res.getString("player") != null) {
-            int beforeCoins = res.getInt("balance");
+            double beforeCoins = res.getDouble("balance");
 
             if (beforeCoins - coins < 0) {
                 if (!config.getBoolean("Allow Negative")) {
@@ -215,6 +274,12 @@ public class CoinsAPI {
         }
     }
 
+    /**
+     * Reset the coins of a Online Player.
+     *
+     * @param p
+     * @throws SQLException
+     */
     public static void resetCoins(Player p) throws SQLException {
         String name;
         if (online()) {
@@ -222,7 +287,7 @@ public class CoinsAPI {
         } else {
             name = p.getName();
         }
-        int newcoins = 0;
+        double newcoins = 0;
 
         Statement check = c.createStatement();
         ResultSet res = check.executeQuery("SELECT * FROM Coins WHERE player = '" + name + "';");
@@ -234,6 +299,13 @@ public class CoinsAPI {
         }
     }
 
+    /**
+     * Reset the coins of a Offline Player.
+     *
+     * @param p
+     * @throws SQLException
+     * @deprecated
+     */
     @Deprecated
     public static void resetCoinsOffline(OfflinePlayer p) throws SQLException {
         String name;
@@ -253,7 +325,14 @@ public class CoinsAPI {
         }
     }
 
-    public static void setCoins(Player p, int coins) throws SQLException {
+    /**
+     * Set the coins of a Online Player.
+     *
+     * @param p
+     * @param coins
+     * @throws SQLException
+     */
+    public static void setCoins(Player p, double coins) throws SQLException {
         String name;
         if (online()) {
             name = p.getUniqueId().toString();
@@ -271,8 +350,16 @@ public class CoinsAPI {
         }
     }
 
+    /**
+     * Set the coins of a Offline Player
+     *
+     * @param p
+     * @param coins
+     * @throws SQLException
+     * @deprecated
+     */
     @Deprecated
-    public static void setCoinsOffline(OfflinePlayer p, int coins) throws SQLException {
+    public static void setCoinsOffline(OfflinePlayer p, double coins) throws SQLException {
         String name;
         if (online()) {
             name = p.getUniqueId().toString();
@@ -290,6 +377,13 @@ public class CoinsAPI {
         }
     }
 
+    /**
+     * Get if the Offline Player is in the database.
+     *
+     * @param p
+     * @return
+     * @throws SQLException
+     */
     public static boolean isindb(OfflinePlayer p) throws SQLException {
         String name;
         if (online()) {
@@ -306,6 +400,13 @@ public class CoinsAPI {
         return res.getString("player") != null;
     }
 
+    /**
+     * Get the top players in coins data.
+     *
+     * @param top
+     * @return
+     * @throws SQLException
+     */
     public static ResultSet getDataTop(int top) throws SQLException {
         Statement check = c.createStatement();
         ResultSet res = check.executeQuery("SELECT * FROM Coins ORDER BY balance DESC LIMIT " + top + ";");
