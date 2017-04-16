@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.nifheim.broxxx.coins.Main;
 
@@ -13,9 +15,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 public class MySQL {
 
-    static FileConfiguration config = Main.getInstance().getConfig();
-    final ConsoleCommandSender console = Bukkit.getConsoleSender();
-    private Main plugin;
+    private static final FileConfiguration config = Main.getInstance().getConfig();
+    private static final ConsoleCommandSender console = Bukkit.getConsoleSender();
+    private static Main plugin;
 
     private static final String host = config.getString("MySQL.Host");
     private static final int port = config.getInt("MySQL.Port");
@@ -23,10 +25,36 @@ public class MySQL {
     private static final String user = config.getString("MySQL.User");
     private static final String passwd = config.getString("MySQL.Password");
     private static final String prefix = config.getString("MySQL.Prefix");
+    private static final int checkdb = config.getInt("MySQL.Connection Interval") * 1200;
     private static Connection c;
 
     public static Connection getConnection() {
         return c;
+    }
+
+    public static void SQLConnection() {
+        try {
+            MySQL.Connect();
+
+            if (!MySQL.getConnection().isClosed()) {
+                console.sendMessage(plugin.rep("%prefix% Plugin conected sucesful to the MySQL."));
+            }
+        } catch (SQLException e) {
+            Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Something was wrong with the connection, the error code is: " + e.getErrorCode(), e);
+            Bukkit.getScheduler().cancelTasks(Main.getInstance());
+            console.sendMessage(plugin.rep("%prefix% Can't connect to the database, disabling plugin..."));
+            Bukkit.getServer().getPluginManager().disablePlugin(Main.getInstance());
+        }
+
+        Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(Main.getInstance(), () -> {
+            console.sendMessage(plugin.rep("%prefix% Checking the database connection ..."));
+            if (MySQL.getConnection() == null) {
+                console.sendMessage(plugin.rep("%prefix% The database connection is null, reconnecting ..."));
+                MySQL.Reconnect();
+            } else {
+                console.sendMessage(plugin.rep("%prefix% The connection to the database is still active."));
+            }
+        }, 0L, checkdb);
     }
 
     public static void Connect() throws SQLException {
@@ -38,19 +66,19 @@ public class MySQL {
         String createData
                 = "CREATE TABLE IF NOT EXISTS `" + prefix + "Data`"
                 + "(`uuid` VARCHAR(50) NOT NULL,"
-                + "`nick` VARCHAR (50) NOT NULL,"
+                + "`nick` VARCHAR(50) NOT NULL,"
                 + "`balance` DOUBLE NOT NULL,"
                 + "`lastlogin` INT NOT NULL,"
                 + "PRIMARY KEY (`uuid`));";
         String createMultiplier
                 = "CREATE TABLE IF NOT EXISTS `" + prefix + "Multipliers`"
-                + "(`uuid` VARCHAR(50) NOT NULL,"
-                + "`nick` VARCHAR (50) NOT NULL,"
-                + "`multipliers` VARCHAR(666),"
-                + "`active` INT,"
+                + "(`id` INT NOT NULL AUTO_INCREMENT,"
+                + "`uuid` VARCHAR(50) NOT NULL,"
+                + "`multiplier` INT,"
+                + "`queue` INT,"
                 + "`starttime` INT,"
                 + "`endtime` INT,"
-                + "PRIMARY KEY (`uuid`));";
+                + "PRIMARY KEY (`id`));";
 
         Statement update = c.createStatement();
         update.execute(createData);
@@ -60,7 +88,7 @@ public class MySQL {
     public static void Reconnect() {
         Disconnect();
 
-        Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(Main.getInstance(), () -> {
+        Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
             try {
                 Connect();
             } catch (SQLException ex) {

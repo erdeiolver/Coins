@@ -14,7 +14,7 @@ public class CommandListener implements Listener {
 
     //    private Main plugin;
     private final FileConfiguration config = Main.getInstance().getConfig();
-    private static CoinsAPI api;
+    private Main plugin;
 
     @EventHandler
     public void onCommandEvent(PlayerCommandPreprocessEvent e) throws SQLException {
@@ -22,7 +22,7 @@ public class CommandListener implements Listener {
         if (config.getInt("Command Cost." + msg) != 0) {
             if (CoinsAPI.getCoins(e.getPlayer()) < config.getInt("Command Cost." + msg)) {
                 e.setCancelled(true);
-                e.getPlayer().sendMessage(Main.getInstance().replacener(config.getString("Messages.Errors.No Coins")));
+                e.getPlayer().sendMessage(plugin.rep(config.getString("Messages.Errors.No Coins")));
             } else {
                 CoinsAPI.takeCoins(e.getPlayer(), config.getInt("Command Cost." + msg));
             }

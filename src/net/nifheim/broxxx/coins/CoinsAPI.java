@@ -11,10 +11,15 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
+/**
+ *
+ * @author Beelzebu
+ */
 public class CoinsAPI {
 
     private static final FileConfiguration config = Main.getInstance().getConfig();
     private static final Connection c = MySQL.getConnection();
+    private static final String prefix = config.getString("MySQL.Prefix");
 
     private static boolean online() {
         return config.getBoolean("Online Mode");
@@ -36,7 +41,7 @@ public class CoinsAPI {
         }
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM Coins WHERE player = '" + name + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
         res.next();
 
         if (res.getString("player") != null) {
@@ -65,7 +70,7 @@ public class CoinsAPI {
         }
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM Coins WHERE player = '" + name + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
         res.next();
 
         if (res.getString("player") != null) {
@@ -92,7 +97,7 @@ public class CoinsAPI {
         }
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM Coins WHERE player = '" + name + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
         res.next();
 
         if (res.getString("player") != null) {
@@ -125,7 +130,7 @@ public class CoinsAPI {
         }
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM Coins WHERE player = '" + name + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
         res.next();
 
         if (res.getString("player") != null) {
@@ -156,14 +161,14 @@ public class CoinsAPI {
         }
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM Coins WHERE player ='" + name + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player ='" + name + "';");
         res.next();
 
         if (res.getString("player") != null) {
             double oldCoins = res.getDouble("balance");
 
             Statement update = c.createStatement();
-            update.executeUpdate("UPDATE Coins SET balance = " + (oldCoins + (coins * config.getInt("Multiplier"))) + " WHERE player = '" + name + "';");
+            update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + (oldCoins + coins) + " WHERE player = '" + name + "';");
         }
     }
 
@@ -185,14 +190,14 @@ public class CoinsAPI {
         }
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM Coins WHERE player ='" + name + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player ='" + name + "';");
         res.next();
 
         if (res.getString("player") != null) {
             double oldCoins = res.getDouble("balance");
 
             Statement update = c.createStatement();
-            update.executeUpdate("UPDATE Coins SET balance = " + (oldCoins + coins) + " WHERE player = '" + name + "';");
+            update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + (oldCoins + coins) + " WHERE player = '" + name + "';");
         }
     }
 
@@ -212,7 +217,7 @@ public class CoinsAPI {
         }
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM Coins WHERE player = '" + name + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
         res.next();
         double beforeCoins = res.getDouble("balance");
         if (res.getString("player") != null) {
@@ -220,14 +225,14 @@ public class CoinsAPI {
             if (beforeCoins - coins < 0) {
                 if (!config.getBoolean("Allow Negative")) {
                     Statement update = c.createStatement();
-                    update.executeUpdate("UPDATE Coins SET balance = 0 WHERE player = '" + name + "';");
+                    update.executeUpdate("UPDATE " + prefix + "Coins SET balance = 0 WHERE player = '" + name + "';");
                 }
             } else if (beforeCoins == coins) {
                 Statement update = c.createStatement();
-                update.executeUpdate("UPDATE Coins SET balance = 0 WHERE player = '" + name + "';");
+                update.executeUpdate("UPDATE " + prefix + "Coins SET balance = 0 WHERE player = '" + name + "';");
             } else if (beforeCoins > coins) {
                 Statement update = c.createStatement();
-                update.executeUpdate("UPDATE Coins SET balance = " + (beforeCoins - coins) + " WHERE player = '" + name + "';");
+                update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + (beforeCoins - coins) + " WHERE player = '" + name + "';");
             }
         }
     }
@@ -250,7 +255,7 @@ public class CoinsAPI {
         }
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM Coins WHERE player = '" + name + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
         res.next();
 
         if (res.getString("player") != null) {
@@ -262,14 +267,14 @@ public class CoinsAPI {
                 }
                 if (config.getBoolean("Allow Negative")) {
                     Statement bypassUpdate = c.createStatement();
-                    bypassUpdate.executeUpdate("UPDATE Coins SET balance = " + (beforeCoins - coins) + " WHERE player = '" + name + "';");
+                    bypassUpdate.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + (beforeCoins - coins) + " WHERE player = '" + name + "';");
                 }
             } else if (beforeCoins == coins) {
                 Statement update = c.createStatement();
-                update.executeUpdate("UPDATE Coins SET balance = 0 WHERE player = '" + name + "';");
+                update.executeUpdate("UPDATE " + prefix + "Coins SET balance = 0 WHERE player = '" + name + "';");
             } else if (beforeCoins > coins) {
                 Statement update = c.createStatement();
-                update.executeUpdate("UPDATE Coins SET balance = " + (beforeCoins - coins) + " WHERE player = '" + name + "';");
+                update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + (beforeCoins - coins) + " WHERE player = '" + name + "';");
             }
         }
     }
@@ -290,12 +295,12 @@ public class CoinsAPI {
         double newcoins = 0;
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM Coins WHERE player = '" + name + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
         res.next();
 
         if (res.getString("player") != null) {
             Statement update = c.createStatement();
-            update.executeUpdate("UPDATE Coins SET balance = " + newcoins + " WHERE player = '" + name + "';");
+            update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + newcoins + " WHERE player = '" + name + "';");
         }
     }
 
@@ -316,12 +321,12 @@ public class CoinsAPI {
         }
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM Coins WHERE player = '" + name + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
         res.next();
 
         if (res.getString("player") != null) {
             Statement update = c.createStatement();
-            update.executeUpdate("UPDATE Coins SET balance = 0 WHERE player = '" + name + "';");
+            update.executeUpdate("UPDATE " + prefix + "Coins SET balance = 0 WHERE player = '" + name + "';");
         }
     }
 
@@ -341,12 +346,12 @@ public class CoinsAPI {
         }
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM Coins WHERE player = '" + name + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
         res.next();
 
         if (res.getString("player") != null) {
             Statement update = c.createStatement();
-            update.executeUpdate("UPDATE Coins SET balance = " + coins + " WHERE player = '" + name + "';");
+            update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + coins + " WHERE player = '" + name + "';");
         }
     }
 
@@ -368,12 +373,12 @@ public class CoinsAPI {
         }
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM Coins WHERE player = '" + name + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
         res.next();
 
         if (res.getString("player") != null) {
             Statement update = c.createStatement();
-            update.executeUpdate("UPDATE Coins SET balance = " + coins + " WHERE player = '" + name + "';");
+            update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + coins + " WHERE player = '" + name + "';");
         }
     }
 
@@ -394,7 +399,7 @@ public class CoinsAPI {
 
         Statement check = c.createStatement();
 
-        ResultSet res = check.executeQuery("SELECT * FROM Coins WHERE player = '" + name + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
         res.next();
 
         return res.getString("player") != null;

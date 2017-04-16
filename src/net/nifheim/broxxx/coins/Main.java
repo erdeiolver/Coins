@@ -3,7 +3,12 @@ package net.nifheim.broxxx.coins;
 import java.sql.SQLException;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,13 +31,16 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 public class Main extends JavaPlugin {
 
-    public static String replacener;
+    private final File messagesFile = new File(getDataFolder(), "messages.yml");
+    private final FileConfiguration messages = YamlConfiguration.loadConfiguration(messagesFile);
+
+    public static String rep;
     public final ConsoleCommandSender console = Bukkit.getConsoleSender();
 
     private PlaceholderAPI placeholderAPI;
 
     private static Main instance;
-    private final int checkdb = getConfig().getInt("MySQL.Connection Interval") * 1200;
+    private final MySQL mysql = new MySQL();
 
     public static Main getInstance() {
         return instance;
@@ -40,10 +48,7 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        /*
-        Test with messages
-         */
-        this.loadMessages();
+        this.loadManagers();
 
         instance = this;
         saveDefaultConfig();
@@ -51,40 +56,25 @@ public class Main extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new CommandListener(), this);
 
-        SQLConnection();
+        MySQL.SQLConnection();
 
-        /*
-        Hook placeholders
-         */
-        if (getServer().getPluginManager().isPluginEnabled("MVdWPlaceholderAPI")) {
-            console.sendMessage(replacener("%prefix% MVdWPlaceholderAPI found, hooking in this."));
-            MVdWPlaceholderAPIHook.hook(this);
-        }
-        if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-            console.sendMessage(replacener("%prefix% PlaceholderAPI found, hooking in this."));
-            placeholderAPI = new PlaceholderAPI(this);
-            placeholderAPI.hook();
-        }
-
-        /*
-        Console message
-         */
+        // Console message
         if (this.getDescription().getVersion().contains("BETA")) {
-            console.sendMessage(replacener(""));
-            console.sendMessage(replacener("    §c+=======================+"));
-            console.sendMessage(replacener("    §c|   §4Coins §fBy: §7Broxxx§c    |"));
-            console.sendMessage(replacener("    §c|-----------------------|"));
-            console.sendMessage(replacener("    §c|     §4v:§f" + getDescription().getVersion() + "      §c|"));
-            console.sendMessage(replacener("    §c+=======================+"));
-            console.sendMessage(replacener(""));
+            console.sendMessage(rep(""));
+            console.sendMessage(rep("    §c+=======================+"));
+            console.sendMessage(rep("    §c|   §4Coins §fBy: §7Broxxx§c    |"));
+            console.sendMessage(rep("    §c|-----------------------|"));
+            console.sendMessage(rep("    §c|     §4v:§f" + getDescription().getVersion() + "      §c|"));
+            console.sendMessage(rep("    §c+=======================+"));
+            console.sendMessage(rep(""));
         } else {
-            console.sendMessage(replacener(""));
-            console.sendMessage(replacener("    §c+==================+"));
-            console.sendMessage(replacener("    §c| §4Coins §fBy: §7Broxxx§c |"));
-            console.sendMessage(replacener("    §c|------------------|"));
-            console.sendMessage(replacener("    §c|     §4v:§f" + getDescription().getVersion() + "      §c|"));
-            console.sendMessage(replacener("    §c+==================+"));
-            console.sendMessage(replacener(""));
+            console.sendMessage(rep(""));
+            console.sendMessage(rep("    §c+==================+"));
+            console.sendMessage(rep("    §c| §4Coins §fBy: §7Broxxx§c |"));
+            console.sendMessage(rep("    §c|------------------|"));
+            console.sendMessage(rep("    §c|     §4v:§f" + getDescription().getVersion() + "      §c|"));
+            console.sendMessage(rep("    §c+==================+"));
+            console.sendMessage(rep(""));
         }
     }
 
@@ -98,101 +88,64 @@ public class Main extends JavaPlugin {
         Bukkit.getScheduler().cancelTasks(this);
 
         if (this.getDescription().getVersion().contains("BETA")) {
-            console.sendMessage(replacener(""));
-            console.sendMessage(replacener("    §c+=======================+"));
-            console.sendMessage(replacener("    §c|   §4Coins §fBy: §7Broxxx§c    |"));
-            console.sendMessage(replacener("    §c|-----------------------|"));
-            console.sendMessage(replacener("    §c|     §4v:§f" + getDescription().getVersion() + "      §c|"));
-            console.sendMessage(replacener("    §c+=======================+"));
-            console.sendMessage(replacener(""));
+            console.sendMessage(rep(""));
+            console.sendMessage(rep("    §c+=======================+"));
+            console.sendMessage(rep("    §c|   §4Coins §fBy: §7Broxxx§c    |"));
+            console.sendMessage(rep("    §c|-----------------------|"));
+            console.sendMessage(rep("    §c|     §4v:§f" + getDescription().getVersion() + "      §c|"));
+            console.sendMessage(rep("    §c+=======================+"));
+            console.sendMessage(rep(""));
         } else {
-            console.sendMessage(replacener(""));
-            console.sendMessage(replacener("    §c+==================+"));
-            console.sendMessage(replacener("    §c| §4Coins §fBy: §7Broxxx§c |"));
-            console.sendMessage(replacener("    §c|------------------|"));
-            console.sendMessage(replacener("    §c|     §4v:§f" + getDescription().getVersion() + "      §c|"));
-            console.sendMessage(replacener("    §c+==================+"));
-            console.sendMessage(replacener(""));
+            console.sendMessage(rep(""));
+            console.sendMessage(rep("    §c+==================+"));
+            console.sendMessage(rep("    §c| §4Coins §fBy: §7Broxxx§c |"));
+            console.sendMessage(rep("    §c|------------------|"));
+            console.sendMessage(rep("    §c|     §4v:§f" + getDescription().getVersion() + "      §c|"));
+            console.sendMessage(rep("    §c+==================+"));
+            console.sendMessage(rep(""));
         }
     }
 
-    private void loadConfig() {
-        if (getConfig() == null) {
-            getConfig().addDefault("version", "1");
-            getConfig().addDefault("Online Mode", "true");
-            getConfig().createSection("MySQL");
-            getConfig().addDefault("MySQL.Host", "localhost");
-            getConfig().addDefault("MySQL.Port", "3306");
-            getConfig().addDefault("MySQL.Database", "minecraft");
-            getConfig().addDefault("MySQL.User", "root");
-            getConfig().addDefault("MySQL.Password", "warlus");
-            getConfig().addDefault("MySQL.Prefix", "Coins_");
-            getConfig().addDefault("MySQL.Connection Invterval", 1);
-            saveConfig();
-        }
-        saveConfig();
-    }
-
-    private void loadMessages() {
-        File messagesFile = new File(getDataFolder(), "messages.yml");
-        FileConfiguration msgs = YamlConfiguration.loadConfiguration(messagesFile);
+    private void loadManagers() {
         if (!messagesFile.exists()) {
-            msgs.options().header("-------------------- #\n"
-                    + "Coins messages file #");
-            msgs.addDefault("Prefix", "&8&l[&c&lCoins&8&l]&7");
-            msgs.createSection("Help");
-            msgs.addDefault("Help.asd", "asdad");
-            /*
-            TODO: Help messages
-             */
-            msgs.createSection("Errors");
-            /*
-            TODO: Error messages
-             */
-            msgs.createSection("Coins");
-            /*
-            TODO: Coins command messages
-             */
-            msgs.options().copyDefaults();
+            copy(getResource("messages.yml"), messagesFile);
         }
-
-        try {
-            msgs.save(messagesFile);
-        } catch (IOException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Can't save messages file", ex);
+        // Hook placeholders
+        if (getServer().getPluginManager().isPluginEnabled("MVdWPlaceholderAPI")) {
+            console.sendMessage(rep("&8[&cCoins&8] &7MVdWPlaceholderAPI found, hooking in this."));
+            MVdWPlaceholderAPIHook.hook(this);
+        }
+        if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            console.sendMessage(rep("&8[&cCoins&8] &7PlaceholderAPI found, hooking in this."));
+            placeholderAPI = new PlaceholderAPI(this);
+            placeholderAPI.hook();
         }
     }
 
-    /*
-        SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
-     */
-    public void SQLConnection() {
-        try {
-            MySQL.Connect();
+    // SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
 
-            if (!MySQL.getConnection().isClosed()) {
-                console.sendMessage(replacener("%prefix% Plugin conected sucesful to the MySQL."));
-            }
-        } catch (SQLException e) {
-            Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Something was wrong with the connection, the error code is: " + e.getErrorCode(), e);
-            Bukkit.getScheduler().cancelTasks(this);
-            console.sendMessage(replacener("%prefix% Can't connect to the database, disabling plugin..."));
-            Bukkit.getServer().getPluginManager().disablePlugin(Main.getInstance());
-        }
-
-        Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(Main.getInstance(), () -> {
-            console.sendMessage(replacener("%prefix% Checking the database connection ..."));
-            if (MySQL.getConnection() == null) {
-                console.sendMessage(replacener("%prefix% The database connection is null, reconnecting ..."));
-                MySQL.Reconnect();
-            } else {
-                console.sendMessage(replacener("%prefix% The connection to the database is still active."));
-            }
-        }, 0L, checkdb);
+    public FileConfiguration getMessages() {
+        return messages;
     }
 
-    public String replacener(String str) {
-        return str.replaceAll("%prefix%", getConfig().getString("Messages.Prefix"))
+    public String rep(String str) {
+        return str
+                .replaceAll("%prefix%", messages.getString("Prefix"))
                 .replaceAll("&", "§");
+    }
+
+    public void copy(InputStream in, File file) {
+        try {
+            OutputStream out = new FileOutputStream(file);
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            out.close();
+            in.close();
+        } catch (Exception e) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Can't copy the file " + file.getName() + " to the plugin data folder.", e.getCause());
+        }
     }
 }
