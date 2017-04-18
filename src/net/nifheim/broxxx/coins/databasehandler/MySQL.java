@@ -32,7 +32,7 @@ public class MySQL {
         return c;
     }
 
-    public static void SQLConnection() {
+    public void SQLConnection() {
         try {
             MySQL.Connect();
 
