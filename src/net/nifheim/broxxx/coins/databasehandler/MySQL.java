@@ -34,7 +34,7 @@ public class MySQL {
 
     public void SQLConnection() {
         try {
-            MySQL.Connect();
+            Connect();
 
             if (!MySQL.getConnection().isClosed()) {
                 console.sendMessage(plugin.rep("%prefix% Plugin conected sucesful to the MySQL."));
@@ -50,14 +50,14 @@ public class MySQL {
             console.sendMessage(plugin.rep("%prefix% Checking the database connection ..."));
             if (MySQL.getConnection() == null) {
                 console.sendMessage(plugin.rep("%prefix% The database connection is null, reconnecting ..."));
-                MySQL.Reconnect();
+                Reconnect();
             } else {
                 console.sendMessage(plugin.rep("%prefix% The connection to the database is still active."));
             }
         }, 0L, checkdb);
     }
 
-    public static void Connect() throws SQLException {
+    private void Connect() throws SQLException {
         try {
             Class.forName("com.mysql.jdbc.Driver").newInstance();
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
@@ -85,7 +85,7 @@ public class MySQL {
         update.execute(createMultiplier);
     }
 
-    public static void Reconnect() {
+    public void Reconnect() {
         Disconnect();
 
         Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
@@ -96,7 +96,7 @@ public class MySQL {
         }, 20L);
     }
 
-    public static void Disconnect() {
+    private void Disconnect() {
         try {
             if (c != null) {
                 c.close();

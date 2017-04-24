@@ -35,7 +35,7 @@ public class Main extends JavaPlugin {
     private PlaceholderAPI placeholderAPI;
 
     private static Main instance;
-    private final MySQL mysql = new MySQL();
+    public static MySQL mysql;
 
     public static Main getInstance() {
         return instance;
@@ -51,6 +51,7 @@ public class Main extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new CommandListener(), this);
 
+        mysql = new MySQL();
         mysql.SQLConnection();
 
         // Console message
@@ -75,10 +76,6 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
-
-        if (getConfig().getBoolean("Use MySQL")) {
-            MySQL.Disconnect();
-        }
 
         Bukkit.getScheduler().cancelTasks(this);
 
