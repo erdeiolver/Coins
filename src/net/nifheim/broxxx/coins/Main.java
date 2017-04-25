@@ -9,6 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.nifheim.broxxx.coins.command.CoinsCommand;
+import net.nifheim.broxxx.coins.databasehandler.FlatFile;
 
 import net.nifheim.broxxx.coins.listener.PlayerJoinListener;
 import net.nifheim.broxxx.coins.listener.CommandListener;
@@ -36,6 +37,7 @@ public class Main extends JavaPlugin {
 
     private static Main instance;
     public static MySQL mysql;
+    public static FlatFile ff;
 
     public static Main getInstance() {
         return instance;
@@ -51,8 +53,13 @@ public class Main extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new CommandListener(), this);
 
-        mysql = new MySQL();
-        mysql.SQLConnection();
+//        if (getConfig().getBoolean("MySQL.Use")) {
+            mysql = new MySQL();
+            mysql.SQLConnection();
+//        }
+//        else {
+//            ff = new FlatFile(this);
+//        }
 
         // Console message
         if (this.getDescription().getVersion().contains("BETA")) {
@@ -100,6 +107,7 @@ public class Main extends JavaPlugin {
 
     private void loadManagers() {
         if (!messagesFile.exists()) {
+            getDataFolder().mkdirs();
             copy(getResource("messages.yml"), messagesFile);
         }
         // Hook placeholders
@@ -115,7 +123,6 @@ public class Main extends JavaPlugin {
     }
 
     // SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
-
     public FileConfiguration getMessages() {
         return messages;
     }
@@ -137,7 +144,7 @@ public class Main extends JavaPlugin {
             out.close();
             in.close();
         } catch (Exception e) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Can't copy the file " + file.getName() + " to the plugin data folder.", e.getCause());
+            Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Can't copy the file " + file.getName() + " to the plugin data folder.", e.getCause());
         }
     }
 }

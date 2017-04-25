@@ -10,6 +10,7 @@ Online Mode: true
 
 # Here are the MySQL server settings.
 MySQL:
+#  Use: false
   Host: localhost
   Port: 3306
   Database: minecraft

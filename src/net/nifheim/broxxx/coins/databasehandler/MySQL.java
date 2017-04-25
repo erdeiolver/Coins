@@ -40,7 +40,7 @@ public class MySQL {
                 console.sendMessage(plugin.rep("%prefix% Plugin conected sucesful to the MySQL."));
             }
         } catch (SQLException e) {
-            Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Something was wrong with the connection, the error code is: " + e.getErrorCode(), e);
+            Logger.getLogger(MySQL.class.getName()).log(Level.WARNING, "Something was wrong with the connection, the error code is: " + e.getErrorCode(), e);
             Bukkit.getScheduler().cancelTasks(Main.getInstance());
             console.sendMessage(plugin.rep("%prefix% Can't connect to the database, disabling plugin..."));
             Bukkit.getServer().getPluginManager().disablePlugin(Main.getInstance());
