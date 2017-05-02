@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.nifheim.broxxx.coins.Main;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
@@ -42,28 +43,11 @@ public class FlatFile {
     }
 
     public void saveData() {
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new SaveFileTask(plugin));
-    }
-
-    private static class SaveFileTask implements Runnable {
-
-        private final Main plugin;
-
-        private SaveFileTask(Main plugin) {
-            this.plugin = plugin;
-        }
-
-        @Override
-        public void run() {
-
-            YamlConfiguration dataYml = new YamlConfiguration();
-
-            try {
-                dataYml.save(new File(plugin.getDataFolder(), "data.yml"));
-            } catch (IOException ex) {
-                Logger.getLogger(FlatFile.class.getName()).log(Level.SEVERE, null, ex);
-                plugin.getLogger().log(Level.SEVERE, "Unable to write to data.yml!");
-            }
+        try {
+            data.load(dataFile);
+            data.save(dataFile);
+        } catch (IOException | InvalidConfigurationException ex) {
+            Logger.getLogger(FlatFile.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
