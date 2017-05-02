@@ -112,27 +112,20 @@ public class MySQL {
     }
 
     private String player(OfflinePlayer p) {
-        if (online()) {
-            player = p.getUniqueId().toString();
-        } else {
-            player = p.getName();
-        }
+        player = p.getUniqueId().toString();
         return player;
     }
 
     // Query methods
-    private static boolean online() {
-        return config.getBoolean("Online Mode");
-    }
 
     public Double getCoins(Player p) throws SQLException {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
         res.next();
 
-        if (res.getString("player") != null) {
+        if (res.getString("uuid") != null) {
             double coins = res.getDouble("balance");
 
             return coins;
@@ -144,10 +137,10 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
         res.next();
 
-        if (res.getString("player") != null) {
+        if (res.getString("uuid") != null) {
             double coins = res.getDouble("balance");
 
             return coins;
@@ -159,10 +152,10 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
         res.next();
 
-        if (res.getString("player") != null) {
+        if (res.getString("uuid") != null) {
             double coins = res.getDouble("balance");
             if (coins == 0) {
                 return "0";
@@ -178,10 +171,10 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
         res.next();
 
-        if (res.getString("player") != null) {
+        if (res.getString("uuid") != null) {
             double coins = res.getDouble("balance");
             if (coins == 0) {
                 return "0";
@@ -200,11 +193,11 @@ public class MySQL {
         ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player ='" + localplayer + "';");
         res.next();
 
-        if (res.getString("player") != null) {
+        if (res.getString("uuid") != null) {
             double oldCoins = res.getDouble("balance");
 
             Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE player = '" + localplayer + "';");
+            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE uuid = '" + localplayer + "';");
         }
     }
 
@@ -215,11 +208,11 @@ public class MySQL {
         ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player ='" + localplayer + "';");
         res.next();
 
-        if (res.getString("player") != null) {
+        if (res.getString("uuid") != null) {
             double oldCoins = res.getDouble("balance");
 
             Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE player = '" + localplayer + "';");
+            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE uuid = '" + localplayer + "';");
         }
     }
 
@@ -227,22 +220,22 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
         res.next();
         double beforeCoins = res.getDouble("balance");
-        if (res.getString("player") != null) {
+        if (res.getString("uuid") != null) {
 
             if (beforeCoins - coins < 0) {
                 if (!config.getBoolean("Allow Negative")) {
                     Statement update = c.createStatement();
-                    update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE player = '" + localplayer + "';");
+                    update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE uuid = '" + localplayer + "';");
                 }
             } else if (beforeCoins == coins) {
                 Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE player = '" + localplayer + "';");
+                update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE uuid = '" + localplayer + "';");
             } else if (beforeCoins > coins) {
                 Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE player = '" + localplayer + "';");
+                update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE uuid = '" + localplayer + "';");
             }
         }
     }
@@ -251,10 +244,10 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
         res.next();
 
-        if (res.getString("player") != null) {
+        if (res.getString("uuid") != null) {
             double beforeCoins = res.getDouble("balance");
 
             if (beforeCoins - coins < 0) {
@@ -263,14 +256,14 @@ public class MySQL {
                 }
                 if (config.getBoolean("Allow Negative")) {
                     Statement bypassUpdate = c.createStatement();
-                    bypassUpdate.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE player = '" + localplayer + "';");
+                    bypassUpdate.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE uuid = '" + localplayer + "';");
                 }
             } else if (beforeCoins == coins) {
                 Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE player = '" + localplayer + "';");
+                update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE uuid = '" + localplayer + "';");
             } else if (beforeCoins > coins) {
                 Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE player = '" + localplayer + "';");
+                update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE uuid = '" + localplayer + "';");
             }
         }
     }
@@ -279,12 +272,12 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
         res.next();
 
-        if (res.getString("player") != null) {
+        if (res.getString("uuid") != null) {
             Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + 0 + " WHERE player = '" + localplayer + "';");
+            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + 0 + " WHERE uuid = '" + localplayer + "';");
         }
     }
 
@@ -292,12 +285,12 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
         res.next();
 
-        if (res.getString("player") != null) {
+        if (res.getString("uuid") != null) {
             Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE player = '" + localplayer + "';");
+            update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE uuid = '" + localplayer + "';");
         }
     }
 
@@ -305,12 +298,12 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
         res.next();
 
-        if (res.getString("player") != null) {
+        if (res.getString("uuid") != null) {
             Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + coins + " WHERE player = '" + localplayer + "';");
+            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + coins + " WHERE uuid = '" + localplayer + "';");
         }
     }
 
@@ -318,12 +311,12 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
         res.next();
 
-        if (res.getString("player") != null) {
+        if (res.getString("uuid") != null) {
             Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + coins + " WHERE player = '" + localplayer + "';");
+            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + coins + " WHERE uuid = '" + localplayer + "';");
         }
     }
 
@@ -332,7 +325,7 @@ public class MySQL {
 
         Statement check = c.createStatement();
 
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
         res.next();
 
         return res.getString("player") != null;
@@ -343,7 +336,8 @@ public class MySQL {
         ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data ORDER BY balance DESC LIMIT " + top + ";");
         return res;
     }
+
     public void createPlayer(Player p) {
-        
+
     }
 }
