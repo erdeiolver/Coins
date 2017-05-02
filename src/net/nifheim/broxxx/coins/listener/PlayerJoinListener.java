@@ -25,7 +25,7 @@ public class PlayerJoinListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
-//            if (config.getBoolean("MySQL.Use")) {
+            if (config.getBoolean("MySQL.Use")) {
                 try {
                     Player p = e.getPlayer();
                     String name;
@@ -64,10 +64,10 @@ public class PlayerJoinListener implements Listener {
                         Logger.getLogger(PlayerJoinListener.class.getName()).log(Level.WARNING, "Something was wrong executing this query, the error code is: " + ex.getErrorCode(), ex.getCause());
                     }
                 }
-//            }
-//            else {
-//                Main.ff.createPlayer(e.getPlayer());
-//            }
+            }
+            else {
+                Main.ff.createPlayer(e.getPlayer());
+            }
         }, 5L);
     }
 }
