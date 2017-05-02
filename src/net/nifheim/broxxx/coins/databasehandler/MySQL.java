@@ -72,7 +72,7 @@ public class MySQL {
                 + "(`uuid` VARCHAR(50) NOT NULL,"
                 + "`nick` VARCHAR(50) NOT NULL,"
                 + "`balance` DOUBLE NOT NULL,"
-                + "`lastlogin` INT NOT NULL,"
+                + "`lastlogin` LONG NOT NULL,"
                 + "PRIMARY KEY (`uuid`));";
         String createMultiplier
                 = "CREATE TABLE IF NOT EXISTS `" + prefix + "Multipliers`"
@@ -129,7 +129,7 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
         res.next();
 
         if (res.getString("player") != null) {
@@ -144,7 +144,7 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
         res.next();
 
         if (res.getString("player") != null) {
@@ -159,7 +159,7 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
         res.next();
 
         if (res.getString("player") != null) {
@@ -178,7 +178,7 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
         res.next();
 
         if (res.getString("player") != null) {
@@ -197,14 +197,14 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player ='" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player ='" + localplayer + "';");
         res.next();
 
         if (res.getString("player") != null) {
             double oldCoins = res.getDouble("balance");
 
             Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + (oldCoins + coins) + " WHERE player = '" + localplayer + "';");
+            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE player = '" + localplayer + "';");
         }
     }
 
@@ -212,14 +212,14 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player ='" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player ='" + localplayer + "';");
         res.next();
 
         if (res.getString("player") != null) {
             double oldCoins = res.getDouble("balance");
 
             Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + (oldCoins + coins) + " WHERE player = '" + localplayer + "';");
+            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE player = '" + localplayer + "';");
         }
     }
 
@@ -227,7 +227,7 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
         res.next();
         double beforeCoins = res.getDouble("balance");
         if (res.getString("player") != null) {
@@ -235,14 +235,14 @@ public class MySQL {
             if (beforeCoins - coins < 0) {
                 if (!config.getBoolean("Allow Negative")) {
                     Statement update = c.createStatement();
-                    update.executeUpdate("UPDATE " + prefix + "Coins SET balance = 0 WHERE player = '" + localplayer + "';");
+                    update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE player = '" + localplayer + "';");
                 }
             } else if (beforeCoins == coins) {
                 Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Coins SET balance = 0 WHERE player = '" + localplayer + "';");
+                update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE player = '" + localplayer + "';");
             } else if (beforeCoins > coins) {
                 Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + (beforeCoins - coins) + " WHERE player = '" + localplayer + "';");
+                update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE player = '" + localplayer + "';");
             }
         }
     }
@@ -251,7 +251,7 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
         res.next();
 
         if (res.getString("player") != null) {
@@ -263,14 +263,14 @@ public class MySQL {
                 }
                 if (config.getBoolean("Allow Negative")) {
                     Statement bypassUpdate = c.createStatement();
-                    bypassUpdate.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + (beforeCoins - coins) + " WHERE player = '" + localplayer + "';");
+                    bypassUpdate.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE player = '" + localplayer + "';");
                 }
             } else if (beforeCoins == coins) {
                 Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Coins SET balance = 0 WHERE player = '" + localplayer + "';");
+                update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE player = '" + localplayer + "';");
             } else if (beforeCoins > coins) {
                 Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + (beforeCoins - coins) + " WHERE player = '" + localplayer + "';");
+                update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE player = '" + localplayer + "';");
             }
         }
     }
@@ -279,12 +279,12 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
         res.next();
 
         if (res.getString("player") != null) {
             Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + 0 + " WHERE player = '" + localplayer + "';");
+            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + 0 + " WHERE player = '" + localplayer + "';");
         }
     }
 
@@ -292,12 +292,12 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
         res.next();
 
         if (res.getString("player") != null) {
             Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Coins SET balance = 0 WHERE player = '" + localplayer + "';");
+            update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE player = '" + localplayer + "';");
         }
     }
 
@@ -305,12 +305,12 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
         res.next();
 
         if (res.getString("player") != null) {
             Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + coins + " WHERE player = '" + localplayer + "';");
+            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + coins + " WHERE player = '" + localplayer + "';");
         }
     }
 
@@ -318,12 +318,12 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
         res.next();
 
         if (res.getString("player") != null) {
             Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + coins + " WHERE player = '" + localplayer + "';");
+            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + coins + " WHERE player = '" + localplayer + "';");
         }
     }
 
@@ -332,7 +332,7 @@ public class MySQL {
 
         Statement check = c.createStatement();
 
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player = '" + localplayer + "';");
         res.next();
 
         return res.getString("player") != null;
@@ -340,7 +340,10 @@ public class MySQL {
 
     public ResultSet getDataTop(int top) throws SQLException {
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM Coins ORDER BY balance DESC LIMIT " + top + ";");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data ORDER BY balance DESC LIMIT " + top + ";");
         return res;
+    }
+    public void createPlayer(Player p) {
+        
     }
 }
