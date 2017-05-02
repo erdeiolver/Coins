@@ -10,7 +10,7 @@ Online Mode: true
 
 # Here are the MySQL server settings.
 MySQL:
-#  Use: false
+  Use: true
   Host: localhost
   Port: 3306
   Database: minecraft
@@ -32,10 +32,12 @@ Command executor:
     # This is the command that the console gonna run.
     Command: 'eco give %player% 10000' # Note the %player% placeholder, this is replaced by the player that runs the command.
     Cost: 100 # This is the cost of the command.
-  # If you are going to put a number, put it in single quotes
+  # If you are going to put a number, put it with single quotes
   '2':
     Command: 'broadcast %player% Is awesome!'
     Cost: 1
 Multipliers:
+  # This is the server identifier, is used only if you have MySQL enabled, when a player enables a multiplier in
+  # this server, this is also enabled in all the other servers that has this identifier.
+  Server: 'default'
   Amount: 1
-  Enabler: ''

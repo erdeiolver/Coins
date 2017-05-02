@@ -2,14 +2,12 @@ package net.nifheim.broxxx.coins;
 
 import net.nifheim.broxxx.coins.databasehandler.MySQL;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import org.bukkit.OfflinePlayer;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.configuration.file.FileConfiguration;
 
 /**
  *
@@ -18,11 +16,10 @@ import org.bukkit.entity.Player;
 public class CoinsAPI {
 
     private static final FileConfiguration config = Main.getInstance().getConfig();
-    private static final Connection c = MySQL.getConnection();
-    private static final String prefix = config.getString("MySQL.Prefix");
+    private static final MySQL mysql = new MySQL();
 
-    private static boolean online() {
-        return config.getBoolean("Online Mode");
+    private static boolean mysql() {
+        return config.getBoolean("MySQL.Use");
     }
 
     /**
@@ -33,23 +30,11 @@ public class CoinsAPI {
      * @throws SQLException
      */
     public static Double getCoins(Player p) throws SQLException {
-        String name;
-        if (online()) {
-            name = p.getUniqueId().toString();
+        if (mysql()) {
+            return mysql.getCoins(p);
         } else {
-            name = p.getName();
+            return 0.0;
         }
-
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
-        res.next();
-
-        if (res.getString("player") != null) {
-            double coins = res.getDouble("balance");
-
-            return coins;
-        }
-        return 0.0;
     }
 
     /**
@@ -62,23 +47,11 @@ public class CoinsAPI {
      */
     @Deprecated
     public static Double getOfflineCoins(OfflinePlayer p) throws SQLException {
-        String name;
-        if (online()) {
-            name = p.getUniqueId().toString();
+        if (mysql()) {
+            return mysql.getOfflineCoins(p);
         } else {
-            name = p.getName();
+            return 0.0;
         }
-
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
-        res.next();
-
-        if (res.getString("player") != null) {
-            double coins = res.getDouble("balance");
-
-            return coins;
-        }
-        return 0.0;
     }
 
     /**
@@ -89,24 +62,8 @@ public class CoinsAPI {
      * @throws SQLException
      */
     public static String getCoinsString(Player p) throws SQLException {
-        String name;
-        if (online()) {
-            name = p.getUniqueId().toString();
-        } else {
-            name = p.getName();
-        }
-
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
-        res.next();
-
-        if (res.getString("player") != null) {
-            double coins = res.getDouble("balance");
-            if (coins == 0) {
-                return "0";
-            } else {
-                return String.valueOf(coins);
-            }
+        if (mysql()) {
+            return mysql.getCoinsString(p);
         } else {
             return "Player can't be null";
         }
@@ -122,24 +79,8 @@ public class CoinsAPI {
      */
     @Deprecated
     public static String getCoinsStringOffline(OfflinePlayer p) throws SQLException {
-        String name;
-        if (online()) {
-            name = p.getUniqueId().toString();
-        } else {
-            name = p.getName();
-        }
-
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
-        res.next();
-
-        if (res.getString("player") != null) {
-            double coins = res.getDouble("balance");
-            if (coins == 0) {
-                return "0";
-            } else {
-                return String.valueOf(coins);
-            }
+        if (mysql()) {
+            return mysql.getCoinsStringOffline(p);
         } else {
             return "Player can't be null";
         }
@@ -153,22 +94,10 @@ public class CoinsAPI {
      * @throws SQLException
      */
     public static void addCoins(Player p, double coins) throws SQLException {
-        String name;
-        if (online()) {
-            name = p.getUniqueId().toString();
+        if (mysql()) {
+            mysql.addCoins(p, coins);
         } else {
-            name = p.getName();
-        }
 
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player ='" + name + "';");
-        res.next();
-
-        if (res.getString("player") != null) {
-            double oldCoins = res.getDouble("balance");
-
-            Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + (oldCoins + coins) + " WHERE player = '" + name + "';");
         }
     }
 
@@ -182,22 +111,10 @@ public class CoinsAPI {
      */
     @Deprecated
     public static void addCoinsOffline(OfflinePlayer p, double coins) throws SQLException {
-        String name;
-        if (online()) {
-            name = p.getUniqueId().toString();
+        if (mysql()) {
+            mysql.addCoinsOffline(p, coins);
         } else {
-            name = p.getName();
-        }
 
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player ='" + name + "';");
-        res.next();
-
-        if (res.getString("player") != null) {
-            double oldCoins = res.getDouble("balance");
-
-            Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + (oldCoins + coins) + " WHERE player = '" + name + "';");
         }
     }
 
@@ -209,31 +126,10 @@ public class CoinsAPI {
      * @throws SQLException
      */
     public static void takeCoins(Player p, double coins) throws SQLException {
-        String name;
-        if (online()) {
-            name = p.getUniqueId().toString();
+        if (mysql()) {
+            mysql.takeCoins(p, coins);
         } else {
-            name = p.getName();
-        }
 
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
-        res.next();
-        double beforeCoins = res.getDouble("balance");
-        if (res.getString("player") != null) {
-
-            if (beforeCoins - coins < 0) {
-                if (!config.getBoolean("Allow Negative")) {
-                    Statement update = c.createStatement();
-                    update.executeUpdate("UPDATE " + prefix + "Coins SET balance = 0 WHERE player = '" + name + "';");
-                }
-            } else if (beforeCoins == coins) {
-                Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Coins SET balance = 0 WHERE player = '" + name + "';");
-            } else if (beforeCoins > coins) {
-                Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + (beforeCoins - coins) + " WHERE player = '" + name + "';");
-            }
         }
     }
 
@@ -247,35 +143,10 @@ public class CoinsAPI {
      */
     @Deprecated
     public static void takeCoinsOffline(OfflinePlayer p, double coins) throws SQLException {
-        String name;
-        if (online()) {
-            name = p.getUniqueId().toString();
+        if (mysql()) {
+            mysql.takeCoinsOffline(p, coins);
         } else {
-            name = p.getName();
-        }
 
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
-        res.next();
-
-        if (res.getString("player") != null) {
-            double beforeCoins = res.getDouble("balance");
-
-            if (beforeCoins - coins < 0) {
-                if (!config.getBoolean("Allow Negative")) {
-                    return;
-                }
-                if (config.getBoolean("Allow Negative")) {
-                    Statement bypassUpdate = c.createStatement();
-                    bypassUpdate.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + (beforeCoins - coins) + " WHERE player = '" + name + "';");
-                }
-            } else if (beforeCoins == coins) {
-                Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Coins SET balance = 0 WHERE player = '" + name + "';");
-            } else if (beforeCoins > coins) {
-                Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + (beforeCoins - coins) + " WHERE player = '" + name + "';");
-            }
         }
     }
 
@@ -286,21 +157,10 @@ public class CoinsAPI {
      * @throws SQLException
      */
     public static void resetCoins(Player p) throws SQLException {
-        String name;
-        if (online()) {
-            name = p.getUniqueId().toString();
+        if (mysql()) {
+            mysql.resetCoins(p);
         } else {
-            name = p.getName();
-        }
-        double newcoins = 0;
 
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
-        res.next();
-
-        if (res.getString("player") != null) {
-            Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + newcoins + " WHERE player = '" + name + "';");
         }
     }
 
@@ -313,20 +173,10 @@ public class CoinsAPI {
      */
     @Deprecated
     public static void resetCoinsOffline(OfflinePlayer p) throws SQLException {
-        String name;
-        if (online()) {
-            name = p.getUniqueId().toString();
+        if (mysql()) {
+            mysql.resetCoinsOffline(p);
         } else {
-            name = p.getName();
-        }
 
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
-        res.next();
-
-        if (res.getString("player") != null) {
-            Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Coins SET balance = 0 WHERE player = '" + name + "';");
         }
     }
 
@@ -338,20 +188,10 @@ public class CoinsAPI {
      * @throws SQLException
      */
     public static void setCoins(Player p, double coins) throws SQLException {
-        String name;
-        if (online()) {
-            name = p.getUniqueId().toString();
+        if (mysql()) {
+            mysql.setCoins(p, coins);
         } else {
-            name = p.getName();
-        }
 
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
-        res.next();
-
-        if (res.getString("player") != null) {
-            Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + coins + " WHERE player = '" + name + "';");
         }
     }
 
@@ -365,20 +205,10 @@ public class CoinsAPI {
      */
     @Deprecated
     public static void setCoinsOffline(OfflinePlayer p, double coins) throws SQLException {
-        String name;
-        if (online()) {
-            name = p.getUniqueId().toString();
+        if (mysql()) {
+            mysql.setCoinsOffline(p, coins);
         } else {
-            name = p.getName();
-        }
 
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
-        res.next();
-
-        if (res.getString("player") != null) {
-            Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Coins SET balance = " + coins + " WHERE player = '" + name + "';");
         }
     }
 
@@ -390,19 +220,11 @@ public class CoinsAPI {
      * @throws SQLException
      */
     public static boolean isindb(OfflinePlayer p) throws SQLException {
-        String name;
-        if (online()) {
-            name = p.getUniqueId().toString();
+        if (mysql()) {
+            return mysql.isindb(p);
         } else {
-            name = p.getName();
+            return false;
         }
-
-        Statement check = c.createStatement();
-
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Coins WHERE player = '" + name + "';");
-        res.next();
-
-        return res.getString("player") != null;
     }
 
     /**
@@ -413,8 +235,10 @@ public class CoinsAPI {
      * @throws SQLException
      */
     public static ResultSet getDataTop(int top) throws SQLException {
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM Coins ORDER BY balance DESC LIMIT " + top + ";");
-        return res;
+        if (mysql()) {
+            return mysql.getDataTop(top);
+        } else {
+            return mysql.getDataTop(top);
+        }
     }
 }
