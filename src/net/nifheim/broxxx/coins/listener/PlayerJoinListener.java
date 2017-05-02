@@ -41,7 +41,7 @@ public class PlayerJoinListener implements Listener {
                         ResultSet res = check.executeQuery("SELECT uuid FROM " + prefix + "Data WHERE uuid = '" + name + "';");
                         if (!res.next()) {
                             Statement update = c.createStatement();
-                            update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + name + "', '" + p.getName() + "', 0, " + System.currentTimeMillis() + ");");
+                            update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + name + "', '" + p.getName() + "', 0.0, " + System.currentTimeMillis() + ");");
                         } else {
                             Statement update = c.createStatement();
                             update.executeUpdate("UPDATE " + prefix + "Data SET nick = " + p.getName() + " WHERE uuid = '" + name + "';");
@@ -50,7 +50,7 @@ public class PlayerJoinListener implements Listener {
                         ResultSet res = check.executeQuery("SELECT nick FROM " + prefix + "Data WHERE nick = '" + name + "';");
                         if (!res.next()) {
                             Statement update = c.createStatement();
-                            update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + p.getUniqueId() + "', '" + name + "', 0, " + System.currentTimeMillis() + ");");
+                            update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + p.getUniqueId() + "', '" + name + "', 0.0, " + System.currentTimeMillis() + ");");
                         } else {
                             Statement update = c.createStatement();
                             update.executeUpdate("UPDATE " + prefix + "Data SET uuid = " + p.getUniqueId() + " WHERE nick = '" + name + "';");
