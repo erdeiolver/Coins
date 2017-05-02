@@ -41,22 +41,22 @@ public class MySQL {
             Connect();
 
             if (!MySQL.getConnection().isClosed()) {
-                console.sendMessage(plugin.rep("%prefix% Plugin conected sucesful to the MySQL."));
+                console.sendMessage(("&8[&cCoins&8] &7Plugin conected sucesful to the MySQL.").replaceAll("&", "§"));
             }
         } catch (SQLException e) {
             Logger.getLogger(MySQL.class.getName()).log(Level.WARNING, "Something was wrong with the connection, the error code is: " + e.getErrorCode(), e);
             Bukkit.getScheduler().cancelTasks(Main.getInstance());
-            console.sendMessage(plugin.rep("%prefix% Can't connect to the database, disabling plugin..."));
+            console.sendMessage(("&8[&cCoins&8] &7Can't connect to the database, disabling plugin...").replaceAll("&", "§"));
             Bukkit.getServer().getPluginManager().disablePlugin(Main.getInstance());
         }
 
         Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(Main.getInstance(), () -> {
-            console.sendMessage(plugin.rep("%prefix% Checking the database connection ..."));
+            console.sendMessage(("&8[&cCoins&8] &7Checking the database connection ...").replaceAll("&", "§"));
             if (MySQL.getConnection() == null) {
-                console.sendMessage(plugin.rep("%prefix% The database connection is null, reconnecting ..."));
+                console.sendMessage(("&8[&cCoins&8] &7The database connection is null, reconnecting ...").replaceAll("&", "§"));
                 Reconnect();
             } else {
-                console.sendMessage(plugin.rep("%prefix% The connection to the database is still active."));
+                console.sendMessage(("&8[&cCoins&8] &7The connection to the database is still active.").replaceAll("&", "§"));
             }
         }, 0L, checkdb);
     }
