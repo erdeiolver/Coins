@@ -28,7 +28,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public class Main extends JavaPlugin {
 
     private final File messagesFile = new File(getDataFolder(), "messages.yml");
-    private final FileConfiguration messages = YamlConfiguration.loadConfiguration(messagesFile);
+    private FileConfiguration messages = YamlConfiguration.loadConfiguration(messagesFile);
 
     public static String rep;
     public final ConsoleCommandSender console = Bukkit.getConsoleSender();
@@ -53,32 +53,14 @@ public class Main extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new CommandListener(), this);
 
-//        if (getConfig().getBoolean("MySQL.Use")) {
+        if (getConfig().getBoolean("MySQL.Use")) {
             mysql = new MySQL();
             mysql.SQLConnection();
-//        }
-//        else {
-//            ff = new FlatFile(this);
-//        }
-
-        // Console message
-        if (this.getDescription().getVersion().contains("BETA")) {
-            console.sendMessage(rep(""));
-            console.sendMessage(rep("    §c+=======================+"));
-            console.sendMessage(rep("    §c|   §4Coins §fBy: §7Broxxx§c    |"));
-            console.sendMessage(rep("    §c|-----------------------|"));
-            console.sendMessage(rep("    §c|     §4v:§f" + getDescription().getVersion() + "      §c|"));
-            console.sendMessage(rep("    §c+=======================+"));
-            console.sendMessage(rep(""));
         } else {
-            console.sendMessage(rep(""));
-            console.sendMessage(rep("    §c+==================+"));
-            console.sendMessage(rep("    §c| §4Coins §fBy: §7Broxxx§c |"));
-            console.sendMessage(rep("    §c|------------------|"));
-            console.sendMessage(rep("    §c|     §4v:§f" + getDescription().getVersion() + "      §c|"));
-            console.sendMessage(rep("    §c+==================+"));
-            console.sendMessage(rep(""));
+            ff = new FlatFile(this);
         }
+
+        this.motd();
     }
 
     @Override
@@ -86,29 +68,14 @@ public class Main extends JavaPlugin {
 
         Bukkit.getScheduler().cancelTasks(this);
 
-        if (this.getDescription().getVersion().contains("BETA")) {
-            console.sendMessage(rep(""));
-            console.sendMessage(rep("    §c+=======================+"));
-            console.sendMessage(rep("    §c|   §4Coins §fBy: §7Broxxx§c    |"));
-            console.sendMessage(rep("    §c|-----------------------|"));
-            console.sendMessage(rep("    §c|     §4v:§f" + getDescription().getVersion() + "      §c|"));
-            console.sendMessage(rep("    §c+=======================+"));
-            console.sendMessage(rep(""));
-        } else {
-            console.sendMessage(rep(""));
-            console.sendMessage(rep("    §c+==================+"));
-            console.sendMessage(rep("    §c| §4Coins §fBy: §7Broxxx§c |"));
-            console.sendMessage(rep("    §c|------------------|"));
-            console.sendMessage(rep("    §c|     §4v:§f" + getDescription().getVersion() + "      §c|"));
-            console.sendMessage(rep("    §c+==================+"));
-            console.sendMessage(rep(""));
-        }
+        this.motd();
     }
 
     private void loadManagers() {
         if (!messagesFile.exists()) {
             getDataFolder().mkdirs();
             copy(getResource("messages.yml"), messagesFile);
+            messages = YamlConfiguration.loadConfiguration(messagesFile);
         }
         // Hook placeholders
         if (getServer().getPluginManager().isPluginEnabled("MVdWPlaceholderAPI")) {
@@ -129,7 +96,7 @@ public class Main extends JavaPlugin {
 
     public String rep(String str) {
         return str
-                .replaceAll("%prefix%", messages.getString("Prefix"))
+                .replaceAll("%prefix%", getMessages().getString("Prefix"))
                 .replaceAll("&", "§");
     }
 
@@ -145,6 +112,26 @@ public class Main extends JavaPlugin {
             in.close();
         } catch (Exception e) {
             Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Can't copy the file " + file.getName() + " to the plugin data folder.", e.getCause());
+        }
+    }
+
+    private void motd() {
+        if (this.getDescription().getVersion().contains("BETA")) {
+            console.sendMessage(rep(""));
+            console.sendMessage(rep("    §c+=======================+"));
+            console.sendMessage(rep("    §c|   §4Coins §fBy: §7Broxxx§c    |"));
+            console.sendMessage(rep("    §c|-----------------------|"));
+            console.sendMessage(rep("    §c|     §4v:§f" + getDescription().getVersion() + "      §c|"));
+            console.sendMessage(rep("    §c+=======================+"));
+            console.sendMessage(rep(""));
+        } else {
+            console.sendMessage(rep(""));
+            console.sendMessage(rep("    §c+==================+"));
+            console.sendMessage(rep("    §c| §4Coins §fBy: §7Broxxx§c |"));
+            console.sendMessage(rep("    §c|------------------|"));
+            console.sendMessage(rep("    §c|     §4v:§f" + getDescription().getVersion() + "      §c|"));
+            console.sendMessage(rep("    §c+==================+"));
+            console.sendMessage(rep(""));
         }
     }
 }
