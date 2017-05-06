@@ -5,11 +5,11 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DecimalFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.nifheim.broxxx.coins.Main;
-import net.nifheim.broxxx.coins.listener.PlayerJoinListener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -21,7 +21,6 @@ public class MySQL {
 
     private static final FileConfiguration config = Main.getInstance().getConfig();
     private static final ConsoleCommandSender console = Bukkit.getConsoleSender();
-    private static Main plugin;
 
     private static final String host = config.getString("MySQL.Host");
     private static final int port = config.getInt("MySQL.Port");
@@ -32,7 +31,8 @@ public class MySQL {
     private static final int checkdb = config.getInt("MySQL.Connection Interval") * 1200;
     private static Connection c;
     private String player;
-
+    private final DecimalFormat df = new DecimalFormat("####################################.##");
+    
     public static Connection getConnection() {
         return c;
     }
@@ -160,7 +160,7 @@ public class MySQL {
             if (coins == 0) {
                 return "0";
             } else {
-                return String.valueOf(coins);
+                return df.format(coins);
             }
         } else {
             return "Player can't be null";
@@ -179,7 +179,7 @@ public class MySQL {
             if (coins == 0) {
                 return "0";
             } else {
-                return String.valueOf(coins);
+                return df.format(coins);
             }
         } else {
             return "Player can't be null";
