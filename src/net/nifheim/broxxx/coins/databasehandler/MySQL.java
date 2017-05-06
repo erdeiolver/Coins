@@ -9,6 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.nifheim.broxxx.coins.Main;
+import net.nifheim.broxxx.coins.listener.PlayerJoinListener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -117,7 +118,6 @@ public class MySQL {
     }
 
     // Query methods
-
     public Double getCoins(Player p) throws SQLException {
         String localplayer = player(p);
 
@@ -190,7 +190,7 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player ='" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid ='" + localplayer + "';");
         res.next();
 
         if (res.getString("uuid") != null) {
@@ -205,7 +205,7 @@ public class MySQL {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE player ='" + localplayer + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid ='" + localplayer + "';");
         res.next();
 
         if (res.getString("uuid") != null) {
@@ -328,7 +328,7 @@ public class MySQL {
         ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
         res.next();
 
-        return res.getString("player") != null;
+        return res.getString("uuid") != null;
     }
 
     public ResultSet getDataTop(int top) throws SQLException {
@@ -337,7 +337,30 @@ public class MySQL {
         return res;
     }
 
-    public void createPlayer(Player p) {
+    public void createPlayer(Player p) throws SQLException {
+        String localplayer = player(p);
 
+        Statement check = c.createStatement();
+        if (config.getBoolean("Online Mode")) {
+            ResultSet res = check.executeQuery("SELECT uuid FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
+            if (!res.next()) {
+                Statement update = c.createStatement();
+                update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + localplayer + "', '" + p.getName() + "', 0.0, " + System.currentTimeMillis() + ");");
+            } else {
+                Statement update = c.createStatement();
+                update.executeUpdate("UPDATE " + prefix + "Data SET nick = " + p.getName() + " WHERE uuid = '" + localplayer + "';");
+                update.executeUpdate("UPDATE " + prefix + "Data SET lastlogin = " + System.currentTimeMillis() + " WHERE uuid = '" + localplayer + "';");
+            }
+        } else {
+            ResultSet res = check.executeQuery("SELECT nick FROM " + prefix + "Data WHERE nick = '" + p.getName() + "';");
+            if (!res.next()) {
+                Statement update = c.createStatement();
+                update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + localplayer + "', '" + p.getName() + "', 0.0, " + System.currentTimeMillis() + ");");
+            } else {
+                Statement update = c.createStatement();
+                update.executeUpdate("UPDATE " + prefix + "Data SET uuid = " + localplayer + " WHERE nick = '" + p.getName() + "';");
+                update.executeUpdate("UPDATE " + prefix + "Data SET lastlogin = " + System.currentTimeMillis() + " WHERE nick = '" + p.getName() + "';");
+            }
+        }
     }
 }
