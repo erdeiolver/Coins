@@ -1,6 +1,5 @@
 package net.nifheim.broxxx.coins.hooks;
 
-import java.sql.SQLException;
 import me.clip.placeholderapi.external.EZPlaceholderHook;
 import net.nifheim.broxxx.coins.CoinsAPI;
 import net.nifheim.broxxx.coins.Main;
@@ -9,7 +8,6 @@ import org.bukkit.entity.Player;
 public class PlaceholderAPI extends EZPlaceholderHook {
 
     private final Main plugin;
-    private CoinsAPI api;
 
     public PlaceholderAPI(Main plugin) {
         super(plugin, "coins");
@@ -22,11 +20,7 @@ public class PlaceholderAPI extends EZPlaceholderHook {
             return "Player needed!";
         }
         if (coins.equalsIgnoreCase("amount")) {
-            String coinsamount = "";
-            try {
-                coinsamount = api.getCoinsString(p);
-            } catch (SQLException ex) {
-            }
+            String coinsamount = CoinsAPI.getCoinsString(p);
             return coinsamount;
         }
         return "0";
