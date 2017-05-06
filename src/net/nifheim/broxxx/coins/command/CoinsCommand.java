@@ -25,9 +25,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 public class CoinsCommand implements CommandExecutor {
 
+    public Main plugin = Main.getInstance();
     private final FileConfiguration config = Main.getInstance().getConfig();
-    private final FileConfiguration messages = Main.getInstance().getMessages();
-    public Main plugin;
+    private final FileConfiguration messages = plugin.getMessages();
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String CommandLabel, String[] args) {
@@ -64,10 +64,10 @@ public class CoinsCommand implements CommandExecutor {
                 return this._top(sender, args);
             } else if (args.length == 1) {
                 if (CoinsAPI.isindb(Bukkit.getOfflinePlayer(args[0]))) {
-                    return this._target(sender, args);
-                } else if (args[0].equalsIgnoreCase(Bukkit.getPlayer(args[0]).getName()) && (Bukkit.getPlayer(args[0])) != null) {
-                    return this._target(sender, args);
-                } else {
+                    if (Bukkit.getPlayer(args[0]) != null || Bukkit.getOfflinePlayer(args[0]) != null) {
+                        return this._target(sender, args);
+                    }
+                }else {
                     sender.sendMessage(plugin.rep(messages.getString("Errors.Unknow command")));
                 }
             } else {
@@ -356,11 +356,9 @@ public class CoinsCommand implements CommandExecutor {
                         Main.getInstance().saveConfig();
                         sender.sendMessage("Multiplicador establecido");
                     }
-                }
-                else if (args[1].equalsIgnoreCase("use")) {
-                    
-                }
-                else {
+                } else if (args[1].equalsIgnoreCase("use")) {
+
+                } else {
                     sender.sendMessage(plugin.rep(messages.getString("")));
                 }
             }
