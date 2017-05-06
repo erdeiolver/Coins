@@ -4,6 +4,9 @@ import net.nifheim.broxxx.coins.databasehandler.MySQL;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import net.nifheim.broxxx.coins.databasehandler.FlatFile;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -16,7 +19,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 public class CoinsAPI {
 
     private static final FileConfiguration config = Main.getInstance().getConfig();
-    private static final MySQL mysql = new MySQL();
+    private static final MySQL mysql = Main.mysql;
+    private static final FlatFile ff = Main.ff;
 
     private static boolean mysql() {
         return config.getBoolean("MySQL.Use");
@@ -27,14 +31,18 @@ public class CoinsAPI {
      *
      * @param p Player to get the coins.
      * @return
-     * @throws SQLException
      */
-    public static Double getCoins(Player p) throws SQLException {
+    public static Double getCoins(Player p) {
         if (mysql()) {
-            return mysql.getCoins(p);
+            try {
+                return mysql.getCoins(p);
+            } catch (SQLException ex) {
+                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to get the coins of a user, the error code is: " + ex.getErrorCode(), ex);
+            }
         } else {
-            return 0.0;
+            return ff.getCoins(p);
         }
+        return 0.0;
     }
 
     /**
@@ -42,16 +50,20 @@ public class CoinsAPI {
      *
      * @param p Player to get the coins.
      * @return
-     * @throws SQLException
-     * @deprecated Avoid using this method.
+     * @deprecated
      */
     @Deprecated
-    public static Double getOfflineCoins(OfflinePlayer p) throws SQLException {
+    public static Double getOfflineCoins(OfflinePlayer p) {
         if (mysql()) {
-            return mysql.getOfflineCoins(p);
+            try {
+                return mysql.getOfflineCoins(p);
+            } catch (SQLException ex) {
+                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to get the coins of a user, the error code is: " + ex.getErrorCode(), ex);
+            }
         } else {
-            return 0.0;
+            return ff.getOfflineCoins(p);
         }
+        return 0.0;
     }
 
     /**
@@ -59,14 +71,18 @@ public class CoinsAPI {
      *
      * @param p Player to get the coins string.
      * @return
-     * @throws SQLException
      */
-    public static String getCoinsString(Player p) throws SQLException {
+    public static String getCoinsString(Player p) {
         if (mysql()) {
-            return mysql.getCoinsString(p);
+            try {
+                return mysql.getCoinsString(p);
+            } catch (SQLException ex) {
+                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to get the string of coins of a user, the error code is: " + ex.getErrorCode(), ex);
+            }
         } else {
-            return "Player can't be null";
+            return ff.getCoinsString(p);
         }
+        return "Player can't be null";
     }
 
     /**
@@ -74,16 +90,20 @@ public class CoinsAPI {
      *
      * @param p Player to get the coins string.
      * @return
-     * @throws SQLException
      * @deprecated
      */
     @Deprecated
-    public static String getCoinsStringOffline(OfflinePlayer p) throws SQLException {
+    public static String getCoinsStringOffline(OfflinePlayer p) {
         if (mysql()) {
-            return mysql.getCoinsStringOffline(p);
+            try {
+                return mysql.getCoinsStringOffline(p);
+            } catch (SQLException ex) {
+                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to get the string of coins of a user, the error code is: " + ex.getErrorCode(), ex);
+            }
         } else {
-            return "Player can't be null";
+            return ff.getCoinsStringOffline(p);
         }
+        return "Player can't be null";
     }
 
     /**
@@ -91,11 +111,14 @@ public class CoinsAPI {
      *
      * @param p The player to add the coins.
      * @param coins The coins to add.
-     * @throws SQLException
      */
-    public static void addCoins(Player p, double coins) throws SQLException {
+    public static void addCoins(Player p, double coins) {
         if (mysql()) {
-            mysql.addCoins(p, coins);
+            try {
+                mysql.addCoins(p, coins);
+            } catch (SQLException ex) {
+                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to add the coins to a user, the error code is: " + ex.getErrorCode(), ex);
+            }
         } else {
 
         }
@@ -106,13 +129,16 @@ public class CoinsAPI {
      *
      * @param p
      * @param coins
-     * @throws SQLException
      * @deprecated
      */
     @Deprecated
-    public static void addCoinsOffline(OfflinePlayer p, double coins) throws SQLException {
+    public static void addCoinsOffline(OfflinePlayer p, double coins) {
         if (mysql()) {
-            mysql.addCoinsOffline(p, coins);
+            try {
+                mysql.addCoinsOffline(p, coins);
+            } catch (SQLException ex) {
+                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to add coins to an offline user, the error code is: " + ex.getErrorCode(), ex);
+            }
         } else {
 
         }
@@ -123,11 +149,14 @@ public class CoinsAPI {
      *
      * @param p
      * @param coins
-     * @throws SQLException
      */
-    public static void takeCoins(Player p, double coins) throws SQLException {
+    public static void takeCoins(Player p, double coins) {
         if (mysql()) {
-            mysql.takeCoins(p, coins);
+            try {
+                mysql.takeCoins(p, coins);
+            } catch (SQLException ex) {
+                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
+            }
         } else {
 
         }
@@ -138,13 +167,16 @@ public class CoinsAPI {
      *
      * @param p
      * @param coins
-     * @throws SQLException
      * @deprecated
      */
     @Deprecated
-    public static void takeCoinsOffline(OfflinePlayer p, double coins) throws SQLException {
+    public static void takeCoinsOffline(OfflinePlayer p, double coins) {
         if (mysql()) {
-            mysql.takeCoinsOffline(p, coins);
+            try {
+                mysql.takeCoinsOffline(p, coins);
+            } catch (SQLException ex) {
+                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
+            }
         } else {
 
         }
@@ -154,11 +186,14 @@ public class CoinsAPI {
      * Reset the coins of a Online Player.
      *
      * @param p
-     * @throws SQLException
      */
-    public static void resetCoins(Player p) throws SQLException {
+    public static void resetCoins(Player p) {
         if (mysql()) {
-            mysql.resetCoins(p);
+            try {
+                mysql.resetCoins(p);
+            } catch (SQLException ex) {
+                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
+            }
         } else {
 
         }
@@ -168,13 +203,16 @@ public class CoinsAPI {
      * Reset the coins of a Offline Player.
      *
      * @param p
-     * @throws SQLException
      * @deprecated
      */
     @Deprecated
-    public static void resetCoinsOffline(OfflinePlayer p) throws SQLException {
+    public static void resetCoinsOffline(OfflinePlayer p) {
         if (mysql()) {
-            mysql.resetCoinsOffline(p);
+            try {
+                mysql.resetCoinsOffline(p);
+            } catch (SQLException ex) {
+                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
+            }
         } else {
 
         }
@@ -185,11 +223,14 @@ public class CoinsAPI {
      *
      * @param p
      * @param coins
-     * @throws SQLException
      */
-    public static void setCoins(Player p, double coins) throws SQLException {
+    public static void setCoins(Player p, double coins) {
         if (mysql()) {
-            mysql.setCoins(p, coins);
+            try {
+                mysql.setCoins(p, coins);
+            } catch (SQLException ex) {
+                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
+            }
         } else {
 
         }
@@ -200,13 +241,16 @@ public class CoinsAPI {
      *
      * @param p
      * @param coins
-     * @throws SQLException
      * @deprecated
      */
     @Deprecated
-    public static void setCoinsOffline(OfflinePlayer p, double coins) throws SQLException {
+    public static void setCoinsOffline(OfflinePlayer p, double coins) {
         if (mysql()) {
-            mysql.setCoinsOffline(p, coins);
+            try {
+                mysql.setCoinsOffline(p, coins);
+            } catch (SQLException ex) {
+                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
+            }
         } else {
 
         }
@@ -217,14 +261,18 @@ public class CoinsAPI {
      *
      * @param p
      * @return
-     * @throws SQLException
      */
-    public static boolean isindb(OfflinePlayer p) throws SQLException {
+    public static boolean isindb(OfflinePlayer p) {
         if (mysql()) {
-            return mysql.isindb(p);
+            try {
+                return mysql.isindb(p);
+            } catch (SQLException ex) {
+                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
+            }
         } else {
-            return false;
+            return ff.isindb(p);
         }
+        return false;
     }
 
     /**
@@ -232,13 +280,8 @@ public class CoinsAPI {
      *
      * @param top
      * @return
-     * @throws SQLException
      */
     public static ResultSet getDataTop(int top) throws SQLException {
-        if (mysql()) {
-            return mysql.getDataTop(top);
-        } else {
-            return mysql.getDataTop(top);
-        }
+        return mysql.getDataTop(top);
     }
 }
