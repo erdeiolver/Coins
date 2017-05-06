@@ -2,6 +2,7 @@ package net.nifheim.broxxx.coins;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -22,13 +23,16 @@ import net.nifheim.broxxx.coins.databasehandler.MySQL;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 public class Main extends JavaPlugin {
 
     private final File messagesFile = new File(getDataFolder(), "messages.yml");
-    private FileConfiguration messages = YamlConfiguration.loadConfiguration(messagesFile);
+    private FileConfiguration messages;
+    private final YamlConfiguration dataFile = new YamlConfiguration();
+    private FileConfiguration data = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "data.yml"));
 
     public static String rep;
     public final ConsoleCommandSender console = Bukkit.getConsoleSender();
@@ -44,11 +48,18 @@ public class Main extends JavaPlugin {
     }
 
     @Override
+    public void onLoad() {
+        this.copyFiles();
+        messages = YamlConfiguration.loadConfiguration(messagesFile);
+    }
+
+    @Override
     public void onEnable() {
-        this.loadManagers();
 
         instance = this;
-        saveDefaultConfig();
+
+        this.loadManagers();
+
         getCommand("coins").setExecutor(new CoinsCommand());
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new CommandListener(), this);
@@ -71,12 +82,40 @@ public class Main extends JavaPlugin {
         this.motd();
     }
 
-    private void loadManagers() {
+    private void copyFiles() {
+        getDataFolder().mkdirs();
+
         if (!messagesFile.exists()) {
-            getDataFolder().mkdirs();
             copy(getResource("messages.yml"), messagesFile);
-            messages = YamlConfiguration.loadConfiguration(messagesFile);
         }
+
+        if (!getConfig().getBoolean("MySQL.Use")) {
+            if (data == null) {
+                try {
+                    dataFile.save(new File(getDataFolder(), "data.yml"));
+                } catch (IOException ex) {
+                    Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Can't save data file", ex);
+                }
+            }
+            data = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "data.yml"));
+            if (data.getConfigurationSection("Players") == null) {
+                data.createSection("Players");
+                try {
+                    dataFile.load(new File(getDataFolder(), "data.yml"));
+                    dataFile.save(new File(getDataFolder(), "data.yml"));
+                } catch (IOException | InvalidConfigurationException ex) {
+                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+
+        File configFile = new File(getDataFolder(), "config.yml");
+        if (!configFile.exists()) {
+            copy(getResource("config.yml"), configFile);
+        }
+    }
+
+    private void loadManagers() {
         // Hook placeholders
         if (getServer().getPluginManager().isPluginEnabled("MVdWPlaceholderAPI")) {
             console.sendMessage(rep("&8[&cCoins&8] &7MVdWPlaceholderAPI found, hooking in this."));
