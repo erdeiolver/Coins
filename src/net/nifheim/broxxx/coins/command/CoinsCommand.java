@@ -167,7 +167,7 @@ public class CoinsCommand implements CommandExecutor {
                 return true;
             }
             if (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("dar")) {
-                int coins = Integer.parseInt(args[2]);
+                double coins = Double.parseDouble(args[2]);
 
                 if (target == null) {
                     OfflinePlayer targetOffline = Bukkit.getServer().getOfflinePlayer(args[1]);
@@ -219,11 +219,11 @@ public class CoinsCommand implements CommandExecutor {
                 return true;
             }
             if (args[0].equalsIgnoreCase("take")) {
-                int coins = Integer.parseInt(args[2]);
-                int coins_f = coins - Integer.parseInt(args[2]);
-                Integer coins_fi = coins_f;
+                double coins = Double.parseDouble(args[2]);
+                double coins_f = coins - Double.parseDouble(args[2]);
+                Double coins_fi = coins_f;
                 String coins_fin = coins_fi.toString();
-                Integer coins_int = coins;
+                Double coins_int = coins;
                 String coins_string = coins_int.toString();
                 if (target == null) {
                     OfflinePlayer targetOffline = Bukkit.getServer().getOfflinePlayer(args[1]);
@@ -305,7 +305,7 @@ public class CoinsCommand implements CommandExecutor {
                 return true;
             }
             if (args[0].equalsIgnoreCase("set")) {
-                int coins = Integer.parseInt(args[2]);
+                double coins = Double.parseDouble(args[2]);
                 if (target == null) {
                     OfflinePlayer targetOffline = Bukkit.getServer().getOfflinePlayer(args[1]);
                     if (CoinsAPI.isindb(targetOffline)) {
