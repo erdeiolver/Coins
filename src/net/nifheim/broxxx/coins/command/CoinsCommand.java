@@ -87,7 +87,7 @@ public class CoinsCommand implements CommandExecutor {
         for (String str : messages.getStringList("Help.User")) {
             sender.sendMessage(plugin.rep(str));
         }
-        if (sender.hasPermission("coins.admin.help")) {
+        if (sender.hasPermission("nifheim.admin")) {
             //sender.sendMessage(plugin.rep(messages.getString("Help.Admin").replaceAll("\\[|\\]", "").replaceAll(", ", "\t")));
             for (String str : messages.getStringList("Help.Admin")) {
                 sender.sendMessage(plugin.rep(str));
@@ -162,7 +162,7 @@ public class CoinsCommand implements CommandExecutor {
         }
         if (args.length == 3) {
             Player target = Bukkit.getPlayer(args[1]);
-            if (!sender.hasPermission("nifheimcoins.admin.give")) {
+            if (!sender.hasPermission("nifheim.admin")) {
                 sender.sendMessage(plugin.rep(messages.getString("Errors.No permissions")));
                 return true;
             }
@@ -192,7 +192,7 @@ public class CoinsCommand implements CommandExecutor {
                         CoinsAPI.addCoins(target, coins);
                         target.sendMessage(plugin.rep(messages.getString("Coins.Give target").replaceAll("%coins%", String.valueOf(coins))) + multiplier);
                     } else if (target.hasPermission("coins.multiplier.x2")
-                            || target.hasPermission("nifheim.vip.conde")
+                            || target.hasPermission("nifheim.vip.earl")
                             || target.hasPermission("nifheim.vip.marques")) {
                         coins = coins * 2;
                         CoinsAPI.addCoins(target, coins);
@@ -214,7 +214,7 @@ public class CoinsCommand implements CommandExecutor {
     public boolean _take(CommandSender sender, String[] args) throws SQLException {
         Player target = Bukkit.getPlayer(args[1]);
         if (args.length == 3) {
-            if (!sender.hasPermission("nifheimcoins.admin.take")) {
+            if (!sender.hasPermission("nifheim.admin")) {
                 sender.sendMessage(plugin.rep(messages.getString("Errors.No permissions")));
                 return true;
             }
@@ -271,7 +271,7 @@ public class CoinsCommand implements CommandExecutor {
     }
 
     public boolean _reset(CommandSender sender, String[] args) throws SQLException {
-        if (!sender.hasPermission("nifheimcoins.admin.reset")) {
+        if (!sender.hasPermission("nifheim.admin")) {
             sender.sendMessage(plugin.rep(messages.getString("Errors.No permissions")));
             return true;
         }
@@ -300,7 +300,7 @@ public class CoinsCommand implements CommandExecutor {
     public boolean _set(CommandSender sender, String[] args) throws SQLException {
         Player target = Bukkit.getPlayer(args[1]);
         if (args.length == 3) {
-            if (!sender.hasPermission("nifheimcoins.admin.set")) {
+            if (!sender.hasPermission("nifheim.admin")) {
                 sender.sendMessage(plugin.rep(messages.getString("Errors.No permissions")));
                 return true;
             }
@@ -378,7 +378,7 @@ public class CoinsCommand implements CommandExecutor {
             Main.getInstance().saveConfig();
             Bukkit.getPluginManager().disablePlugin(Main.getInstance());
             Bukkit.getPluginManager().enablePlugin(Main.getInstance());
-            sender.sendMessage(plugin.rep("&8&l[&c&lCoins&8&l] &7Plugin reloaded."));
+            sender.sendMessage(plugin.rep("&8&l[&c&lCoins&8&l]&7Plugin reloaded."));
         }
         return true;
     }
