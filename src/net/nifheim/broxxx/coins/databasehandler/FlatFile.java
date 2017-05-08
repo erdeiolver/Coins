@@ -3,6 +3,7 @@ package net.nifheim.broxxx.coins.databasehandler;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.text.DecimalFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,12 +18,13 @@ import org.bukkit.entity.Player;
  * @author Beelzebu
  */
 public class FlatFile {
-    
+
     private final Main plugin;
     private final File dataFile;
     private final YamlConfiguration data;
     private String player;
-    
+    private final DecimalFormat df = new DecimalFormat("#.##");
+
     public FlatFile(Main plugin) {
         this.plugin = plugin;
         this.dataFile = new File(plugin.getDataFolder(), "data.yml");
@@ -36,109 +38,109 @@ public class FlatFile {
         }
         this.data = YamlConfiguration.loadConfiguration(dataFile);
     }
-    
+
     private String player(OfflinePlayer p) {
         player = p.getUniqueId().toString();
         return player;
     }
-    
+
     public void setCoins(Player p, Integer coins) {
         data.set("Players." + p.getUniqueId() + ".Coins", coins);
         saveData();
     }
-    
+
     public void setCoinsOffline(OfflinePlayer p, Integer coins) {
         data.set("Players." + p.getUniqueId() + ".Coins", coins);
         saveData();
     }
-    
+
     public Double getCoins(Player p) {
         String localplayer = player(p);
         return data.getDouble("Players." + localplayer + ".Coins");
     }
-    
+
     public Double getOfflineCoins(OfflinePlayer p) {
         String localplayer = player(p);
         return data.getDouble("Players." + localplayer + ".Coins");
     }
-    
+
     public String getCoinsString(Player p) {
-        String localplayer = player(p);
-        String coins = String.valueOf(data.getDouble("Players." + localplayer + ".Coins"));
-        if (coins != null || !coins.equals("0.0")) {
-            return coins;
+
+        double coins = getCoins(p);
+        if (coins == 0.0) {
+            return "0.0'";
         } else {
-            return "0.0";
+            return (df.format(coins));
         }
     }
-    
+
     public String getCoinsStringOffline(OfflinePlayer p) {
-        String localplayer = player(p);
-        String coins = String.valueOf(data.getDouble("Players." + localplayer + ".Coins"));
-        if (coins != null || !coins.equals("0.0")) {
-            return coins;
+        
+        double coins = getOfflineCoins(p);
+        if (coins == 0.0) {
+            return "0.0'";
         } else {
-            return "0.0";
+            return (df.format(coins));
         }
     }
-    
+
     public void addCoins(Player p, double coins) {
         String localplayer = player(p);
         double oldcoins = data.getDouble("Players." + localplayer + ".Coins");
         data.set("Players." + localplayer + ".Coins", oldcoins + coins);
         saveData();
     }
-    
+
     public void addCoinsOffline(OfflinePlayer p, double coins) {
         String localplayer = player(p);
         double oldcoins = data.getDouble("Players." + localplayer + ".Coins");
         data.set("Players." + localplayer + ".Coins", oldcoins + coins);
         saveData();
     }
-    
+
     public void takeCoins(Player p, double coins) {
         String localplayer = player(p);
         double oldcoins = data.getDouble("Players." + localplayer + ".Coins");
         data.set("Players." + localplayer + ".Coins", oldcoins - coins);
         saveData();
     }
-    
+
     public void takeCoinsOffline(OfflinePlayer p, double coins) {
         String localplayer = player(p);
         double oldcoins = data.getDouble("Players." + localplayer + ".Coins");
         data.set("Players." + localplayer + ".Coins", oldcoins - coins);
         saveData();
     }
-    
+
     public void resetCoins(Player p) {
         String localplayer = player(p);
         data.set("Players." + localplayer + ".Coins", 0.0);
         saveData();
     }
-    
+
     public void resetCoinsOffline(OfflinePlayer p) {
         String localplayer = player(p);
         data.set("Players." + localplayer + ".Coins", 0.0);
         saveData();
     }
-    
+
     public void setCoins(Player p, double coins) {
         String localplayer = player(p);
         data.set("Players." + localplayer + ".Coins", coins);
         saveData();
     }
-    
+
     public void setCoinsOffline(OfflinePlayer p, double coins) {
         String localplayer = player(p);
         data.set("Players." + localplayer + ".Coins", coins);
         saveData();
     }
-    
+
     public boolean isindb(OfflinePlayer p) {
         String localplayer = player(p);
         return (data.getString("Players." + localplayer) != null);
     }
-    
+
     public void createPlayer(Player p) {
         String localplayer = player(p);
         if (data.getConfigurationSection("Players." + localplayer) == null) {
@@ -151,11 +153,11 @@ public class FlatFile {
         }
         saveData();
     }
-    
+
     public void saveData() {
         try {
             data.save(dataFile);
-            
+
         } catch (IOException ex) {
             Logger.getLogger(FlatFile.class.getName()).log(Level.SEVERE, null, ex);
         }
