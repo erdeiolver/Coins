@@ -30,8 +30,6 @@ public class Main extends JavaPlugin {
 
     private final File messagesFile = new File(getDataFolder(), "messages.yml");
     private FileConfiguration messages;
-    private final File dataFile = new File(getDataFolder(), "data.yml");
-    private FileConfiguration data = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "data.yml"));
 
     public static String rep;
     public final ConsoleCommandSender console = Bukkit.getConsoleSender();
