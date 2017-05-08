@@ -227,7 +227,7 @@ public class CoinsCommand implements CommandExecutor {
                 String coins_string = coins_int.toString();
                 if (target == null) {
                     OfflinePlayer targetOffline = Bukkit.getServer().getOfflinePlayer(args[1]);
-                    if (CoinsAPI.getOfflineCoins(targetOffline) < coins) {
+                    if (CoinsAPI.getCoinsOffline(targetOffline) < coins) {
                         if (config.getBoolean("Allow Negative")) {
                             if (CoinsAPI.isindb(targetOffline)) {
                                 CoinsAPI.takeCoinsOffline(targetOffline, coins);
@@ -238,7 +238,7 @@ public class CoinsCommand implements CommandExecutor {
                             return true;
                         }
                         sender.sendMessage(plugin.rep(messages.getString("Errors.No Negative").replaceAll("%target%", targetOffline.getName()).replaceAll("%coins%", coins_string)));
-                    } else if (CoinsAPI.getOfflineCoins(targetOffline) >= coins) {
+                    } else if (CoinsAPI.getCoinsOffline(targetOffline) >= coins) {
                         if (CoinsAPI.isindb(targetOffline)) {
                             CoinsAPI.takeCoinsOffline(targetOffline, coins);
                             sender.sendMessage(plugin.rep(messages.getString("Coins.Take target").replaceAll("%coins%", coins_fin).replaceAll("%target%", targetOffline.getName())));
@@ -333,7 +333,7 @@ public class CoinsCommand implements CommandExecutor {
         while (res.next()) {
             i++;
 
-            String str = res.getString("player");
+            String str = res.getString("nick");
             int j = res.getInt("balance");
             top.add(messages.getString("Coins.Top.List").replaceAll("%top%", String.valueOf(i)).replaceAll("%player%", str).replaceAll("%coins%", String.valueOf(j)));
         }
@@ -360,6 +360,11 @@ public class CoinsCommand implements CommandExecutor {
 
                 } else {
                     sender.sendMessage(plugin.rep(messages.getString("")));
+                }
+            }
+            if (args.length == 2) {
+                if (args[1].equalsIgnoreCase("getmultiplier")) {
+                    sender.sendMessage(String.valueOf(CoinsAPI.getMultiplierTime()));
                 }
             }
         }
