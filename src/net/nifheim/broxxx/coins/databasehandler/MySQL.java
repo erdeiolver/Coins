@@ -151,7 +151,7 @@ public class MySQL {
     public String getCoinsString(Player p) throws SQLException {
 
         double coins = getCoins(p);
-        if (coins == 0) {
+        if (coins == 0.0) {
             return "0.0'";
         } else {
             return (df.format(coins));
@@ -160,7 +160,7 @@ public class MySQL {
 
     public String getCoinsStringOffline(OfflinePlayer p) throws SQLException {
         double coins = getOfflineCoins(p);
-        if (coins == 0) {
+        if (coins == 0.0) {
             return "0";
         } else {
             return (df.format(coins));
