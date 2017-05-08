@@ -6,7 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.nifheim.broxxx.coins.databasehandler.FlatFile;
+import net.nifheim.broxxx.coins.listener.PlayerJoinListener;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -17,11 +19,11 @@ import org.bukkit.configuration.file.FileConfiguration;
  * @author Beelzebu
  */
 public class CoinsAPI {
-
+    
     private static final FileConfiguration config = Main.getInstance().getConfig();
     private static final MySQL mysql = Main.mysql;
     private static final FlatFile ff = Main.ff;
-
+    
     private static boolean mysql() {
         return config.getBoolean("MySQL.Use");
     }
@@ -50,10 +52,8 @@ public class CoinsAPI {
      *
      * @param p Player to get the coins.
      * @return
-     * @deprecated
      */
-    @Deprecated
-    public static Double getOfflineCoins(OfflinePlayer p) {
+    public static Double getCoinsOffline(OfflinePlayer p) {
         if (mysql()) {
             try {
                 return mysql.getOfflineCoins(p);
@@ -90,9 +90,7 @@ public class CoinsAPI {
      *
      * @param p Player to get the coins string.
      * @return
-     * @deprecated
      */
-    @Deprecated
     public static String getCoinsStringOffline(OfflinePlayer p) {
         if (mysql()) {
             try {
@@ -120,7 +118,7 @@ public class CoinsAPI {
                 Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to add the coins to a user, the error code is: " + ex.getErrorCode(), ex);
             }
         } else {
-
+            ff.addCoins(p, coins);
         }
     }
 
@@ -129,9 +127,7 @@ public class CoinsAPI {
      *
      * @param p
      * @param coins
-     * @deprecated
      */
-    @Deprecated
     public static void addCoinsOffline(OfflinePlayer p, double coins) {
         if (mysql()) {
             try {
@@ -140,7 +136,7 @@ public class CoinsAPI {
                 Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to add coins to an offline user, the error code is: " + ex.getErrorCode(), ex);
             }
         } else {
-
+            ff.addCoinsOffline(p, coins);
         }
     }
 
@@ -158,7 +154,7 @@ public class CoinsAPI {
                 Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
             }
         } else {
-
+            ff.takeCoins(p, coins);
         }
     }
 
@@ -167,9 +163,7 @@ public class CoinsAPI {
      *
      * @param p
      * @param coins
-     * @deprecated
      */
-    @Deprecated
     public static void takeCoinsOffline(OfflinePlayer p, double coins) {
         if (mysql()) {
             try {
@@ -178,7 +172,7 @@ public class CoinsAPI {
                 Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
             }
         } else {
-
+            ff.takeCoinsOffline(p, coins);
         }
     }
 
@@ -195,7 +189,7 @@ public class CoinsAPI {
                 Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
             }
         } else {
-
+            ff.resetCoins(p);
         }
     }
 
@@ -203,9 +197,7 @@ public class CoinsAPI {
      * Reset the coins of a Offline Player.
      *
      * @param p
-     * @deprecated
      */
-    @Deprecated
     public static void resetCoinsOffline(OfflinePlayer p) {
         if (mysql()) {
             try {
@@ -214,7 +206,7 @@ public class CoinsAPI {
                 Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
             }
         } else {
-
+            ff.resetCoinsOffline(p);
         }
     }
 
@@ -232,7 +224,7 @@ public class CoinsAPI {
                 Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
             }
         } else {
-
+            ff.setCoins(p, coins);
         }
     }
 
@@ -241,9 +233,7 @@ public class CoinsAPI {
      *
      * @param p
      * @param coins
-     * @deprecated
      */
-    @Deprecated
     public static void setCoinsOffline(OfflinePlayer p, double coins) {
         if (mysql()) {
             try {
@@ -252,7 +242,7 @@ public class CoinsAPI {
                 Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
             }
         } else {
-
+            ff.setCoinsOffline(p, coins);
         }
     }
 
@@ -280,8 +270,30 @@ public class CoinsAPI {
      *
      * @param top
      * @return
+     * @throws java.sql.SQLException
      */
     public static ResultSet getDataTop(int top) throws SQLException {
         return mysql.getDataTop(top);
+    }
+    
+    public static Long getMultiplierTime() {
+        try {
+            return mysql.getMultiplierTime();
+        } catch (SQLException ex) {
+            Logger.getLogger(CoinsAPI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return Long.parseLong("0");
+    }
+    
+    public static void createPlayer(Player p) {
+        if (config.getBoolean("MySQL.Use")) {
+            try {
+                mysql.createPlayer(p);
+            } catch (SQLException ex) {
+                Logger.getLogger(PlayerJoinListener.class.getName()).log(Level.WARNING, "Unable to create an entry in the database for player: " + p.getName() + " the error code is: " + ex.getErrorCode(), ex);
+            }
+        } else {
+            ff.createPlayer(p);
+        }
     }
 }
