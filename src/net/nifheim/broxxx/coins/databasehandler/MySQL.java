@@ -31,8 +31,8 @@ public class MySQL {
     private static final int checkdb = config.getInt("MySQL.Connection Interval") * 1200;
     private static Connection c;
     private String player;
-    private final DecimalFormat df = new DecimalFormat("####################################.##");
-    
+    private final DecimalFormat df = new DecimalFormat("#.##");
+
     public static Connection getConnection() {
         return c;
     }
@@ -149,40 +149,21 @@ public class MySQL {
     }
 
     public String getCoinsString(Player p) throws SQLException {
-        String localplayer = player(p);
 
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
-        res.next();
-
-        if (res.getString("uuid") != null) {
-            double coins = res.getDouble("balance");
-            if (coins == 0) {
-                return "0";
-            } else {
-                return df.format(coins);
-            }
+        double coins = getCoins(p);
+        if (coins == 0) {
+            return "0.0'";
         } else {
-            return "Player can't be null";
+            return (df.format(coins));
         }
     }
 
     public String getCoinsStringOffline(OfflinePlayer p) throws SQLException {
-        String localplayer = player(p);
-
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
-        res.next();
-
-        if (res.getString("uuid") != null) {
-            double coins = res.getDouble("balance");
-            if (coins == 0) {
-                return "0";
-            } else {
-                return df.format(coins);
-            }
+        double coins = getOfflineCoins(p);
+        if (coins == 0) {
+            return "0";
         } else {
-            return "Player can't be null";
+            return (df.format(coins));
         }
     }
 
@@ -345,10 +326,10 @@ public class MySQL {
             ResultSet res = check.executeQuery("SELECT uuid FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
             if (!res.next()) {
                 Statement update = c.createStatement();
-                update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + localplayer + "', '" + p.getName() + "', 0.0, " + System.currentTimeMillis() + ");");
+                update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + localplayer + "', '" + p.getName() + "', 0.0, '" + System.currentTimeMillis() + ");");
             } else {
                 Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Data SET nick = " + p.getName() + " WHERE uuid = '" + localplayer + "';");
+                update.executeUpdate("UPDATE " + prefix + "Data SET nick = '" + p.getName() + "' WHERE uuid = '" + localplayer + "';");
                 update.executeUpdate("UPDATE " + prefix + "Data SET lastlogin = " + System.currentTimeMillis() + " WHERE uuid = '" + localplayer + "';");
             }
         } else {
@@ -358,9 +339,17 @@ public class MySQL {
                 update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + localplayer + "', '" + p.getName() + "', 0.0, " + System.currentTimeMillis() + ");");
             } else {
                 Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Data SET uuid = " + localplayer + " WHERE nick = '" + p.getName() + "';");
+                update.executeUpdate("UPDATE " + prefix + "Data SET uuid = '" + localplayer + "' WHERE nick = '" + p.getName() + "';");
                 update.executeUpdate("UPDATE " + prefix + "Data SET lastlogin = " + System.currentTimeMillis() + " WHERE nick = '" + p.getName() + "';");
             }
         }
+    }
+
+    public Long getMultiplierTime() throws SQLException {
+        Statement check = c.createStatement();
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + config.getString("Multipliers.Server") + "';");
+        res.next();
+
+        return (res.getLong("starttime") - res.getLong("endtime"));
     }
 }
