@@ -329,7 +329,7 @@ public class CoinsCommand implements CommandExecutor {
         ResultSet res = CoinsAPI.getDataTop(10);
         ArrayList top = new ArrayList();
         int i = 0;
-        sender.sendMessage(plugin.rep(messages.getString("Coins.Top.Header")));
+        sender.sendMessage(plugin.rep(messages.getString("Coins.Top.Header")).split("\n"));
         while (res.next()) {
             i++;
 
@@ -378,7 +378,7 @@ public class CoinsCommand implements CommandExecutor {
             Main.getInstance().saveConfig();
             Bukkit.getPluginManager().disablePlugin(Main.getInstance());
             Bukkit.getPluginManager().enablePlugin(Main.getInstance());
-            sender.sendMessage(plugin.rep("%prefix%&7Plugin reloaded."));
+            sender.sendMessage(plugin.rep("&8&l[&c&lCoins&8&l] &7Plugin reloaded."));
         }
         return true;
     }

@@ -2,6 +2,7 @@ package net.nifheim.broxxx.coins;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -22,6 +23,7 @@ import net.nifheim.broxxx.coins.databasehandler.MySQL;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -56,6 +58,7 @@ public class Main extends JavaPlugin {
         instance = this;
 
         this.loadManagers();
+        this.reloadConfig();
 
         getCommand("coins").setExecutor(new CoinsCommand());
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
@@ -67,9 +70,9 @@ public class Main extends JavaPlugin {
         } else {
             ff = new FlatFile(this);
         }
-        
+
         this.motd();
-        
+
         for (Player p : Bukkit.getOnlinePlayers()) {
             CoinsAPI.createPlayer(p);
         }
@@ -78,6 +81,8 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable() {
 
+        this.reloadMessages();
+        
         Bukkit.getScheduler().cancelTasks(this);
 
         this.motd();
@@ -152,6 +157,15 @@ public class Main extends JavaPlugin {
             console.sendMessage(rep("    §c|     §4v:§f" + getDescription().getVersion() + "      §c|"));
             console.sendMessage(rep("    §c+==================+"));
             console.sendMessage(rep(""));
+        }
+    }
+
+    private void reloadMessages() {
+        try {
+            messages.load(messagesFile);
+            messages.save(messagesFile);
+        } catch (IOException | InvalidConfigurationException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
