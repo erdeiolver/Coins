@@ -2,7 +2,6 @@ package net.nifheim.broxxx.coins;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -23,15 +22,15 @@ import net.nifheim.broxxx.coins.databasehandler.MySQL;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 public class Main extends JavaPlugin {
 
     private final File messagesFile = new File(getDataFolder(), "messages.yml");
     private FileConfiguration messages;
-    private final YamlConfiguration dataFile = new YamlConfiguration();
+    private final File dataFile = new File(getDataFolder(), "data.yml");
     private FileConfiguration data = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "data.yml"));
 
     public static String rep;
@@ -70,8 +69,12 @@ public class Main extends JavaPlugin {
         } else {
             ff = new FlatFile(this);
         }
-
+        
         this.motd();
+        
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            CoinsAPI.createPlayer(p);
+        }
     }
 
     @Override
@@ -87,26 +90,6 @@ public class Main extends JavaPlugin {
 
         if (!messagesFile.exists()) {
             copy(getResource("messages.yml"), messagesFile);
-        }
-
-        if (!getConfig().getBoolean("MySQL.Use")) {
-            if (data == null) {
-                try {
-                    dataFile.save(new File(getDataFolder(), "data.yml"));
-                } catch (IOException ex) {
-                    Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Can't save data file", ex);
-                }
-            }
-            data = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "data.yml"));
-            if (data.getConfigurationSection("Players") == null) {
-                data.createSection("Players");
-                try {
-                    dataFile.load(new File(getDataFolder(), "data.yml"));
-                    dataFile.save(new File(getDataFolder(), "data.yml"));
-                } catch (IOException | InvalidConfigurationException ex) {
-                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
         }
 
         File configFile = new File(getDataFolder(), "config.yml");
