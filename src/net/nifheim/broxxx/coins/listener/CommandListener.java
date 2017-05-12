@@ -10,8 +10,9 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 public class CommandListener implements Listener {
 
-    private final FileConfiguration config = Main.getInstance().getConfig();
-    private Main plugin;
+    private final Main plugin = Main.getInstance();
+    private final FileConfiguration config = plugin.getConfig();
+    private final FileConfiguration messages = plugin.getMessages();
 
     @EventHandler
     public void onCommandEvent(PlayerCommandPreprocessEvent e) {
@@ -19,7 +20,7 @@ public class CommandListener implements Listener {
         if (config.getDouble("Command Cost." + msg) != 0) {
             if (CoinsAPI.getCoins(e.getPlayer()) < config.getDouble("Command Cost." + msg)) {
                 e.setCancelled(true);
-                e.getPlayer().sendMessage(plugin.rep(config.getString("Messages.Errors.No Coins")));
+                e.getPlayer().sendMessage(plugin.rep(messages.getString("Errors.No Coins")));
             } else {
                 CoinsAPI.takeCoins(e.getPlayer(), config.getDouble("Command Cost." + msg));
             }
