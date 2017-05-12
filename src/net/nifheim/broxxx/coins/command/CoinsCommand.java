@@ -368,12 +368,13 @@ public class CoinsCommand implements CommandExecutor {
     private boolean _execute(CommandSender sender, String[] args) {
         if (config.getConfigurationSection("Command executor." + "" + args[1]) != null) {
             if (sender instanceof Player) {
+                Player p = (Player) sender;
                 String comando = (config.getString("Command executor." + args[1] + ".Command")).replaceAll("%player%", sender.getName());
-                if (config.getDouble("Command executor" + args[1] + ".Cost") > 0) {
-                    if (CoinsAPI.getCoins((Player) sender) < config.getDouble("Command executor" + args[1] + ".Cost")) {
+                if (config.getDouble("Command executor." + args[1] + ".Cost") > 0) {
+                    if (CoinsAPI.getCoins(p) < (config.getDouble("Command executor." + args[1] + ".Cost"))) {
                         sender.sendMessage(plugin.rep(messages.getString("Errors.No Coins")));
                     } else {
-                        CoinsAPI.takeCoins(((Player) sender).getPlayer(), config.getDouble("Command executor" + args[1] + ".Cost"));
+                        CoinsAPI.takeCoins(p, (config.getDouble("Command executor." + args[1] + ".Cost")));
                         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), comando);
                     }
                 } else {
