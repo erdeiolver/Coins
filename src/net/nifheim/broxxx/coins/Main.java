@@ -57,8 +57,8 @@ public class Main extends JavaPlugin {
 
         instance = this;
 
-        this.loadManagers();
-        this.reloadConfig();
+        loadManagers();
+        reloadConfig();
 
         getCommand("coins").setExecutor(new CoinsCommand());
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
@@ -71,6 +71,8 @@ public class Main extends JavaPlugin {
             ff = new FlatFile(this);
         }
 
+        updateMessages();
+        
         this.motd();
 
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -166,6 +168,13 @@ public class Main extends JavaPlugin {
             messages.save(messagesFile);
         } catch (IOException | InvalidConfigurationException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void updateMessages() {
+        if (getMessages().getInt("version") == 1) {
+            getMessages().set("Errors.No Execute", "%prefix% &cCan''t find a command to execute with this id.");
+            reloadMessages();
         }
     }
 }
