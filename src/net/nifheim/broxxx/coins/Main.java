@@ -72,7 +72,7 @@ public class Main extends JavaPlugin {
         }
 
         updateMessages();
-        
+
         this.motd();
 
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -84,7 +84,7 @@ public class Main extends JavaPlugin {
     public void onDisable() {
 
         this.reloadMessages();
-        
+
         Bukkit.getScheduler().cancelTasks(this);
 
         this.motd();
@@ -170,11 +170,16 @@ public class Main extends JavaPlugin {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     private void updateMessages() {
         if (getMessages().getInt("version") == 1) {
-            getMessages().set("Errors.No Execute", "%prefix% &cCan''t find a command to execute with this id.");
-            reloadMessages();
+            getMessages().set("Errors.No Execute", "%prefix% &cCan't find a command to execute with this id.");
+            getMessages().set("version", 2);
+            try {
+                messages.save(messagesFile);
+            } catch (IOException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 }

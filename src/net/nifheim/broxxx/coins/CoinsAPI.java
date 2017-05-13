@@ -4,6 +4,7 @@ import net.nifheim.broxxx.coins.databasehandler.MySQL;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,11 +20,12 @@ import org.bukkit.configuration.file.FileConfiguration;
  * @author Beelzebu
  */
 public class CoinsAPI {
-    
+
     private static final FileConfiguration config = Main.getInstance().getConfig();
     private static final MySQL mysql = Main.mysql;
     private static final FlatFile ff = Main.ff;
-    
+    private static final DecimalFormat df = new DecimalFormat("#.#");
+
     private static boolean mysql() {
         return config.getBoolean("MySQL.Use");
     }
@@ -44,7 +46,7 @@ public class CoinsAPI {
         } else {
             return ff.getCoins(p);
         }
-        return 0.0;
+        return Double.parseDouble("0");
     }
 
     /**
@@ -73,16 +75,17 @@ public class CoinsAPI {
      * @return
      */
     public static String getCoinsString(Player p) {
-        if (mysql()) {
-            try {
-                return mysql.getCoinsString(p);
-            } catch (SQLException ex) {
-                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to get the string of coins of a user, the error code is: " + ex.getErrorCode(), ex);
+
+        if (p != null) {
+            double coins = getCoins(p);
+            if (coins == 0.0 || coins == 0) {
+                return "0";
+            } else {
+                return (df.format(coins));
             }
         } else {
-            return ff.getCoinsString(p);
+            return "Player can't be null";
         }
-        return "Player can't be null";
     }
 
     /**
@@ -92,16 +95,17 @@ public class CoinsAPI {
      * @return
      */
     public static String getCoinsStringOffline(OfflinePlayer p) {
-        if (mysql()) {
-            try {
-                return mysql.getCoinsStringOffline(p);
-            } catch (SQLException ex) {
-                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to get the string of coins of a user, the error code is: " + ex.getErrorCode(), ex);
+
+        if (p != null) {
+            double coins = getCoinsOffline(p);
+            if (coins == 0.0 || coins == 0) {
+                return "0";
+            } else {
+                return (df.format(coins));
             }
         } else {
-            return ff.getCoinsStringOffline(p);
+            return "Player can't be null";
         }
-        return "Player can't be null";
     }
 
     /**
@@ -275,7 +279,7 @@ public class CoinsAPI {
     public static ResultSet getDataTop(int top) throws SQLException {
         return mysql.getDataTop(top);
     }
-    
+
     public static Long getMultiplierTime() {
         try {
             return mysql.getMultiplierTime();
@@ -284,7 +288,7 @@ public class CoinsAPI {
         }
         return Long.parseLong("0");
     }
-    
+
     public static void createPlayer(Player p) {
         if (config.getBoolean("MySQL.Use")) {
             try {
