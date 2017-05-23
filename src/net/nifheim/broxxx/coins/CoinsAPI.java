@@ -1,10 +1,32 @@
+/*
+ * This file is part of Coins.
+ *
+ * Copyright © 2017 Beelzebu
+ * Coins is licensed under the GNU General Public License.
+ *
+ * Coins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Coins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.nifheim.broxxx.coins;
 
 import net.nifheim.broxxx.coins.databasehandler.MySQL;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,14 +80,14 @@ public class CoinsAPI {
     public static Double getCoinsOffline(OfflinePlayer p) {
         if (mysql()) {
             try {
-                return mysql.getOfflineCoins(p);
+                return mysql.getCoinsOffline(p);
             } catch (SQLException ex) {
                 Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to get the coins of a user, the error code is: " + ex.getErrorCode(), ex);
             }
         } else {
-            return ff.getOfflineCoins(p);
+            return ff.getCoinsOffline(p);
         }
-        return 0.0;
+        return Double.parseDouble("0");
     }
 
     /**
@@ -109,12 +131,28 @@ public class CoinsAPI {
     }
 
     /**
+     *
+     */
+    /**
      * Add coins to a Online Player.
      *
      * @param p The player to add the coins.
      * @param coins The coins to add.
+     * @deprecated Use addCoins(Player p, Double coins, Boolean multiply)
      */
-    public static void addCoins(Player p, double coins) {
+    @Deprecated
+    public static void addCoins(Player p, Double coins) {
+        addCoins(p, coins, false);
+    }
+
+    /**
+     * Add coins to a Online Player.
+     *
+     * @param p The player to add the coins.
+     * @param coins The coins to add.
+     * @param multiply Multiply coins if there are any active multipliers
+     */
+    public static void addCoins(Player p, Double coins, Boolean multiply) {
         if (mysql()) {
             try {
                 mysql.addCoins(p, coins);
@@ -132,7 +170,7 @@ public class CoinsAPI {
      * @param p
      * @param coins
      */
-    public static void addCoinsOffline(OfflinePlayer p, double coins) {
+    public static void addCoinsOffline(OfflinePlayer p, Double coins) {
         if (mysql()) {
             try {
                 mysql.addCoinsOffline(p, coins);
@@ -150,7 +188,7 @@ public class CoinsAPI {
      * @param p
      * @param coins
      */
-    public static void takeCoins(Player p, double coins) {
+    public static void takeCoins(Player p, Double coins) {
         if (mysql()) {
             try {
                 mysql.takeCoins(p, coins);
@@ -168,7 +206,7 @@ public class CoinsAPI {
      * @param p
      * @param coins
      */
-    public static void takeCoinsOffline(OfflinePlayer p, double coins) {
+    public static void takeCoinsOffline(OfflinePlayer p, Double coins) {
         if (mysql()) {
             try {
                 mysql.takeCoinsOffline(p, coins);
@@ -220,7 +258,7 @@ public class CoinsAPI {
      * @param p
      * @param coins
      */
-    public static void setCoins(Player p, double coins) {
+    public static void setCoins(Player p, Double coins) {
         if (mysql()) {
             try {
                 mysql.setCoins(p, coins);
@@ -238,7 +276,7 @@ public class CoinsAPI {
      * @param p
      * @param coins
      */
-    public static void setCoinsOffline(OfflinePlayer p, double coins) {
+    public static void setCoinsOffline(OfflinePlayer p, Double coins) {
         if (mysql()) {
             try {
                 mysql.setCoinsOffline(p, coins);
@@ -280,13 +318,14 @@ public class CoinsAPI {
         return mysql.getDataTop(top);
     }
 
-    public static Long getMultiplierTime() {
+    public static String getMultiplierTimeFormated() {
         try {
-            return mysql.getMultiplierTime();
+            SimpleDateFormat sdf = new SimpleDateFormat("HHH:mm:ss");
+            return sdf.format(mysql.getMultiplierTime());
         } catch (SQLException ex) {
             Logger.getLogger(CoinsAPI.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return Long.parseLong("0");
+        return "0";
     }
 
     public static void createPlayer(Player p) {
@@ -298,6 +337,14 @@ public class CoinsAPI {
             }
         } else {
             ff.createPlayer(p);
+        }
+    }
+
+    public static void createMultiplier(Player p, Integer multiplier, Integer minutes) {
+        try {
+            mysql.createMultiplier(p, multiplier, minutes);
+        } catch (SQLException ex) {
+            Logger.getLogger(PlayerJoinListener.class.getName()).log(Level.WARNING, "Unable to create a multiplier in the database for player: " + p.getName() + " the error code is: " + ex.getErrorCode(), ex);
         }
     }
 }

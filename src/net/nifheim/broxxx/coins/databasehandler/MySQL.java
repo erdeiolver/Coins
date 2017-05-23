@@ -1,3 +1,22 @@
+/*
+ * This file is part of Coins.
+ *
+ * Copyright © 2017 Beelzebu
+ * Coins is licensed under the GNU General Public License.
+ *
+ * Coins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Coins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.nifheim.broxxx.coins.databasehandler;
 
 import java.sql.Connection;
@@ -5,7 +24,11 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
 import java.text.DecimalFormat;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,18 +40,22 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
+/**
+ * 
+ * @author Beelzebu
+ */
 public class MySQL {
 
-    private static final FileConfiguration config = Main.getInstance().getConfig();
-    private static final ConsoleCommandSender console = Bukkit.getConsoleSender();
+    private final FileConfiguration config = Main.getInstance().getConfig();
+    private final ConsoleCommandSender console = Main.getInstance().console;
 
-    private static final String host = config.getString("MySQL.Host");
-    private static final int port = config.getInt("MySQL.Port");
-    private static final String name = config.getString("MySQL.Database");
-    private static final String user = config.getString("MySQL.User");
-    private static final String passwd = config.getString("MySQL.Password");
-    private static final String prefix = config.getString("MySQL.Prefix");
-    private static final int checkdb = config.getInt("MySQL.Connection Interval") * 1200;
+    private final String host = config.getString("MySQL.Host");
+    private final int port = config.getInt("MySQL.Port");
+    private final String name = config.getString("MySQL.Database");
+    private final String user = config.getString("MySQL.User");
+    private final String passwd = config.getString("MySQL.Password");
+    private final String prefix = config.getString("MySQL.Prefix");
+    private final int checkdb = config.getInt("MySQL.Connection Interval") * 1200;
     private static Connection c;
     private String player;
     private final DecimalFormat df = new DecimalFormat("#.##");
@@ -80,7 +107,8 @@ public class MySQL {
                 + "(`id` INT NOT NULL AUTO_INCREMENT,"
                 + "`uuid` VARCHAR(50) NOT NULL,"
                 + "`multiplier` INT,"
-                + "`queue` INT,"
+                + "`queue` INT AUTO_INCREMENT,"
+                + "`minutes` INT,"
                 + "`starttime` LONG,"
                 + "`endtime` LONG,"
                 + "`server` VARCHAR(50),"
@@ -121,9 +149,7 @@ public class MySQL {
     public Double getCoins(Player p) throws SQLException {
         String localplayer = player(p);
 
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
-        res.next();
+        ResultSet res = res("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
 
         if (res.getString("uuid") != null) {
             double coins = res.getDouble("balance");
@@ -133,7 +159,7 @@ public class MySQL {
         return 0.0;
     }
 
-    public Double getOfflineCoins(OfflinePlayer p) throws SQLException {
+    public Double getCoinsOffline(OfflinePlayer p) throws SQLException {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
@@ -149,7 +175,7 @@ public class MySQL {
     }
 
     public String getCoinsStringOffline(OfflinePlayer p) throws SQLException {
-        double coins = getOfflineCoins(p);
+        double coins = getCoinsOffline(p);
         if (coins == 0) {
             return "0";
         } else {
@@ -306,6 +332,7 @@ public class MySQL {
         Statement check = c.createStatement();
         ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data ORDER BY balance DESC LIMIT " + top + ";");
         return res;
+        
     }
 
     public void createPlayer(Player p) throws SQLException {
@@ -319,27 +346,65 @@ public class MySQL {
                 update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + localplayer + "', '" + p.getName() + "', 0.0, '" + System.currentTimeMillis() + ");");
             } else {
                 Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Data SET nick = '" + p.getName() + "' WHERE uuid = '" + localplayer + "';");
-                update.executeUpdate("UPDATE " + prefix + "Data SET lastlogin = " + System.currentTimeMillis() + " WHERE uuid = '" + localplayer + "';");
+                update.executeUpdate("UPDATE " + prefix + "Data SET nick = '" + p.getName() + "', lastlogin = " + System.currentTimeMillis() + " WHERE uuid = '" + localplayer + "';");
             }
         } else {
-            ResultSet res = check.executeQuery("SELECT nick FROM " + prefix + "Data WHERE nick = '" + p.getName() + "';");
+            ResultSet res = check.executeQuery("SELECT uuid FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
             if (!res.next()) {
                 Statement update = c.createStatement();
                 update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + localplayer + "', '" + p.getName() + "', 0.0, " + System.currentTimeMillis() + ");");
             } else {
                 Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Data SET uuid = '" + localplayer + "' WHERE nick = '" + p.getName() + "';");
-                update.executeUpdate("UPDATE " + prefix + "Data SET lastlogin = " + System.currentTimeMillis() + " WHERE nick = '" + p.getName() + "';");
+                update.executeUpdate("UPDATE " + prefix + "Data SET uuid = '" + localplayer + "', lastlogin = " + System.currentTimeMillis() + " WHERE nick = '" + p.getName() + "';");
             }
         }
     }
 
     public Long getMultiplierTime() throws SQLException {
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + config.getString("Multipliers.Server") + "';");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + config.getString("Multipliers.Server") + "' AND enabled = true;");
         res.next();
 
         return (res.getLong("starttime") - res.getLong("endtime"));
+    }
+
+    public void createMultiplier(Player p, Integer multiplier, Integer minutes) throws SQLException {
+        String localplayer = player(p);
+        c.createStatement().executeUpdate("INSERT INTO " + prefix + "Multipliers VALUES(NULL, '" + localplayer + "', " + multiplier + ", -1, " + minutes + ", 0, 0, " + "'" + config.getString("Multipliers.Server") + "'" + ", false);");
+    }
+
+    public List<Integer> getMultipliers(Player p) throws SQLException {
+        String localplayer = player(p);
+        ResultSet res = c.createStatement().executeQuery("SELECT * FROM " + prefix + "Multipliers WHERE uuid = '" + localplayer + "';");
+        List<Integer> list = new ArrayList();
+        if (res.next()) {
+            while (res.next()) {
+                list.add(res.getInt("id"));
+            }
+        }
+        return list;
+    }
+
+    public void useMultiplier(Player p, Integer id, Integer multiplier, Integer minutes) throws SQLException {
+        String localplayer = player(p);
+        Long endtime = System.currentTimeMillis() + (minutes * 60000);
+        Boolean enabled = c.createStatement().executeQuery("").getBoolean("enabled");
+        if (!enabled) {
+            ResultSet res = c.createStatement().executeQuery("SELECT * FROM " + prefix + "Multipliers WHERE minutes = " + minutes + " AND multiplier = " + multiplier + " AND uuid = '" + localplayer + "';");
+            c.createStatement().executeUpdate("UPDATE " + prefix + "Multipliers SET starttime = " + System.currentTimeMillis() + ", endtime = " + endtime + ", enabled = true WHERE id = " + id + ";");
+        }
+    }
+
+    private ResultSet res(String query) {
+        try {
+            Statement check = c.createStatement();
+            ResultSet res = check.executeQuery(query);
+            res.next();
+
+            return res;
+        } catch (SQLException ex) {
+            Logger.getLogger(MySQL.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 }

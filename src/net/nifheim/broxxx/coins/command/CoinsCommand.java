@@ -1,3 +1,22 @@
+/*
+ * This file is part of Coins.
+ *
+ * Copyright © 2017 Beelzebu
+ * Coins is licensed under the GNU General Public License.
+ *
+ * Coins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Coins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.nifheim.broxxx.coins.command;
 
 import java.sql.ResultSet;
@@ -23,6 +42,10 @@ import org.bukkit.command.ConsoleCommandSender;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
+/**
+ * 
+ * @author Beelzebu
+ */
 public class CoinsCommand implements CommandExecutor {
 
     public Main plugin = Main.getInstance();
@@ -80,14 +103,14 @@ public class CoinsCommand implements CommandExecutor {
     }
 
     public boolean _help(CommandSender sender, String[] args) {
-        for (String str : messages.getStringList("Help.User")) {
+        messages.getStringList("Help.User").forEach((str) -> {
             sender.sendMessage(plugin.rep(str));
-        }
+        });
         if (sender.hasPermission("nifheim.admin")) {
             //sender.sendMessage(plugin.rep(messages.getString("Help.Admin").replaceAll("\\[|\\]", "").replaceAll(", ", "\t")));
-            for (String str : messages.getStringList("Help.Admin")) {
+            messages.getStringList("Help.Admin").forEach((str) -> {
                 sender.sendMessage(plugin.rep(str));
-            }
+            });
         }
         return true;
     }
@@ -309,27 +332,40 @@ public class CoinsCommand implements CommandExecutor {
 
     public boolean _top(CommandSender sender, String[] args) throws SQLException {
         ResultSet res = CoinsAPI.getDataTop(10);
-        ArrayList top = new ArrayList();
+        List<String> toplist = new ArrayList();
         int i = 0;
-        sender.sendMessage(plugin.rep(messages.getString("Coins.Top.Header")).split("\\n"));
+        sender.sendMessage(plugin.rep(messages.getString("Coins.Top.Header")));
         while (res.next()) {
             i++;
 
             String str = res.getString("nick");
             int j = res.getInt("balance");
-            top.add(messages.getString("Coins.Top.List").replaceAll("%top%", String.valueOf(i)).replaceAll("%player%", str).replaceAll("%coins%", String.valueOf(j)));
+            toplist.add(messages.getString("Coins.Top.List").replaceAll("%top%", String.valueOf(i)).replaceAll("%player%", str).replaceAll("%coins%", String.valueOf(j)));
         }
 
-        List<String> toplist = top;
-        for (String str : toplist) {
+        toplist.forEach((str) -> {
             sender.sendMessage(plugin.rep(str));
-        }
+        });
         return true;
     }
 
     private boolean _multiplier(CommandSender sender, String[] args) {
         // TODO: finish this
         if (sender.hasPermission("nifheim.admin")) {
+            if (args.length == 5) {
+                if (args[1].equalsIgnoreCase("create")) {
+                    if (Bukkit.getPlayer(args[2]) != null) {
+                        try {
+                            int multiplier = Integer.parseInt(args[3]);
+                            int minutes = Integer.parseInt(args[4]);
+                            CoinsAPI.createMultiplier(Bukkit.getPlayer(args[2]), multiplier, minutes);
+                            sender.sendMessage(plugin.rep("Multiplicador creado"));
+                        } catch (NumberFormatException e) {
+                            sender.sendMessage(plugin.rep(String.valueOf(e.getCause())));
+                        }
+                    }
+                }
+            }
             if (args.length == 3) {
                 if (args[1].equalsIgnoreCase("set")) {
                     if (Integer.parseInt(args[2]) > 0 && Integer.parseInt(args[1]) < 5) {
@@ -345,8 +381,8 @@ public class CoinsCommand implements CommandExecutor {
                 }
             }
             if (args.length == 2) {
-                if (args[1].equalsIgnoreCase("getmultiplier")) {
-                    sender.sendMessage(String.valueOf(CoinsAPI.getMultiplierTime()));
+                if (args[1].equalsIgnoreCase("get")) {
+                    sender.sendMessage(CoinsAPI.getMultiplierTimeFormated());
                 }
             }
         }
@@ -355,11 +391,7 @@ public class CoinsCommand implements CommandExecutor {
 
     private boolean _reload(CommandSender sender, String[] args) {
         if (sender.hasPermission("nifheim.admin")) {
-            Bukkit.getScheduler().cancelTasks(Main.getInstance());
-            Main.getInstance().reloadConfig();
-            Main.getInstance().saveConfig();
-            Bukkit.getPluginManager().disablePlugin(Main.getInstance());
-            Bukkit.getPluginManager().enablePlugin(Main.getInstance());
+            plugin.reload();
             sender.sendMessage(plugin.rep("&8&l[&c&lCoins&8&l] &7Plugin reloaded."));
         }
         return true;

@@ -1,3 +1,22 @@
+/*
+ * This file is part of Coins.
+ *
+ * Copyright © 2017 Beelzebu
+ * Coins is licensed under the GNU General Public License.
+ *
+ * Coins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Coins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.nifheim.broxxx.coins.databasehandler;
 
 import java.io.File;
@@ -59,29 +78,9 @@ public class FlatFile {
         return data.getDouble("Players." + localplayer + ".Coins");
     }
 
-    public Double getOfflineCoins(OfflinePlayer p) {
+    public Double getCoinsOffline(OfflinePlayer p) {
         String localplayer = player(p);
         return data.getDouble("Players." + localplayer + ".Coins");
-    }
-
-    public String getCoinsString(Player p) {
-
-        double coins = getCoins(p);
-        if (coins == 0.0) {
-            return "0.0'";
-        } else {
-            return (df.format(coins));
-        }
-    }
-
-    public String getCoinsStringOffline(OfflinePlayer p) {
-        
-        double coins = getOfflineCoins(p);
-        if (coins == 0.0) {
-            return "0.0'";
-        } else {
-            return (df.format(coins));
-        }
     }
 
     public void addCoins(Player p, double coins) {

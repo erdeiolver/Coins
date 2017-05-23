@@ -23,7 +23,6 @@ import net.nifheim.broxxx.coins.databasehandler.MySQL;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -48,7 +47,7 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        this.copyFiles();
+        copyFiles();
         messages = YamlConfiguration.loadConfiguration(messagesFile);
     }
 
@@ -56,9 +55,8 @@ public class Main extends JavaPlugin {
     public void onEnable() {
 
         instance = this;
-
+        loadConfig(false);
         loadManagers();
-        reloadConfig();
 
         getCommand("coins").setExecutor(new CoinsCommand());
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
@@ -73,7 +71,7 @@ public class Main extends JavaPlugin {
 
         updateMessages();
 
-        this.motd();
+        motd();
 
         for (Player p : Bukkit.getOnlinePlayers()) {
             CoinsAPI.createPlayer(p);
@@ -83,11 +81,9 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable() {
 
-        this.reloadMessages();
-
         Bukkit.getScheduler().cancelTasks(this);
 
-        this.motd();
+        motd();
     }
 
     private void copyFiles() {
@@ -106,17 +102,16 @@ public class Main extends JavaPlugin {
     private void loadManagers() {
         // Hook placeholders
         if (getServer().getPluginManager().isPluginEnabled("MVdWPlaceholderAPI")) {
-            console.sendMessage(rep("&8[&cCoins&8] &7MVdWPlaceholderAPI found, hooking in this."));
+            console.sendMessage(rep("&8[&cCoins&8] &7MVdWPlaceholderAPI found, hooking in "));
             MVdWPlaceholderAPIHook.hook(this);
         }
         if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-            console.sendMessage(rep("&8[&cCoins&8] &7PlaceholderAPI found, hooking in this."));
+            console.sendMessage(rep("&8[&cCoins&8] &7PlaceholderAPI found, hooking in "));
             placeholderAPI = new PlaceholderAPI(this);
             placeholderAPI.hook();
         }
     }
 
-    // SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
     public FileConfiguration getMessages() {
         return messages;
     }
@@ -137,13 +132,13 @@ public class Main extends JavaPlugin {
             }
             out.close();
             in.close();
-        } catch (Exception e) {
+        } catch (IOException e) {
             Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Can't copy the file " + file.getName() + " to the plugin data folder.", e.getCause());
         }
     }
 
     private void motd() {
-        if (this.getDescription().getVersion().contains("BETA")) {
+        if (getDescription().getVersion().contains("BETA")) {
             console.sendMessage(rep(""));
             console.sendMessage(rep("    §c+=======================+"));
             console.sendMessage(rep("    §c|   §4Coins §fBy: §7Broxxx§c    |"));
@@ -162,15 +157,6 @@ public class Main extends JavaPlugin {
         }
     }
 
-    private void reloadMessages() {
-        try {
-            messages.load(messagesFile);
-            messages.save(messagesFile);
-        } catch (IOException | InvalidConfigurationException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
     private void updateMessages() {
         if (getMessages().getInt("version") == 1) {
             getMessages().set("Errors.No Execute", "%prefix% &cCan't find a command to execute with this id.");
@@ -181,5 +167,25 @@ public class Main extends JavaPlugin {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+    }
+
+    public void reload() {
+        getServer().getScheduler().cancelTasks(this);
+
+        loadConfig(true);
+
+        loadManagers();
+    }
+
+    private void loadConfig(boolean reloadConfig) {
+        if (reloadConfig) {
+            try {
+                reloadConfig();
+                messages.save(messagesFile);
+            } catch (IOException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
     }
 }
