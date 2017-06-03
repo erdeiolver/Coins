@@ -21,11 +21,11 @@ package net.nifheim.broxxx.coins;
 
 import net.nifheim.broxxx.coins.databasehandler.MySQL;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -310,12 +310,16 @@ public class CoinsAPI {
     /**
      * Get the top players in coins data.
      *
-     * @param top
-     * @return
-     * @throws java.sql.SQLException
+     * @param top The lenght of the top list, for example 5 will get a max of 5 users for the top.
+     * @return The ordered top list.
      */
-    public static ResultSet getDataTop(int top) throws SQLException {
-        return mysql.getDataTop(top);
+    public static List<String> getTop(int top) {
+        if (mysql()) {
+            return mysql.getTop(top);
+        }
+        else {
+            return ff.getTop(top);
+        }
     }
 
     public static String getMultiplierTimeFormated() {
@@ -329,7 +333,7 @@ public class CoinsAPI {
     }
 
     public static void createPlayer(Player p) {
-        if (config.getBoolean("MySQL.Use")) {
+        if (mysql()) {
             try {
                 mysql.createPlayer(p);
             } catch (SQLException ex) {

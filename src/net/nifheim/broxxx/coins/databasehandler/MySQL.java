@@ -36,26 +36,23 @@ import net.nifheim.broxxx.coins.Main;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 /**
- * 
+ *
  * @author Beelzebu
  */
 public class MySQL {
 
-    private final FileConfiguration config = Main.getInstance().getConfig();
-    private final ConsoleCommandSender console = Main.getInstance().console;
+    private final Main plugin = Main.getInstance();
 
-    private final String host = config.getString("MySQL.Host");
-    private final int port = config.getInt("MySQL.Port");
-    private final String name = config.getString("MySQL.Database");
-    private final String user = config.getString("MySQL.User");
-    private final String passwd = config.getString("MySQL.Password");
-    private final String prefix = config.getString("MySQL.Prefix");
-    private final int checkdb = config.getInt("MySQL.Connection Interval") * 1200;
+    private final String host = plugin.getConfig().getString("MySQL.Host");
+    private final int port = plugin.getConfig().getInt("MySQL.Port");
+    private final String name = plugin.getConfig().getString("MySQL.Database");
+    private final String user = plugin.getConfig().getString("MySQL.User");
+    private final String passwd = plugin.getConfig().getString("MySQL.Password");
+    private final String prefix = plugin.getConfig().getString("MySQL.Prefix");
+    private final int checkdb = plugin.getConfig().getInt("MySQL.Connection Interval") * 1200;
     private static Connection c;
     private String player;
     private final DecimalFormat df = new DecimalFormat("#.##");
@@ -69,22 +66,22 @@ public class MySQL {
             Connect();
 
             if (!MySQL.getConnection().isClosed()) {
-                console.sendMessage(("&8[&cCoins&8] &7Plugin conected sucesful to the MySQL.").replaceAll("&", "§"));
+                plugin.log("Plugin conected sucesful to the MySQL.");
             }
         } catch (SQLException e) {
             Logger.getLogger(MySQL.class.getName()).log(Level.WARNING, "Something was wrong with the connection, the error code is: " + e.getErrorCode(), e);
             Bukkit.getScheduler().cancelTasks(Main.getInstance());
-            console.sendMessage(("&8[&cCoins&8] &7Can't connect to the database, disabling plugin...").replaceAll("&", "§"));
+            plugin.log("Can't connect to the database, disabling plugin...");
             Bukkit.getServer().getPluginManager().disablePlugin(Main.getInstance());
         }
 
         Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(Main.getInstance(), () -> {
-            console.sendMessage(("&8[&cCoins&8] &7Checking the database connection ...").replaceAll("&", "§"));
+            plugin.log("Checking the database connection ...");
             if (MySQL.getConnection() == null) {
-                console.sendMessage(("&8[&cCoins&8] &7The database connection is null, reconnecting ...").replaceAll("&", "§"));
+                plugin.log("The database connection is null, reconnecting ...");
                 Reconnect();
             } else {
-                console.sendMessage(("&8[&cCoins&8] &7The connection to the database is still active.").replaceAll("&", "§"));
+                plugin.log("The connection to the database is still active.");
             }
         }, 0L, checkdb);
     }
@@ -131,9 +128,9 @@ public class MySQL {
         }, 20L);
     }
 
-    private void Disconnect() {
+    public void Disconnect() {
         try {
-            if (c != null) {
+            if (!c.isClosed()) {
                 c.close();
             }
         } catch (SQLException e) {
@@ -223,7 +220,7 @@ public class MySQL {
         if (res.getString("uuid") != null) {
 
             if (beforeCoins - coins < 0) {
-                if (!config.getBoolean("Allow Negative")) {
+                if (!plugin.getConfig().getBoolean("Allow Negative")) {
                     Statement update = c.createStatement();
                     update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE uuid = '" + localplayer + "';");
                 }
@@ -248,10 +245,10 @@ public class MySQL {
             double beforeCoins = res.getDouble("balance");
 
             if (beforeCoins - coins < 0) {
-                if (!config.getBoolean("Allow Negative")) {
+                if (!plugin.getConfig().getBoolean("Allow Negative")) {
                     return;
                 }
-                if (config.getBoolean("Allow Negative")) {
+                if (plugin.getConfig().getBoolean("Allow Negative")) {
                     Statement bypassUpdate = c.createStatement();
                     bypassUpdate.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE uuid = '" + localplayer + "';");
                 }
@@ -328,28 +325,39 @@ public class MySQL {
         return res.getString("uuid") != null;
     }
 
-    public ResultSet getDataTop(int top) throws SQLException {
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data ORDER BY balance DESC LIMIT " + top + ";");
-        return res;
-        
+    public List<String> getTop(int top) {
+        List<String> toplist = new ArrayList<>();
+        try {
+            int i = 0;
+            Statement check = c.createStatement();
+            ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data ORDER BY balance DESC LIMIT " + top + ";");
+            while (res.next()) {
+                i++;
+                String playername = res.getString("nick");
+                toplist.add(playername);
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(MySQL.class.getName()).log(Level.WARNING, "Can''''t execute the query to select the data for the top list in the database, the error code is: {0}", ex.getErrorCode());
+        }
+        return toplist;
     }
 
     public void createPlayer(Player p) throws SQLException {
         String localplayer = player(p);
 
         Statement check = c.createStatement();
-        if (config.getBoolean("Online Mode")) {
+        if (plugin.getConfig().getBoolean("Online Mode")) {
             ResultSet res = check.executeQuery("SELECT uuid FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
             if (!res.next()) {
                 Statement update = c.createStatement();
-                update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + localplayer + "', '" + p.getName() + "', 0.0, '" + System.currentTimeMillis() + ");");
+                update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + localplayer + "', '" + p.getName() + "', 0.0, " + System.currentTimeMillis() + ");");
             } else {
                 Statement update = c.createStatement();
                 update.executeUpdate("UPDATE " + prefix + "Data SET nick = '" + p.getName() + "', lastlogin = " + System.currentTimeMillis() + " WHERE uuid = '" + localplayer + "';");
             }
         } else {
-            ResultSet res = check.executeQuery("SELECT uuid FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
+            ResultSet res = check.executeQuery("SELECT nick FROM " + prefix + "Data WHERE nick = '" + p.getName() + "';");
             if (!res.next()) {
                 Statement update = c.createStatement();
                 update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + localplayer + "', '" + p.getName() + "', 0.0, " + System.currentTimeMillis() + ");");
@@ -362,7 +370,7 @@ public class MySQL {
 
     public Long getMultiplierTime() throws SQLException {
         Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + config.getString("Multipliers.Server") + "' AND enabled = true;");
+        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + plugin.getConfig().getString("Multipliers.Server") + "' AND enabled = true;");
         res.next();
 
         return (res.getLong("starttime") - res.getLong("endtime"));
@@ -370,7 +378,7 @@ public class MySQL {
 
     public void createMultiplier(Player p, Integer multiplier, Integer minutes) throws SQLException {
         String localplayer = player(p);
-        c.createStatement().executeUpdate("INSERT INTO " + prefix + "Multipliers VALUES(NULL, '" + localplayer + "', " + multiplier + ", -1, " + minutes + ", 0, 0, " + "'" + config.getString("Multipliers.Server") + "'" + ", false);");
+        c.createStatement().executeUpdate("INSERT INTO " + prefix + "Multipliers VALUES(NULL, '" + localplayer + "', " + multiplier + ", -1, " + minutes + ", 0, 0, " + "'" + plugin.getConfig().getString("Multipliers.Server") + "'" + ", false);");
     }
 
     public List<Integer> getMultipliers(Player p) throws SQLException {

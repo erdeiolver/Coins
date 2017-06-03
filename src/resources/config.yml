@@ -3,7 +3,7 @@
 # the official github repo https://github.com/Beelzebu/Coins/issues/
 
 # The version of the config, don't touch!
-version: 1
+version: 2
 
 # Set this to true to use the player uuid or set to false to use player name.
 Online Mode: true
@@ -18,6 +18,16 @@ MySQL:
   Password: S3CUR3P4SSW0RD
   Prefix: Coins_
   Connection Interval: 5
+  
+# Here you can configure the base command of the plugin.
+Command:
+  Name: 'coins'
+  Description: 'Base command of the Coins plugin'
+  Usage: '/coins'
+  Permission: 'coins.use'
+  Aliases:
+  - 'mycoins'
+  - 'coinsalias'
 
 # Here you can define a cost to use a specific command.
 Command Cost:

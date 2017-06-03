@@ -19,41 +19,39 @@
  */
 package net.nifheim.broxxx.coins.command;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.nifheim.broxxx.coins.CoinsAPI;
 import net.nifheim.broxxx.coins.Main;
 
 import org.bukkit.Bukkit;
-
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
-
+import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 
 /**
- * 
+ *
  * @author Beelzebu
  */
-public class CoinsCommand implements CommandExecutor {
+public class CoinsCommand extends BukkitCommand {
 
     public Main plugin = Main.getInstance();
     private final FileConfiguration config = Main.getInstance().getConfig();
     private final FileConfiguration messages = plugin.getMessages();
 
+    public CoinsCommand(String command, String description, String usage, String permission, List<String> aliases) {
+        super(command);
+        this.description = description;
+        this.usageMessage = usage;
+        this.setPermission(permission);
+        this.setAliases(aliases);
+    }
+
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String CommandLabel, String[] args) {
+    public boolean execute(CommandSender sender, String alias, String[] args) {
         if (args.length < 1) {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
@@ -83,11 +81,7 @@ public class CoinsCommand implements CommandExecutor {
         } else if (args[0].equalsIgnoreCase("reload")) {
             return this._reload(sender, args);
         } else if (args[0].equalsIgnoreCase("top") && args.length == 1) {
-            try {
-                return this._top(sender, args);
-            } catch (SQLException ex) {
-                Logger.getLogger(CoinsCommand.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            return this._top(sender, args);
         } else if (args.length == 1) {
             if (CoinsAPI.isindb(Bukkit.getOfflinePlayer(args[0]))) {
                 if (Bukkit.getPlayer(args[0]) != null || Bukkit.getOfflinePlayer(args[0]) != null) {
@@ -330,22 +324,17 @@ public class CoinsCommand implements CommandExecutor {
         return true;
     }
 
-    public boolean _top(CommandSender sender, String[] args) throws SQLException {
-        ResultSet res = CoinsAPI.getDataTop(10);
-        List<String> toplist = new ArrayList();
-        int i = 0;
+    public boolean _top(CommandSender sender, String[] args) {
         sender.sendMessage(plugin.rep(messages.getString("Coins.Top.Header")));
-        while (res.next()) {
-            i++;
-
-            String str = res.getString("nick");
-            int j = res.getInt("balance");
-            toplist.add(messages.getString("Coins.Top.List").replaceAll("%top%", String.valueOf(i)).replaceAll("%player%", str).replaceAll("%coins%", String.valueOf(j)));
-        }
-
-        toplist.forEach((str) -> {
+        for (int i = 0; i < 10; i++) {
+            double a = CoinsAPI.getCoinsOffline(Bukkit.getOfflinePlayer(CoinsAPI.getTop(10).get(i)));
+            int coins = (int) a;
+            String str = plugin.getMessages().getString("Coins.Top.List")
+                    .replaceAll("%top%", String.valueOf(i + 1))
+                    .replaceAll("%player%", CoinsAPI.getTop(10).get(i))
+                    .replaceAll("%coins%", String.valueOf(coins));
             sender.sendMessage(plugin.rep(str));
-        });
+        }
         return true;
     }
 
@@ -361,7 +350,7 @@ public class CoinsCommand implements CommandExecutor {
                             CoinsAPI.createMultiplier(Bukkit.getPlayer(args[2]), multiplier, minutes);
                             sender.sendMessage(plugin.rep("Multiplicador creado"));
                         } catch (NumberFormatException e) {
-                            sender.sendMessage(plugin.rep(String.valueOf(e.getCause())));
+                            sender.sendMessage(plugin.rep(String.valueOf(e.getCause().getMessage())));
                         }
                     }
                 }

@@ -22,7 +22,13 @@ package net.nifheim.broxxx.coins.databasehandler;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+
 import java.text.DecimalFormat;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,7 +56,6 @@ public class FlatFile {
         try {
             if (dataFile == null) {
                 Files.createFile(dataFile.toPath());
-                plugin.console.sendMessage("§4CREATING DATA FILE");
             }
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Can't save data file", ex);
@@ -138,6 +143,18 @@ public class FlatFile {
     public boolean isindb(OfflinePlayer p) {
         String localplayer = player(p);
         return (data.getString("Players." + localplayer) != null);
+    }
+
+    public List<String> getTop(int top) {
+        List<String> toplist = new ArrayList<>();
+
+        data.getConfigurationSection("Players").getKeys(false).forEach((localplayer) -> {
+            int coins = data.getInt("Players." + localplayer + ".Coins");
+            String playername = data.getString("Players." + localplayer + ".Name");
+            toplist.add(playername);
+            
+        });
+        return toplist;
     }
 
     public void createPlayer(Player p) {
