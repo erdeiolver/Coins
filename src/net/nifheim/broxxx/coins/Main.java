@@ -20,53 +20,43 @@
 package net.nifheim.broxxx.coins;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import java.lang.reflect.Field;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.nifheim.broxxx.coins.command.CoinsCommand;
+import net.nifheim.broxxx.coins.command.CommandManager;
 import net.nifheim.broxxx.coins.databasehandler.FlatFile;
 import net.nifheim.broxxx.coins.databasehandler.MySQL;
 import net.nifheim.broxxx.coins.hooks.MVdWPlaceholderAPIHook;
 import net.nifheim.broxxx.coins.hooks.PlaceholderAPI;
 import net.nifheim.broxxx.coins.listener.CommandListener;
 import net.nifheim.broxxx.coins.listener.PlayerJoinListener;
+import net.nifheim.broxxx.coins.utils.FileUtils;
 
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandMap;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.SimplePluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
 
-    private final File messagesFile = new File(getDataFolder(), "messages.yml");
+    public final File messagesFile = new File(getDataFolder(), "messages.yml");
     private FileConfiguration messages;
-    private final File configFile = new File(getDataFolder(), "config.yml");
-    private final List<String> commandAliases = new ArrayList<>();
+    public final File configFile = new File(getDataFolder(), "config.yml");
 
     public static String rep;
     private final ConsoleCommandSender console = Bukkit.getConsoleSender();
 
-    private PlaceholderAPI placeholderAPI;
-
     private static Main instance;
+    private CommandManager commandManager;
+    private FileUtils fileUtils;
+
     public static MySQL mysql;
     public static FlatFile ff;
+
+    private PlaceholderAPI placeholderAPI;
 
     public static Main getInstance() {
         return instance;
@@ -82,22 +72,22 @@ public class Main extends JavaPlugin {
     public void onEnable() {
 
         instance = this;
+        commandManager = new CommandManager(this);
+        fileUtils = new FileUtils(this);
+        mysql = new MySQL();
         loadConfig(false);
+        updateFiles();
+        motd();
         loadManagers();
 
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new CommandListener(), this);
 
         if (getConfig().getBoolean("MySQL.Use")) {
-            mysql = new MySQL();
             mysql.SQLConnection();
         } else {
             ff = new FlatFile(this);
         }
-
-        updateFiles();
-
-        motd();
 
         Bukkit.getOnlinePlayers().forEach((p) -> {
             CoinsAPI.createPlayer(p);
@@ -116,14 +106,32 @@ public class Main extends JavaPlugin {
         getDataFolder().mkdirs();
 
         if (!messagesFile.exists()) {
-            copy(getResource("messages.yml"), messagesFile);
+            fileUtils.copy(getResource("messages.yml"), messagesFile);
         }
         if (!configFile.exists()) {
-            copy(getResource("config.yml"), configFile);
+            fileUtils.copy(getResource("config.yml"), configFile);
         }
     }
 
+    private void loadConfig(boolean reloadConfig) {
+        if (reloadConfig) {
+            try {
+                reloadConfig();
+                getMessages().load(messagesFile);
+            } catch (IOException | InvalidConfigurationException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    private void updateFiles() {
+        fileUtils.updateConfig();
+        fileUtils.updateMessages();
+    }
+
     private void loadManagers() {
+        // Create the command
+        commandManager.registerCommand();
         // Hook placeholders
         if (getServer().getPluginManager().isPluginEnabled("MVdWPlaceholderAPI")) {
             log("MVdWPlaceholderAPI found, hooking in ");
@@ -146,19 +154,34 @@ public class Main extends JavaPlugin {
                 .replaceAll("&", "§");
     }
 
-    public void copy(InputStream in, File file) {
+    public void reload() {
+        getServer().getScheduler().cancelTasks(this);
+
+        loadConfig(true);
+
+        loadManagers();
+    }
+
+    public void log(String str) {
+        console.sendMessage(rep("&8[&cCoins&8]&7 " + str));
+    }
+
+    public String getString(String msg) {
         try {
-            OutputStream out = new FileOutputStream(file);
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
+            msg = rep(getMessages().getString(msg));
+        } catch (NullPointerException ex) {
+            log("The string " + msg + " does not exists in the messages file, please add this manually.");
+            log("If you belive that this is an error please contact to the developer.");
+            if (debug()) {
+                log(ex.getCause().getMessage());
             }
-            out.close();
-            in.close();
-        } catch (IOException e) {
-            Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Can't copy the file " + file.getName() + " to the plugin data folder.", e.getCause());
+            msg = "";
         }
+        return msg;
+    }
+
+    public Boolean debug() {
+        return getConfig().getBoolean("Debug");
     }
 
     private void motd() {
@@ -179,115 +202,8 @@ public class Main extends JavaPlugin {
             console.sendMessage(rep("    §c+==================+"));
             console.sendMessage(rep(""));
         }
-    }
-
-    private void updateFiles() {
-        updateConfig();
-        updateMessages();
-    }
-
-    private void updateConfig() {
-        if (getConfig().getInt("version") == 1) {
-            log("Config file is outdated, trying to update ...");
-
-            List<String> aliases = new ArrayList<>();
-            aliases.add("mycoins");
-            aliases.add("coinsalias");
-            getConfig().set("Command.Name", "coins");
-            getConfig().set("Command.Description", "Base command of the Coins plugin");
-            getConfig().set("Command.Usage", "/coins");
-            getConfig().set("Command.Permission", "coins.use");
-            getConfig().set("Command.Aliases", aliases);
-            getConfig().set("version", 2);
-            try {
-                getConfig().save(configFile);
-                log("Config file has been updated!");
-            } catch (IOException ex) {
-                log("&cAn internal error has ocurred when updating config file, disabling plugin.");
-                Bukkit.getPluginManager().disablePlugin(this);
-            }
+        if (debug()) {
+            log("Debug mode is enabled.");
         }
-    }
-
-    private void updateMessages() {
-        if (getMessages().getInt("version") == 1) {
-            log("Messages file is outdated, trying to update ...");
-
-            getMessages().set("Errors.No Execute", "%prefix% &cCan't find a command to execute with this id.");
-            getMessages().set("version", 2);
-            try {
-                getMessages().save(messagesFile);
-                log("Messages file has been updated!");
-            } catch (IOException ex) {
-                log("&cAn internal error has ocurred when updating messages file, disabling plugin.");
-                Bukkit.getPluginManager().disablePlugin(this);
-            }
-        }
-    }
-
-    public void reload() {
-        getServer().getScheduler().cancelTasks(this);
-
-        loadConfig(true);
-
-        loadManagers();
-    }
-
-    private void loadConfig(boolean reloadConfig) {
-        try {
-            getConfig().getStringList("Command.Aliases").forEach((str) -> {
-                commandAliases.add(str);
-            });
-
-            final Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-            bukkitCommandMap.setAccessible(true);
-            CommandMap commandMap = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
-
-            String commandName = getConfig().getString("Command.Name", "coins");
-            String commandDescription = getConfig().getString("Command.Description", "Base command of the Coins plugin");
-            String commandUsage = getConfig().getString("Command.Usage", "/coins");
-            String commandPermission = getConfig().getString("Command.Permission", "coins.use");
-
-            commandAliases.forEach((str) -> {
-                unregisterCommand(str);
-            });
-            unregisterCommand(commandName);
-
-            commandMap.register(commandName, new CoinsCommand(commandName, commandDescription, commandUsage, commandPermission, commandAliases));
-
-        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        if (reloadConfig) {
-            try {
-                reloadConfig();
-                getMessages().load(messagesFile);
-            } catch (IOException | InvalidConfigurationException ex) {
-                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-
-    public void unregisterCommand(final String command) {
-        if (getServer() != null && getServer().getPluginManager() instanceof SimplePluginManager) {
-            final SimplePluginManager manager = (SimplePluginManager) getServer().getPluginManager();
-            try {
-                final Field field = SimplePluginManager.class.getDeclaredField("commandMap");
-                field.setAccessible(true);
-                CommandMap map = (CommandMap) field.get(manager);
-                final Field field2 = SimpleCommandMap.class.getDeclaredField("knownCommands");
-                field2.setAccessible(true);
-                final Map<String, org.bukkit.command.Command> knownCommands = (Map<String, org.bukkit.command.Command>) field2.get(map);
-                knownCommands.entrySet().stream().filter((entry) -> (entry.getKey().equals(command))).forEachOrdered((entry) -> {
-                    entry.getValue().unregister(map);
-                });
-                knownCommands.remove(command);
-            } catch (IllegalArgumentException | NoSuchFieldException | IllegalAccessException | SecurityException e) {
-            }
-        }
-    }
-
-    public void log(String str) {
-        console.sendMessage(rep("&8[&cCoins&8]&7 " + str));
     }
 }
