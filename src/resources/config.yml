@@ -3,7 +3,7 @@
 # the official github repo https://github.com/Beelzebu/Coins/issues/
 
 # The version of the config, don't touch!
-version: 2
+version: 3
 
 # Set this to true to use the player uuid or set to false to use player name.
 Online Mode: true
@@ -51,3 +51,6 @@ Multipliers:
   # this server, this is also enabled in all the other servers that has this identifier.
   Server: 'default'
   Amount: 1
+# This is for enable the debug mode, this gonna send more messages to the console to see what
+# is happening with the plugin, please enable this to report bugs.
+Debug: false

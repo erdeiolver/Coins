@@ -101,7 +101,6 @@ public class CoinsCommand extends BukkitCommand {
             sender.sendMessage(plugin.rep(str));
         });
         if (sender.hasPermission("nifheim.admin")) {
-            //sender.sendMessage(plugin.rep(messages.getString("Help.Admin").replaceAll("\\[|\\]", "").replaceAll(", ", "\t")));
             messages.getStringList("Help.Admin").forEach((str) -> {
                 sender.sendMessage(plugin.rep(str));
             });
@@ -169,54 +168,55 @@ public class CoinsCommand extends BukkitCommand {
     public boolean _give(CommandSender sender, String[] args) {
         String multiplier;
         if (config.getInt("Multiplier") > 1) {
-            multiplier = " §8(§bx" + config.getInt("Multiplier") + "§8)";
+            multiplier = " §8(§bx" + config.getInt("Multipliers.Amount") + "§8)";
         } else {
             multiplier = "";
         }
-        if (args.length == 3) {
+        if (args.length == 3 || args.length == 4) {
             Player target = Bukkit.getPlayer(args[1]);
             if (!sender.hasPermission("nifheim.admin")) {
                 sender.sendMessage(plugin.rep(messages.getString("Errors.No permissions")));
-                return true;
             }
             if (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("dar")) {
                 double coins = Double.parseDouble(args[2]);
-
                 if (target == null) {
                     OfflinePlayer targetOffline = Bukkit.getServer().getOfflinePlayer(args[1]);
                     if (CoinsAPI.isindb(targetOffline)) {
                         CoinsAPI.addCoinsOffline(targetOffline, coins);
                         sender.sendMessage(plugin.rep(messages.getString("Coins.Give").replaceAll("%coins%", String.valueOf(coins)).replaceAll("%target%", targetOffline.getName())));
-                        return true;
                     }
                     sender.sendMessage(plugin.rep(messages.getString("Errors.Unknow player").replaceAll("%target%", targetOffline.getName())));
-                    return true;
-                }
-                if (config.getBoolean("Options.Give is multiplied")) {
+                } else {
+                    boolean multiply = false;
+                    if (args.length == 4 && args[3] != null) {
+                        try {
+                            multiply = Boolean.getBoolean(args[3]);
+                        } catch (Exception ex) {
+
+                        }
+                    }
                     if (target.hasPermission("coins.multiplier.x4")
                             || target.hasPermission("nifheim.vip.king")) {
                         coins = coins * 4;
-                        CoinsAPI.addCoins(target, coins);
+                        CoinsAPI.addCoins(target, coins, multiply);
                         target.sendMessage(plugin.rep(messages.getString("Coins.Give target").replaceAll("%coins%", String.valueOf(coins))) + multiplier);
                     } else if (target.hasPermission("coins.multiplier.x3")
                             || target.hasPermission("nifheim.vip.lord")
                             || target.hasPermission("nifheim.vip.sir")) {
                         coins = coins * 3;
-                        CoinsAPI.addCoins(target, coins);
+                        CoinsAPI.addCoins(target, coins, multiply);
                         target.sendMessage(plugin.rep(messages.getString("Coins.Give target").replaceAll("%coins%", String.valueOf(coins))) + multiplier);
                     } else if (target.hasPermission("coins.multiplier.x2")
                             || target.hasPermission("nifheim.vip.earl")
                             || target.hasPermission("nifheim.vip.marques")) {
                         coins = coins * 2;
-                        CoinsAPI.addCoins(target, coins);
+                        CoinsAPI.addCoins(target, coins, multiply);
+                        target.sendMessage(plugin.rep(messages.getString("Coins.Give target").replaceAll("%coins%", String.valueOf(coins))) + multiplier);
+                    } else {
+                        CoinsAPI.addCoins(target, coins, multiply);
                         target.sendMessage(plugin.rep(messages.getString("Coins.Give target").replaceAll("%coins%", String.valueOf(coins))) + multiplier);
                     }
-                } else {
-                    CoinsAPI.addCoins(target, coins);
-                    target.sendMessage(plugin.rep(messages.getString("Coins.Give target").replaceAll("%coins%", String.valueOf(coins))) + multiplier);
                 }
-                sender.sendMessage(plugin.rep(messages.getString("Coins.Give").replaceAll("%coins%", String.valueOf(coins)).replaceAll("%target%", target.getName())) + multiplier);
-                return true;
             }
         } else {
             sender.sendMessage(plugin.rep(messages.getString("Errors.Unknow command")));
@@ -229,41 +229,31 @@ public class CoinsCommand extends BukkitCommand {
         if (args.length == 3) {
             if (!sender.hasPermission("nifheim.admin")) {
                 sender.sendMessage(plugin.rep(messages.getString("Errors.No permissions")));
-                return true;
             }
             if (args[0].equalsIgnoreCase("take")) {
                 double coins = Double.parseDouble(args[2]);
-                double coins_f = coins - Double.parseDouble(args[2]);
-                Double coins_fi = coins_f;
-                String coins_fin = coins_fi.toString();
-                Double coins_int = coins;
-                String coins_string = coins_int.toString();
+                double finalcoins = coins - Double.parseDouble(args[2]);
                 if (target == null) {
                     OfflinePlayer targetOffline = Bukkit.getServer().getOfflinePlayer(args[1]);
                     if (CoinsAPI.getCoinsOffline(targetOffline) < coins) {
-                        sender.sendMessage(plugin.rep(messages.getString("Errors.No Negative").replaceAll("%target%", targetOffline.getName()).replaceAll("%coins%", coins_string)));
+                        sender.sendMessage(plugin.rep(messages.getString("Errors.No Negative")));
                     } else if (CoinsAPI.getCoinsOffline(targetOffline) >= coins) {
                         if (CoinsAPI.isindb(targetOffline)) {
                             CoinsAPI.takeCoinsOffline(targetOffline, coins);
-                            sender.sendMessage(plugin.rep(messages.getString("Coins.Take target").replaceAll("%coins%", coins_fin).replaceAll("%target%", targetOffline.getName())));
-                            return true;
+                            sender.sendMessage(plugin.rep(messages.getString("Coins.Take target").replaceAll("%coins%", String.valueOf(finalcoins)).replaceAll("%target%", targetOffline.getName())));
                         }
                         sender.sendMessage(plugin.rep(messages.getString("Errors.Unknow player").replaceAll("%target%", targetOffline.getName())));
-                        return true;
                     }
                 } else {
                     if (CoinsAPI.getCoins(target) < coins) {
-                        sender.sendMessage(plugin.rep(messages.getString("Errors.No Negative").replaceAll("%target%", target.getName()).replaceAll("%coins%", coins_string)));
-                        return true;
+                        sender.sendMessage(plugin.rep(messages.getString("Errors.No Negative")));
                     }
                     if (CoinsAPI.getCoins(target) >= coins) {
                         CoinsAPI.takeCoins(target, coins);
-                        sender.sendMessage(plugin.rep(messages.getString("Coins.Take").replaceAll("%coins%", coins_string).replaceAll("%target%", target.getName())));
-                        target.sendMessage(plugin.rep(messages.getString("Coins.Take target").replaceAll("%coins%", coins_string)));
-                        return true;
+                        sender.sendMessage(plugin.rep(messages.getString("Coins.Take").replaceAll("%coins%", String.valueOf(coins)).replaceAll("%target%", target.getName()).replaceAll("%newcoins%", String.valueOf(finalcoins))));
+                        target.sendMessage(plugin.rep(messages.getString("Coins.Take target").replaceAll("%coins%", String.valueOf(finalcoins))));
                     }
                 }
-                return true;
             }
         }
         return true;
@@ -272,11 +262,9 @@ public class CoinsCommand extends BukkitCommand {
     public boolean _reset(CommandSender sender, String[] args) {
         if (!sender.hasPermission("nifheim.admin")) {
             sender.sendMessage(plugin.rep(messages.getString("Errors.No permissions")));
-            return true;
         }
         if (args.length < 2) {
             sender.sendMessage(plugin.rep(messages.getString("Help.Reset Usage")));
-            return true;
         }
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
@@ -291,7 +279,6 @@ public class CoinsCommand extends BukkitCommand {
             CoinsAPI.resetCoins(target);
             sender.sendMessage(plugin.rep(messages.getString("Coins.Reset").replaceAll("%target%", target.getName())));
             target.sendMessage(plugin.rep(messages.getString("Coins.Reset target")));
-            return true;
         }
         return true;
     }
@@ -301,7 +288,6 @@ public class CoinsCommand extends BukkitCommand {
         if (args.length == 3) {
             if (!sender.hasPermission("nifheim.admin")) {
                 sender.sendMessage(plugin.rep(messages.getString("Errors.No permissions")));
-                return true;
             }
             if (args[0].equalsIgnoreCase("set")) {
                 double coins = Double.parseDouble(args[2]);
@@ -317,7 +303,6 @@ public class CoinsCommand extends BukkitCommand {
                     CoinsAPI.setCoins(target, coins);
                     sender.sendMessage(plugin.rep(messages.getString("Coins.Set").replaceAll("%target%", target.getName()).replaceAll("%coins%", String.valueOf(coins))));
                     target.sendMessage(plugin.rep(messages.getString("Coins.Set target").replaceAll("%coins%", args[2])));
-                    return true;
                 }
             }
         }
@@ -348,7 +333,7 @@ public class CoinsCommand extends BukkitCommand {
                             int multiplier = Integer.parseInt(args[3]);
                             int minutes = Integer.parseInt(args[4]);
                             CoinsAPI.createMultiplier(Bukkit.getPlayer(args[2]), multiplier, minutes);
-                            sender.sendMessage(plugin.rep("Multiplicador creado"));
+                            sender.sendMessage(plugin.getString("Multipliers.Created"));
                         } catch (NumberFormatException e) {
                             sender.sendMessage(plugin.rep(String.valueOf(e.getCause().getMessage())));
                         }
@@ -359,19 +344,18 @@ public class CoinsCommand extends BukkitCommand {
                 if (args[1].equalsIgnoreCase("set")) {
                     if (Integer.parseInt(args[2]) > 0 && Integer.parseInt(args[1]) < 5) {
                         config.set("Multiplier.Amount", Integer.parseInt(args[1]));
-                        config.set("Multiplier.Enabler", "");
                         Main.getInstance().saveConfig();
-                        sender.sendMessage("Multiplicador establecido");
+                        sender.sendMessage(plugin.getString("Multipliers.Set"));
                     }
                 } else if (args[1].equalsIgnoreCase("use")) {
-
+                    CoinsAPI.getMultiplierFor(config.getString("Multipliers.Server"));
                 } else {
                     sender.sendMessage(plugin.rep(messages.getString("")));
                 }
             }
             if (args.length == 2) {
                 if (args[1].equalsIgnoreCase("get")) {
-                    sender.sendMessage(CoinsAPI.getMultiplierTimeFormated());
+                    sender.sendMessage(CoinsAPI.getMultiplierTimeFormated(config.getString("Multipliers.Server")));
                 }
             }
         }
@@ -390,16 +374,16 @@ public class CoinsCommand extends BukkitCommand {
         if (config.getConfigurationSection("Command executor." + "" + args[1]) != null) {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
-                String comando = (config.getString("Command executor." + args[1] + ".Command")).replaceAll("%player%", sender.getName());
+                String command = (config.getString("Command executor." + args[1] + ".Command")).replaceAll("%player%", sender.getName());
                 if (config.getDouble("Command executor." + args[1] + ".Cost") > 0) {
                     if (CoinsAPI.getCoins(p) < (config.getDouble("Command executor." + args[1] + ".Cost"))) {
                         sender.sendMessage(plugin.rep(messages.getString("Errors.No Coins")));
                     } else {
                         CoinsAPI.takeCoins(p, (config.getDouble("Command executor." + args[1] + ".Cost")));
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), comando);
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
                     }
                 } else {
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), comando);
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
                 }
             } else {
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), config.getString("Command executor." + args[1] + ".Command"));

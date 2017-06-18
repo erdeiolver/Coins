@@ -74,7 +74,6 @@ public class Main extends JavaPlugin {
         instance = this;
         commandManager = new CommandManager(this);
         fileUtils = new FileUtils(this);
-        mysql = new MySQL();
         loadConfig(false);
         updateFiles();
         motd();
@@ -84,7 +83,7 @@ public class Main extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new CommandListener(), this);
 
         if (getConfig().getBoolean("MySQL.Use")) {
-            mysql.SQLConnection();
+            mysql = new MySQL(this);
         } else {
             ff = new FlatFile(this);
         }
@@ -163,7 +162,13 @@ public class Main extends JavaPlugin {
     }
 
     public void log(String str) {
-        console.sendMessage(rep("&8[&cCoins&8]&7 " + str));
+        console.sendMessage(rep("&8[&cCoins&8] &7" + str));
+    }
+
+    public void debug(String str) {
+        if (getConfig().getBoolean("Debug")) {
+            console.sendMessage(rep("&8[&cCoins&8] &cDebug: &7"));
+        }
     }
 
     public String getString(String msg) {
@@ -172,16 +177,10 @@ public class Main extends JavaPlugin {
         } catch (NullPointerException ex) {
             log("The string " + msg + " does not exists in the messages file, please add this manually.");
             log("If you belive that this is an error please contact to the developer.");
-            if (debug()) {
-                log(ex.getCause().getMessage());
-            }
+            debug(ex.getCause().getMessage());
             msg = "";
         }
         return msg;
-    }
-
-    public Boolean debug() {
-        return getConfig().getBoolean("Debug");
     }
 
     private void motd() {
@@ -202,7 +201,7 @@ public class Main extends JavaPlugin {
             console.sendMessage(rep("    §c+==================+"));
             console.sendMessage(rep(""));
         }
-        if (debug()) {
+        if (getConfig().getBoolean("Debug", false)) {
             log("Debug mode is enabled.");
         }
     }

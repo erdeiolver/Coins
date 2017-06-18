@@ -3,7 +3,7 @@
 # the official github repo https://github.com/Beelzebu/Coins/issuses/
 
 # The version of this file, don't edit!
-version: 2
+version: 3
 
 Prefix: '&c&lCoins &6»&7'
 Help:
@@ -15,7 +15,7 @@ Help:
   - ' &a/coins &f- &7Show your coins.'
   - ' &a/coins <name> &f- &7Show the coins of the user.'
   - ' &a/coins pay <name> <amount> &f- &7Pay to the user the selected amount.'
-  - ' &a /coins top &f- &7Show the top 10 users in coins.'
+  - ' &a/coins top &f- &7Show the top 10 users in coins.'
   - '&8&m+-------------------------------------------------+'
   Admin:
   - '&8&m+-------------------------------------------------+'
@@ -38,7 +38,7 @@ Errors:
   Unknow command: '%prefix% &cUnknow command, try &f/coins help &cto see all avalable commands.'
   Unknow player: '%prefix% &cThe player %target% can''t be found in the database.'
   Console: '%prefix% &cYou need to be a Player.'
-  No Negative: '%prefix% &cThe negative coins are disabled.'
+  No Negative: '%prefix% &cYou can''t set negative coins!'
   No Zero: '%prefix% &cThe amount can''t be zero.'
   No Coins: '%prefix% &cYou don''t have that coins.'
   No Execute: '%prefix% &cCan''t find a command to execute with this id.'
@@ -52,9 +52,13 @@ Coins:
   Pay target: '%prefix% &f%from%&7 paid you &f%coins%&7 coins.'
   Give: '%prefix% You gived &f%coins%&7 coins to &f%target%&7.'
   Give target: '%prefix% You recived &f%coins%&7.'
-  Take: '%prefix% You removed &f%coins%&7 from &f%target%&7.'
+  Take: '%prefix% You removed &f%coins%&7 from &f%target%&7, new balance: &f%newcoins%&7.'
   Take target: '%prefix% Your coins has been modified to &f%coins%&7.'
   Set: '%prefix% The coins of %target% has been set to &f%coins%&7.'
   Set target: '%prefix% Your coins has been set in &f%coins%&7.'
   Reset: '%prefix% The coins of %target% has been reset.'
   Reset target: '%prefix% Your coins has been reset.'
+Multipliers:
+  Created: '%prefix% You sucessfull created a multiplier for %player%.'
+  Set: '%prefix% You sucessfull setted a multiplier for this server.'
+  No Multipliers: '%prefix% You don''t have any multiplier.'

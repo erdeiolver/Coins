@@ -19,23 +19,17 @@
  */
 package net.nifheim.broxxx.coins;
 
-import net.nifheim.broxxx.coins.databasehandler.MySQL;
-
-import java.sql.SQLException;
-
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+
 import java.util.List;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import net.nifheim.broxxx.coins.databasehandler.FlatFile;
-import net.nifheim.broxxx.coins.listener.PlayerJoinListener;
+import net.nifheim.broxxx.coins.databasehandler.MySQL;
 
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 
 /**
  *
@@ -43,13 +37,13 @@ import org.bukkit.configuration.file.FileConfiguration;
  */
 public class CoinsAPI {
 
-    private static final FileConfiguration config = Main.getInstance().getConfig();
-    private static final MySQL mysql = Main.mysql;
-    private static final FlatFile ff = Main.ff;
-    private static final DecimalFormat df = new DecimalFormat("#.#");
+    private static final FileConfiguration CONFIG = Main.getInstance().getConfig();
+    private static final MySQL MYSQL = Main.mysql;
+    private static final FlatFile FLATFILE = Main.ff;
+    private static final DecimalFormat DF = new DecimalFormat("#.#");
 
     private static boolean mysql() {
-        return config.getBoolean("MySQL.Use");
+        return CONFIG.getBoolean("MySQL.Use");
     }
 
     /**
@@ -59,16 +53,7 @@ public class CoinsAPI {
      * @return
      */
     public static Double getCoins(Player p) {
-        if (mysql()) {
-            try {
-                return mysql.getCoins(p);
-            } catch (SQLException ex) {
-                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to get the coins of a user, the error code is: " + ex.getErrorCode(), ex);
-            }
-        } else {
-            return ff.getCoins(p);
-        }
-        return Double.parseDouble("0");
+        return getCoinsOffline(p);
     }
 
     /**
@@ -79,15 +64,10 @@ public class CoinsAPI {
      */
     public static Double getCoinsOffline(OfflinePlayer p) {
         if (mysql()) {
-            try {
-                return mysql.getCoinsOffline(p);
-            } catch (SQLException ex) {
-                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to get the coins of a user, the error code is: " + ex.getErrorCode(), ex);
-            }
+            return MYSQL.getCoinsOffline(p);
         } else {
-            return ff.getCoinsOffline(p);
+            return FLATFILE.getCoinsOffline(p);
         }
-        return Double.parseDouble("0");
     }
 
     /**
@@ -97,17 +77,7 @@ public class CoinsAPI {
      * @return
      */
     public static String getCoinsString(Player p) {
-
-        if (p != null) {
-            double coins = getCoins(p);
-            if (coins == 0.0 || coins == 0) {
-                return "0";
-            } else {
-                return (df.format(coins));
-            }
-        } else {
-            return "Player can't be null";
-        }
+        return getCoinsStringOffline(p);
     }
 
     /**
@@ -123,7 +93,7 @@ public class CoinsAPI {
             if (coins == 0.0 || coins == 0) {
                 return "0";
             } else {
-                return (df.format(coins));
+                return (DF.format(coins));
             }
         } else {
             return "Player can't be null";
@@ -138,7 +108,9 @@ public class CoinsAPI {
      *
      * @param p The player to add the coins.
      * @param coins The coins to add.
-     * @deprecated Use addCoins(Player p, Double coins, Boolean multiply)
+     * @deprecated This shouldn't used.
+     * @see #addCoins(org.bukkit.entity.Player, java.lang.Double,
+     * java.lang.Boolean)
      */
     @Deprecated
     public static void addCoins(Player p, Double coins) {
@@ -154,13 +126,9 @@ public class CoinsAPI {
      */
     public static void addCoins(Player p, Double coins, Boolean multiply) {
         if (mysql()) {
-            try {
-                mysql.addCoins(p, coins);
-            } catch (SQLException ex) {
-                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to add the coins to a user, the error code is: " + ex.getErrorCode(), ex);
-            }
+            MYSQL.addCoins(p, coins, multiply);
         } else {
-            ff.addCoins(p, coins);
+            FLATFILE.addCoins(p, coins);
         }
     }
 
@@ -172,13 +140,9 @@ public class CoinsAPI {
      */
     public static void addCoinsOffline(OfflinePlayer p, Double coins) {
         if (mysql()) {
-            try {
-                mysql.addCoinsOffline(p, coins);
-            } catch (SQLException ex) {
-                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to add coins to an offline user, the error code is: " + ex.getErrorCode(), ex);
-            }
+            MYSQL.addCoinsOffline(p, coins);
         } else {
-            ff.addCoinsOffline(p, coins);
+            FLATFILE.addCoinsOffline(p, coins);
         }
     }
 
@@ -190,13 +154,9 @@ public class CoinsAPI {
      */
     public static void takeCoins(Player p, Double coins) {
         if (mysql()) {
-            try {
-                mysql.takeCoins(p, coins);
-            } catch (SQLException ex) {
-                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
-            }
+            MYSQL.takeCoins(p, coins);
         } else {
-            ff.takeCoins(p, coins);
+            FLATFILE.takeCoins(p, coins);
         }
     }
 
@@ -208,13 +168,9 @@ public class CoinsAPI {
      */
     public static void takeCoinsOffline(OfflinePlayer p, Double coins) {
         if (mysql()) {
-            try {
-                mysql.takeCoinsOffline(p, coins);
-            } catch (SQLException ex) {
-                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
-            }
+            MYSQL.takeCoinsOffline(p, coins);
         } else {
-            ff.takeCoinsOffline(p, coins);
+            FLATFILE.takeCoinsOffline(p, coins);
         }
     }
 
@@ -225,13 +181,9 @@ public class CoinsAPI {
      */
     public static void resetCoins(Player p) {
         if (mysql()) {
-            try {
-                mysql.resetCoins(p);
-            } catch (SQLException ex) {
-                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
-            }
+            MYSQL.resetCoins(p);
         } else {
-            ff.resetCoins(p);
+            FLATFILE.resetCoins(p);
         }
     }
 
@@ -242,13 +194,9 @@ public class CoinsAPI {
      */
     public static void resetCoinsOffline(OfflinePlayer p) {
         if (mysql()) {
-            try {
-                mysql.resetCoinsOffline(p);
-            } catch (SQLException ex) {
-                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
-            }
+            MYSQL.resetCoinsOffline(p);
         } else {
-            ff.resetCoinsOffline(p);
+            FLATFILE.resetCoinsOffline(p);
         }
     }
 
@@ -260,13 +208,9 @@ public class CoinsAPI {
      */
     public static void setCoins(Player p, Double coins) {
         if (mysql()) {
-            try {
-                mysql.setCoins(p, coins);
-            } catch (SQLException ex) {
-                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
-            }
+            MYSQL.setCoins(p, coins);
         } else {
-            ff.setCoins(p, coins);
+            FLATFILE.setCoins(p, coins);
         }
     }
 
@@ -278,13 +222,9 @@ public class CoinsAPI {
      */
     public static void setCoinsOffline(OfflinePlayer p, Double coins) {
         if (mysql()) {
-            try {
-                mysql.setCoinsOffline(p, coins);
-            } catch (SQLException ex) {
-                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
-            }
+            MYSQL.setCoinsOffline(p, coins);
         } else {
-            ff.setCoinsOffline(p, coins);
+            FLATFILE.setCoinsOffline(p, coins);
         }
     }
 
@@ -296,59 +236,71 @@ public class CoinsAPI {
      */
     public static boolean isindb(OfflinePlayer p) {
         if (mysql()) {
-            try {
-                return mysql.isindb(p);
-            } catch (SQLException ex) {
-                Logger.getLogger(CoinsAPI.class.getName()).log(Level.WARNING, "An error ocurred when atemping to execute a query in the database to <INSERTE ACCION>, the error code is: " + ex.getErrorCode(), ex);
-            }
+            return MYSQL.isindb(p);
+
         } else {
-            return ff.isindb(p);
+            return FLATFILE.isindb(p);
         }
-        return false;
     }
 
     /**
      * Get the top players in coins data.
      *
-     * @param top The lenght of the top list, for example 5 will get a max of 5 users for the top.
+     * @param top The lenght of the top list, for example 5 will get a max of 5
+     * users for the top.
      * @return The ordered top list.
      */
     public static List<String> getTop(int top) {
         if (mysql()) {
-            return mysql.getTop(top);
-        }
-        else {
-            return ff.getTop(top);
-        }
-    }
-
-    public static String getMultiplierTimeFormated() {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("HHH:mm:ss");
-            return sdf.format(mysql.getMultiplierTime());
-        } catch (SQLException ex) {
-            Logger.getLogger(CoinsAPI.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return "0";
-    }
-
-    public static void createPlayer(Player p) {
-        if (mysql()) {
-            try {
-                mysql.createPlayer(p);
-            } catch (SQLException ex) {
-                Logger.getLogger(PlayerJoinListener.class.getName()).log(Level.WARNING, "Unable to create an entry in the database for player: " + p.getName() + " the error code is: " + ex.getErrorCode(), ex);
-            }
+            return MYSQL.getTop(top);
         } else {
-            ff.createPlayer(p);
+            return FLATFILE.getTop(top);
         }
     }
 
-    public static void createMultiplier(Player p, Integer multiplier, Integer minutes) {
-        try {
-            mysql.createMultiplier(p, multiplier, minutes);
-        } catch (SQLException ex) {
-            Logger.getLogger(PlayerJoinListener.class.getName()).log(Level.WARNING, "Unable to create a multiplier in the database for player: " + p.getName() + " the error code is: " + ex.getErrorCode(), ex);
+    /**
+     * Get the active multiplier countdown time formated in HHH:mm:ss
+     *
+     * @param server The server to get the multiplier time.
+     * @return The multiplier time formated.
+     */
+    public static String getMultiplierTimeFormated(String server) {
+        SimpleDateFormat sdf = new SimpleDateFormat("HHH:mm:ss");
+        return sdf.format(MYSQL.getMultiplierTime(server));
+    }
+
+    /**
+     * Register a player in the database.
+     *
+     * @param p The player to register.
+     */
+    public static void createPlayer(Player p) {
+        if (!isindb(p)) {
+            if (mysql()) {
+                MYSQL.createPlayer(p);
+            } else {
+                FLATFILE.createPlayer(p);
+            }
         }
+    }
+
+    /**
+     * Create a multiplier for a player with the specified time.
+     *
+     * @param p The player to create the multiplier.
+     * @param multiplier The multiplier.
+     * @param minutes The time for the multiplier.
+     */
+    public static void createMultiplier(Player p, Integer multiplier, Integer minutes) {
+        MYSQL.createMultiplier(p, multiplier, minutes);
+    }
+
+    /**
+     * Get the enabled multiplier for a server.
+     *
+     * @param server The server to get the enabled multiplier.
+     */
+    public static void getMultiplierFor(String server) {
+
     }
 }

@@ -44,36 +44,39 @@ import org.bukkit.entity.Player;
  */
 public class MySQL {
 
-    private final Main plugin = Main.getInstance();
+    private final Main plugin;
 
-    private final String host = plugin.getConfig().getString("MySQL.Host");
-    private final int port = plugin.getConfig().getInt("MySQL.Port");
-    private final String name = plugin.getConfig().getString("MySQL.Database");
-    private final String user = plugin.getConfig().getString("MySQL.User");
-    private final String passwd = plugin.getConfig().getString("MySQL.Password");
-    private final String prefix = plugin.getConfig().getString("MySQL.Prefix");
-    private final int checkdb = plugin.getConfig().getInt("MySQL.Connection Interval") * 1200;
+    private final String host;
+    private final int port;
+    private final String name;
+    private final String user;
+    private final String passwd;
+    private final String prefix;
+    private final int checkdb;
     private static Connection c;
+    private final DecimalFormat df;
     private String player;
-    private final DecimalFormat df = new DecimalFormat("#.##");
+
+    public MySQL(Main main) {
+        plugin = main;
+        host = plugin.getConfig().getString("MySQL.Host");
+        port = plugin.getConfig().getInt("MySQL.Port");
+        name = plugin.getConfig().getString("MySQL.Database");
+        user = plugin.getConfig().getString("MySQL.User");
+        passwd = plugin.getConfig().getString("MySQL.Password");
+        prefix = plugin.getConfig().getString("MySQL.Prefix");
+        checkdb = plugin.getConfig().getInt("MySQL.Connection Interval") * 1200;
+        df = new DecimalFormat("#.##");
+
+        SQLConnection();
+    }
 
     public static Connection getConnection() {
         return c;
     }
 
-    public void SQLConnection() {
-        try {
-            Connect();
-
-            if (!MySQL.getConnection().isClosed()) {
-                plugin.log("Plugin conected sucesful to the MySQL.");
-            }
-        } catch (SQLException e) {
-            Logger.getLogger(MySQL.class.getName()).log(Level.WARNING, "Something was wrong with the connection, the error code is: " + e.getErrorCode(), e);
-            Bukkit.getScheduler().cancelTasks(Main.getInstance());
-            plugin.log("Can't connect to the database, disabling plugin...");
-            Bukkit.getServer().getPluginManager().disablePlugin(Main.getInstance());
-        }
+    private void SQLConnection() {
+        Connect();
 
         Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(Main.getInstance(), () -> {
             plugin.log("Checking the database connection ...");
@@ -86,54 +89,64 @@ public class MySQL {
         }, 0L, checkdb);
     }
 
-    private void Connect() throws SQLException {
+    private void Connect() {
         try {
             Class.forName("com.mysql.jdbc.Driver").newInstance();
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            plugin.log("Database driver can''t be found, disabling plugin!");
+            plugin.debug(e.toString());
         }
-        c = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + name + "?autoReconnect=true", user, passwd);
-        String createData
-                = "CREATE TABLE IF NOT EXISTS `" + prefix + "Data`"
-                + "(`uuid` VARCHAR(50) NOT NULL,"
-                + "`nick` VARCHAR(50) NOT NULL,"
-                + "`balance` DOUBLE NOT NULL,"
-                + "`lastlogin` LONG NOT NULL,"
-                + "PRIMARY KEY (`uuid`));";
-        String createMultiplier
-                = "CREATE TABLE IF NOT EXISTS `" + prefix + "Multipliers`"
-                + "(`id` INT NOT NULL AUTO_INCREMENT,"
-                + "`uuid` VARCHAR(50) NOT NULL,"
-                + "`multiplier` INT,"
-                + "`queue` INT AUTO_INCREMENT,"
-                + "`minutes` INT,"
-                + "`starttime` LONG,"
-                + "`endtime` LONG,"
-                + "`server` VARCHAR(50),"
-                + "`enabled` BOOLEAN,"
-                + "PRIMARY KEY (`id`));";
+        try {
+            c = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + name + "?autoReconnect=true", user, passwd);
+            String createData
+                    = "CREATE TABLE IF NOT EXISTS `" + prefix + "Data`"
+                    + "(`uuid` VARCHAR(50) NOT NULL,"
+                    + "`nick` VARCHAR(50) NOT NULL,"
+                    + "`balance` DOUBLE NOT NULL,"
+                    + "`lastlogin` LONG NOT NULL,"
+                    + "PRIMARY KEY (`uuid`));";
+            String createMultiplier
+                    = "CREATE TABLE IF NOT EXISTS `" + prefix + "Multipliers`"
+                    + "(`id` INT NOT NULL AUTO_INCREMENT,"
+                    + "`uuid` VARCHAR(50) NOT NULL,"
+                    + "`multiplier` INT,"
+                    + "`queue` INT AUTO_INCREMENT,"
+                    + "`minutes` INT,"
+                    + "`starttime` LONG,"
+                    + "`endtime` LONG,"
+                    + "`server` VARCHAR(50),"
+                    + "`enabled` BOOLEAN,"
+                    + "PRIMARY KEY (`id`));";
 
-        Statement update = c.createStatement();
-        update.execute(createData);
-        update.execute(createMultiplier);
+            Statement update = c.createStatement();
+            update.execute(createData);
+            update.execute(createMultiplier);
+            if (!MySQL.getConnection().isClosed()) {
+                plugin.log("Plugin conected sucesful to the MySQL.");
+            }
+        } catch (SQLException ex) {
+            plugin.debug(String.format("Something was wrong with the connection, the error code is: %s", ex.getErrorCode()));
+            plugin.log("Can't connect to the database, disabling plugin...");
+            Bukkit.getScheduler().cancelTasks(Main.getInstance());
+            Bukkit.getServer().getPluginManager().disablePlugin(Main.getInstance());
+        }
     }
 
-    public void Reconnect() {
+    private void Reconnect() {
         Disconnect();
 
         Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
-            try {
-                Connect();
-            } catch (SQLException ex) {
-            }
+            Connect();
         }, 20L);
     }
 
-    public void Disconnect() {
+    private void Disconnect() {
         try {
             if (!c.isClosed()) {
                 c.close();
             }
         } catch (SQLException e) {
+            plugin.debug("Something was wrong disconnecting from the database, error code is: " + e.getErrorCode());
         }
     }
 
@@ -142,277 +155,341 @@ public class MySQL {
         return player;
     }
 
-    // Query methods
-    public Double getCoins(Player p) throws SQLException {
-        String localplayer = player(p);
+    // ---------- DATABASE QUERIES ---------- //
+    /*
+    public Double getCoins(Player p) {
+        try {
+            String localplayer = player(p);
 
-        ResultSet res = res("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
+            ResultSet res = c.createStatement().executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
 
-        if (res.getString("uuid") != null) {
-            double coins = res.getDouble("balance");
+            if (res.next() && res.getString("uuid") != null) {
+                double coins = res.getDouble("balance");
 
-            return coins;
+                return coins;
+            }
+        } catch (SQLException ex) {
+            plugin.log("&cAn internal error has occurred creating the data for player: " + p.getName());
+            plugin.debug("&cThe error code is: " + ex.getErrorCode());
         }
-        return 0.0;
+        return 0D;
+    } 
+     */
+    public Double getCoinsOffline(OfflinePlayer p) {
+        try {
+            String localplayer = player(p);
+
+            Statement check = c.createStatement();
+            ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
+            res.next();
+
+            if (res.next() && res.getString("uuid") != null) {
+                double coins = res.getDouble("balance");
+
+                return coins;
+            }
+        } catch (SQLException ex) {
+            plugin.log("&cAn internal error has occurred creating the data for player: " + p.getName());
+            plugin.debug("&cThe error code is: " + ex.getErrorCode());
+        }
+        return 0D;
     }
 
-    public Double getCoinsOffline(OfflinePlayer p) throws SQLException {
-        String localplayer = player(p);
+    public void addCoins(Player p, double coins, boolean multiply) {
+        try {
+            String localplayer = player(p);
 
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
-        res.next();
+            Statement check = c.createStatement();
+            ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid ='" + localplayer + "';");
+            res.next();
 
-        if (res.getString("uuid") != null) {
-            double coins = res.getDouble("balance");
+            if (res.getString("uuid") != null) {
+                if (multiply) {
+                    coins = coins + plugin.getConfig().getInt("Multipliers.Amount");
+                }
+                double oldCoins = res.getDouble("balance");
 
-            return coins;
-        }
-        return 0.0;
-    }
-
-    public String getCoinsStringOffline(OfflinePlayer p) throws SQLException {
-        double coins = getCoinsOffline(p);
-        if (coins == 0) {
-            return "0";
-        } else {
-            return (df.format(coins));
-        }
-    }
-
-    public void addCoins(Player p, double coins) throws SQLException {
-        String localplayer = player(p);
-
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid ='" + localplayer + "';");
-        res.next();
-
-        if (res.getString("uuid") != null) {
-            double oldCoins = res.getDouble("balance");
-
-            Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE uuid = '" + localplayer + "';");
-        }
-    }
-
-    public void addCoinsOffline(OfflinePlayer p, double coins) throws SQLException {
-        String localplayer = player(p);
-
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid ='" + localplayer + "';");
-        res.next();
-
-        if (res.getString("uuid") != null) {
-            double oldCoins = res.getDouble("balance");
-
-            Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE uuid = '" + localplayer + "';");
+                Statement update = c.createStatement();
+                update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE uuid = '" + localplayer + "';");
+            }
+        } catch (SQLException ex) {
+            plugin.log("&cAn internal error has occurred adding coins to the player: " + p.getName());
+            plugin.debug("&cThe error code is: " + ex.getErrorCode());
         }
     }
 
-    public void takeCoins(Player p, double coins) throws SQLException {
-        String localplayer = player(p);
+    public void addCoinsOffline(OfflinePlayer p, double coins) {
+        try {
+            String localplayer = player(p);
 
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
-        res.next();
-        double beforeCoins = res.getDouble("balance");
-        if (res.getString("uuid") != null) {
+            Statement check = c.createStatement();
+            ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid ='" + localplayer + "';");
+            res.next();
 
-            if (beforeCoins - coins < 0) {
-                if (!plugin.getConfig().getBoolean("Allow Negative")) {
+            if (res.getString("uuid") != null) {
+                double oldCoins = res.getDouble("balance");
+
+                Statement update = c.createStatement();
+                update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE uuid = '" + localplayer + "';");
+            }
+        } catch (SQLException ex) {
+            plugin.log("&cAn internal error has occurred adding coins to the player: " + p.getName());
+            plugin.debug("&cThe error code is: " + ex.getErrorCode());
+        }
+    }
+
+    public void takeCoins(Player p, double coins) {
+        try {
+            String localplayer = player(p);
+
+            Statement check = c.createStatement();
+            ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
+            res.next();
+            double beforeCoins = res.getDouble("balance");
+            if (res.getString("uuid") != null) {
+
+                if (beforeCoins - coins < 0) {
+                    if (!plugin.getConfig().getBoolean("Allow Negative")) {
+                        Statement update = c.createStatement();
+                        update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE uuid = '" + localplayer + "';");
+                    }
+                } else if (beforeCoins == coins) {
                     Statement update = c.createStatement();
                     update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE uuid = '" + localplayer + "';");
+                } else if (beforeCoins > coins) {
+                    Statement update = c.createStatement();
+                    update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE uuid = '" + localplayer + "';");
                 }
-            } else if (beforeCoins == coins) {
+            }
+        } catch (SQLException ex) {
+            plugin.log("&cAn internal error has occurred taking coins to the player: " + p.getName());
+            plugin.debug("&cThe error code is: " + ex.getErrorCode());
+        }
+    }
+
+    public void takeCoinsOffline(OfflinePlayer p, double coins) {
+        try {
+            String localplayer = player(p);
+
+            Statement check = c.createStatement();
+            ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
+            res.next();
+
+            if (res.getString("uuid") != null) {
+                double beforeCoins = res.getDouble("balance");
+
+                if (beforeCoins - coins < 0) {
+                    if (!plugin.getConfig().getBoolean("Allow Negative")) {
+                        return;
+                    }
+                    if (plugin.getConfig().getBoolean("Allow Negative")) {
+                        Statement bypassUpdate = c.createStatement();
+                        bypassUpdate.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE uuid = '" + localplayer + "';");
+                    }
+                } else if (beforeCoins == coins) {
+                    Statement update = c.createStatement();
+                    update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE uuid = '" + localplayer + "';");
+                } else if (beforeCoins > coins) {
+                    Statement update = c.createStatement();
+                    update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE uuid = '" + localplayer + "';");
+                }
+            }
+        } catch (SQLException ex) {
+            plugin.log("&cAn internal error has occurred taking coins to the player: " + p.getName());
+            plugin.debug("&cThe error code is: " + ex.getErrorCode());
+        }
+    }
+
+    public void resetCoins(Player p) {
+        try {
+            String localplayer = player(p);
+
+            Statement check = c.createStatement();
+            ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
+            res.next();
+
+            if (res.getString("uuid") != null) {
+                Statement update = c.createStatement();
+                update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + 0 + " WHERE uuid = '" + localplayer + "';");
+            }
+        } catch (SQLException ex) {
+            plugin.log("&cAn internal error has occurred reseting the coins of player: " + p.getName());
+            plugin.debug("&cThe error code is: " + ex.getErrorCode());
+        }
+    }
+
+    public void resetCoinsOffline(OfflinePlayer p) {
+        try {
+            String localplayer = player(p);
+
+            Statement check = c.createStatement();
+            ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
+            res.next();
+
+            if (res.getString("uuid") != null) {
                 Statement update = c.createStatement();
                 update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE uuid = '" + localplayer + "';");
-            } else if (beforeCoins > coins) {
-                Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE uuid = '" + localplayer + "';");
             }
+        } catch (SQLException ex) {
+            plugin.log("&cAn internal error has occurred reseting the coins of player: " + p.getName());
+            plugin.debug("&cThe error code is: " + ex.getErrorCode());
         }
     }
 
-    public void takeCoinsOffline(OfflinePlayer p, double coins) throws SQLException {
-        String localplayer = player(p);
+    public void setCoins(Player p, double coins) {
+        try {
+            String localplayer = player(p);
 
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
-        res.next();
+            Statement check = c.createStatement();
+            ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
+            res.next();
 
-        if (res.getString("uuid") != null) {
-            double beforeCoins = res.getDouble("balance");
-
-            if (beforeCoins - coins < 0) {
-                if (!plugin.getConfig().getBoolean("Allow Negative")) {
-                    return;
-                }
-                if (plugin.getConfig().getBoolean("Allow Negative")) {
-                    Statement bypassUpdate = c.createStatement();
-                    bypassUpdate.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE uuid = '" + localplayer + "';");
-                }
-            } else if (beforeCoins == coins) {
+            if (res.getString("uuid") != null) {
                 Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE uuid = '" + localplayer + "';");
-            } else if (beforeCoins > coins) {
-                Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE uuid = '" + localplayer + "';");
+                update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + coins + " WHERE uuid = '" + localplayer + "';");
             }
+        } catch (SQLException ex) {
+            plugin.log("&cAn internal error has occurred setting the coins of player: " + p.getName());
+            plugin.debug("&cThe error code is: " + ex.getErrorCode());
         }
     }
 
-    public void resetCoins(Player p) throws SQLException {
-        String localplayer = player(p);
+    public void setCoinsOffline(OfflinePlayer p, double coins) {
+        try {
+            String localplayer = player(p);
 
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
-        res.next();
+            Statement check = c.createStatement();
+            ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
+            res.next();
 
-        if (res.getString("uuid") != null) {
-            Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + 0 + " WHERE uuid = '" + localplayer + "';");
+            if (res.getString("uuid") != null) {
+                Statement update = c.createStatement();
+                update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + coins + " WHERE uuid = '" + localplayer + "';");
+            }
+        } catch (SQLException ex) {
+            plugin.log("&cAn internal error has occurred setting the coins of player: " + p.getName());
+            plugin.debug("&cThe error code is: " + ex.getErrorCode());
         }
     }
 
-    public void resetCoinsOffline(OfflinePlayer p) throws SQLException {
-        String localplayer = player(p);
+    public boolean isindb(OfflinePlayer p) {
+        try {
+            String localplayer = player(p);
 
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
-        res.next();
+            Statement check = c.createStatement();
 
-        if (res.getString("uuid") != null) {
-            Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE uuid = '" + localplayer + "';");
+            ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
+            res.next();
+
+            return res.getString("uuid") != null;
+        } catch (SQLException ex) {
+            plugin.log("&cAn internal error has occurred cheking if the player: " + p.getName() + " exists in the database.");
+            plugin.debug("&cThe error code is: " + ex.getErrorCode());
         }
-    }
-
-    public void setCoins(Player p, double coins) throws SQLException {
-        String localplayer = player(p);
-
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
-        res.next();
-
-        if (res.getString("uuid") != null) {
-            Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + coins + " WHERE uuid = '" + localplayer + "';");
-        }
-    }
-
-    public void setCoinsOffline(OfflinePlayer p, double coins) throws SQLException {
-        String localplayer = player(p);
-
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
-        res.next();
-
-        if (res.getString("uuid") != null) {
-            Statement update = c.createStatement();
-            update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + coins + " WHERE uuid = '" + localplayer + "';");
-        }
-    }
-
-    public boolean isindb(OfflinePlayer p) throws SQLException {
-        String localplayer = player(p);
-
-        Statement check = c.createStatement();
-
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
-        res.next();
-
-        return res.getString("uuid") != null;
+        return false;
     }
 
     public List<String> getTop(int top) {
         List<String> toplist = new ArrayList<>();
         try {
-            int i = 0;
             Statement check = c.createStatement();
             ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data ORDER BY balance DESC LIMIT " + top + ";");
             while (res.next()) {
-                i++;
                 String playername = res.getString("nick");
                 toplist.add(playername);
             }
-
         } catch (SQLException ex) {
-            Logger.getLogger(MySQL.class.getName()).log(Level.WARNING, "Can''''t execute the query to select the data for the top list in the database, the error code is: {0}", ex.getErrorCode());
+            plugin.log("&cAn internal error has occurred generating the toplist");
+            plugin.debug("&cThe error code is: " + ex.getErrorCode());
         }
         return toplist;
     }
 
-    public void createPlayer(Player p) throws SQLException {
-        String localplayer = player(p);
+    public void createPlayer(Player p) {
+        try {
+            String localplayer = player(p);
 
-        Statement check = c.createStatement();
-        if (plugin.getConfig().getBoolean("Online Mode")) {
-            ResultSet res = check.executeQuery("SELECT uuid FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
-            if (!res.next()) {
-                Statement update = c.createStatement();
-                update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + localplayer + "', '" + p.getName() + "', 0.0, " + System.currentTimeMillis() + ");");
+            Statement check = c.createStatement();
+            if (plugin.getConfig().getBoolean("Online Mode")) {
+                ResultSet res = check.executeQuery("SELECT uuid FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
+                if (!res.next()) {
+                    Statement update = c.createStatement();
+                    update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + localplayer + "', '" + p.getName() + "', 0.0, " + System.currentTimeMillis() + ");");
+                } else {
+                    Statement update = c.createStatement();
+                    update.executeUpdate("UPDATE " + prefix + "Data SET nick = '" + p.getName() + "', lastlogin = " + System.currentTimeMillis() + " WHERE uuid = '" + localplayer + "';");
+                }
             } else {
-                Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Data SET nick = '" + p.getName() + "', lastlogin = " + System.currentTimeMillis() + " WHERE uuid = '" + localplayer + "';");
+                ResultSet res = check.executeQuery("SELECT nick FROM " + prefix + "Data WHERE nick = '" + p.getName() + "';");
+                if (!res.next()) {
+                    Statement update = c.createStatement();
+                    update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + localplayer + "', '" + p.getName() + "', 0.0, " + System.currentTimeMillis() + ");");
+                } else {
+                    Statement update = c.createStatement();
+                    update.executeUpdate("UPDATE " + prefix + "Data SET uuid = '" + localplayer + "', lastlogin = " + System.currentTimeMillis() + " WHERE nick = '" + p.getName() + "';");
+                }
             }
-        } else {
-            ResultSet res = check.executeQuery("SELECT nick FROM " + prefix + "Data WHERE nick = '" + p.getName() + "';");
-            if (!res.next()) {
-                Statement update = c.createStatement();
-                update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + localplayer + "', '" + p.getName() + "', 0.0, " + System.currentTimeMillis() + ");");
-            } else {
-                Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Data SET uuid = '" + localplayer + "', lastlogin = " + System.currentTimeMillis() + " WHERE nick = '" + p.getName() + "';");
-            }
+        } catch (SQLException ex) {
+            plugin.log("&cAn internal error has occurred creating the player: " + p.getName() + " in the database.");
+            plugin.debug("&cThe error code is: " + ex.getErrorCode());
         }
     }
 
-    public Long getMultiplierTime() throws SQLException {
-        Statement check = c.createStatement();
-        ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + plugin.getConfig().getString("Multipliers.Server") + "' AND enabled = true;");
-        res.next();
-
-        return (res.getLong("starttime") - res.getLong("endtime"));
+    // ---------- MULTIPLIERS ---------- //
+    public Long getMultiplierTime(String server) {
+        try {
+            ResultSet res = c.createStatement().executeQuery("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + server + "' AND enabled = true;");
+            if (res.next()) {
+                return (res.getLong("starttime") - res.getLong("endtime"));
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(MySQL.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return 0L;
     }
 
-    public void createMultiplier(Player p, Integer multiplier, Integer minutes) throws SQLException {
-        String localplayer = player(p);
-        c.createStatement().executeUpdate("INSERT INTO " + prefix + "Multipliers VALUES(NULL, '" + localplayer + "', " + multiplier + ", -1, " + minutes + ", 0, 0, " + "'" + plugin.getConfig().getString("Multipliers.Server") + "'" + ", false);");
+    public void createMultiplier(Player p, Integer multiplier, Integer minutes) {
+        try {
+            String localplayer = player(p);
+            c.createStatement().executeUpdate("INSERT INTO " + prefix + "Multipliers VALUES(NULL, '" + localplayer + "', " + multiplier + ", -1, " + minutes + ", 0, 0, " + "'" + plugin.getConfig().getString("Multipliers.Server") + "'" + ", false);");
+        } catch (SQLException ex) {
+            Logger.getLogger(MySQL.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
-    public List<Integer> getMultipliers(Player p) throws SQLException {
-        String localplayer = player(p);
-        ResultSet res = c.createStatement().executeQuery("SELECT * FROM " + prefix + "Multipliers WHERE uuid = '" + localplayer + "';");
+    public List<Integer> getMultipliers(Player p) {
         List<Integer> list = new ArrayList();
-        if (res.next()) {
+        try {
+            String localplayer = player(p);
+            ResultSet res = c.createStatement().executeQuery("SELECT * FROM " + prefix + "Multipliers WHERE uuid = '" + localplayer + "';");
             while (res.next()) {
                 list.add(res.getInt("id"));
             }
+            return list;
+        } catch (SQLException ex) {
+            Logger.getLogger(MySQL.class.getName()).log(Level.SEVERE, null, ex);
         }
         return list;
     }
 
-    public void useMultiplier(Player p, Integer id, Integer multiplier, Integer minutes) throws SQLException {
-        String localplayer = player(p);
-        Long endtime = System.currentTimeMillis() + (minutes * 60000);
-        Boolean enabled = c.createStatement().executeQuery("").getBoolean("enabled");
-        if (!enabled) {
-            ResultSet res = c.createStatement().executeQuery("SELECT * FROM " + prefix + "Multipliers WHERE minutes = " + minutes + " AND multiplier = " + multiplier + " AND uuid = '" + localplayer + "';");
-            c.createStatement().executeUpdate("UPDATE " + prefix + "Multipliers SET starttime = " + System.currentTimeMillis() + ", endtime = " + endtime + ", enabled = true WHERE id = " + id + ";");
-        }
-    }
-
-    private ResultSet res(String query) {
+    public void useMultiplier(Player p, Integer id, Integer multiplier, Integer minutes) {
         try {
-            Statement check = c.createStatement();
-            ResultSet res = check.executeQuery(query);
-            res.next();
-
-            return res;
+            String localplayer = player(p);
+            Long endtime = System.currentTimeMillis() + (minutes * 60000);
+            Boolean enabled = c.createStatement().executeQuery("SELECT enabled FROM " + prefix + "Multipliers").getBoolean("enabled");
+            if (!enabled) {
+                ResultSet res = c.createStatement().executeQuery("SELECT * FROM " + prefix + "Multipliers WHERE minutes = " + minutes + " AND multiplier = " + multiplier + " AND uuid = '" + localplayer + "';");
+                if (res.next()) {
+                    c.createStatement().executeUpdate("UPDATE " + prefix + "Multipliers SET starttime = " + System.currentTimeMillis() + ", endtime = " + endtime + ", enabled = true WHERE id = " + id + ";");
+                    p.sendMessage(plugin.getString("Multipliers.No Multipliers"));
+                }
+            }
         } catch (SQLException ex) {
             Logger.getLogger(MySQL.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return null;
+    }
+
+    public void getMultiplierFor(String server) {
+
     }
 }
