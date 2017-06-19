@@ -156,7 +156,6 @@ public class MySQL {
     }
 
     // ---------- DATABASE QUERIES ---------- //
-    /*
     public Double getCoins(Player p) {
         try {
             String localplayer = player(p);
@@ -173,8 +172,8 @@ public class MySQL {
             plugin.debug("&cThe error code is: " + ex.getErrorCode());
         }
         return 0D;
-    } 
-     */
+    }
+
     public Double getCoinsOffline(OfflinePlayer p) {
         try {
             String localplayer = player(p);

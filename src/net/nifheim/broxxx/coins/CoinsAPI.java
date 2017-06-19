@@ -53,7 +53,11 @@ public class CoinsAPI {
      * @return
      */
     public static Double getCoins(Player p) {
-        return getCoinsOffline(p);
+        if (mysql()) {
+            return MYSQL.getCoins(p);
+        } else {
+            return FLATFILE.getCoins(p);
+        }
     }
 
     /**
