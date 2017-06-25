@@ -53,11 +53,7 @@ public class CoinsAPI {
      * @return
      */
     public static Double getCoins(Player p) {
-        if (mysql()) {
-            return MYSQL.getCoins(p);
-        } else {
-            return FLATFILE.getCoins(p);
-        }
+        return getCoinsOffline(p);
     }
 
     /**
@@ -91,7 +87,6 @@ public class CoinsAPI {
      * @return
      */
     public static String getCoinsStringOffline(OfflinePlayer p) {
-
         if (p != null) {
             double coins = getCoinsOffline(p);
             if (coins == 0.0 || coins == 0) {

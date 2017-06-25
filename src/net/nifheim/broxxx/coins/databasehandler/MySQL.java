@@ -54,7 +54,6 @@ public class MySQL {
     private final String prefix;
     private final int checkdb;
     private static Connection c;
-    private final DecimalFormat df;
     private String player;
 
     public MySQL(Main main) {
@@ -66,7 +65,6 @@ public class MySQL {
         passwd = plugin.getConfig().getString("MySQL.Password");
         prefix = plugin.getConfig().getString("MySQL.Prefix");
         checkdb = plugin.getConfig().getInt("MySQL.Connection Interval") * 1200;
-        df = new DecimalFormat("#.##");
 
         SQLConnection();
     }
@@ -178,9 +176,7 @@ public class MySQL {
         try {
             String localplayer = player(p);
 
-            Statement check = c.createStatement();
-            ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
-            res.next();
+            ResultSet res = c.createStatement().executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
 
             if (res.next() && res.getString("uuid") != null) {
                 double coins = res.getDouble("balance");
@@ -200,9 +196,8 @@ public class MySQL {
 
             Statement check = c.createStatement();
             ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid ='" + localplayer + "';");
-            res.next();
 
-            if (res.getString("uuid") != null) {
+            if (res.next() && res.getString("uuid") != null) {
                 if (multiply) {
                     coins = coins + plugin.getConfig().getInt("Multipliers.Amount");
                 }
@@ -223,9 +218,8 @@ public class MySQL {
 
             Statement check = c.createStatement();
             ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid ='" + localplayer + "';");
-            res.next();
 
-            if (res.getString("uuid") != null) {
+            if (res.next() && res.getString("uuid") != null) {
                 double oldCoins = res.getDouble("balance");
 
                 Statement update = c.createStatement();

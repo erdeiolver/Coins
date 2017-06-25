@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.nifheim.broxxx</groupId>
     <artifactId>Coins</artifactId>
-    <version>1.5.2-BETA</version>
+    <version>1.5.3-BETA</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -22,15 +22,14 @@
         </repository>
         <repository>
             <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+            <url>https://repo.md-5.net/content/repositories/snapshots/</url>
         </repository>
     </repositories>
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.8.8-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
+            <version>1.7.9-R0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>be.maximvdw</groupId>

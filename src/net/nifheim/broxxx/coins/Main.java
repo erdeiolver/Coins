@@ -38,6 +38,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
@@ -88,9 +89,9 @@ public class Main extends JavaPlugin {
             ff = new FlatFile(this);
         }
 
-        Bukkit.getOnlinePlayers().forEach((p) -> {
+        for (Player p : Bukkit.getOnlinePlayers()) {
             CoinsAPI.createPlayer(p);
-        });
+        }
     }
 
     @Override
