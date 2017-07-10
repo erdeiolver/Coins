@@ -20,12 +20,12 @@
 package net.nifheim.broxxx.coins;
 
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 
 import java.util.List;
-
 import net.nifheim.broxxx.coins.databasehandler.FlatFile;
+
 import net.nifheim.broxxx.coins.databasehandler.MySQL;
+import net.nifheim.broxxx.coins.multiplier.Multiplier;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -39,11 +39,14 @@ public class CoinsAPI {
 
     private static final FileConfiguration CONFIG = Main.getInstance().getConfig();
     private static final MySQL MYSQL = Main.mysql;
-    private static final FlatFile FLATFILE = Main.ff;
+    private static final FlatFile FLATFILE = Main.flatfile;
     private static final DecimalFormat DF = new DecimalFormat("#.#");
 
     private static boolean mysql() {
         return CONFIG.getBoolean("MySQL.Use");
+    }
+
+    private CoinsAPI() {
     }
 
     /**
@@ -236,7 +239,6 @@ public class CoinsAPI {
     public static boolean isindb(OfflinePlayer p) {
         if (mysql()) {
             return MYSQL.isindb(p);
-
         } else {
             return FLATFILE.isindb(p);
         }
@@ -258,17 +260,6 @@ public class CoinsAPI {
     }
 
     /**
-     * Get the active multiplier countdown time formated in HHH:mm:ss
-     *
-     * @param server The server to get the multiplier time.
-     * @return The multiplier time formated.
-     */
-    public static String getMultiplierTimeFormated(String server) {
-        SimpleDateFormat sdf = new SimpleDateFormat("HHH:mm:ss");
-        return sdf.format(MYSQL.getMultiplierTime(server));
-    }
-
-    /**
      * Register a player in the database.
      *
      * @param p The player to register.
@@ -283,23 +274,7 @@ public class CoinsAPI {
         }
     }
 
-    /**
-     * Create a multiplier for a player with the specified time.
-     *
-     * @param p The player to create the multiplier.
-     * @param multiplier The multiplier.
-     * @param minutes The time for the multiplier.
-     */
-    public static void createMultiplier(Player p, Integer multiplier, Integer minutes) {
-        MYSQL.createMultiplier(p, multiplier, minutes);
-    }
-
-    /**
-     * Get the enabled multiplier for a server.
-     *
-     * @param server The server to get the enabled multiplier.
-     */
-    public static void getMultiplierFor(String server) {
-
+    public static Multiplier getMultiplier(String server) {
+        return new Multiplier(server);
     }
 }

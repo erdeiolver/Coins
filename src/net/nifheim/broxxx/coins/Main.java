@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 import net.nifheim.broxxx.coins.command.CommandManager;
 import net.nifheim.broxxx.coins.databasehandler.FlatFile;
 import net.nifheim.broxxx.coins.databasehandler.MySQL;
+import net.nifheim.broxxx.coins.databasehandler.SQLite;
 import net.nifheim.broxxx.coins.hooks.MVdWPlaceholderAPIHook;
 import net.nifheim.broxxx.coins.hooks.PlaceholderAPI;
 import net.nifheim.broxxx.coins.listener.CommandListener;
@@ -38,7 +39,6 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
@@ -55,7 +55,7 @@ public class Main extends JavaPlugin {
     private FileUtils fileUtils;
 
     public static MySQL mysql;
-    public static FlatFile ff;
+    public static FlatFile flatfile;
 
     private PlaceholderAPI placeholderAPI;
 
@@ -77,7 +77,7 @@ public class Main extends JavaPlugin {
         fileUtils = new FileUtils(this);
         loadConfig(false);
         updateFiles();
-        motd();
+        motd(true);
         loadManagers();
 
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
@@ -86,12 +86,12 @@ public class Main extends JavaPlugin {
         if (getConfig().getBoolean("MySQL.Use")) {
             mysql = new MySQL(this);
         } else {
-            ff = new FlatFile(this);
+            flatfile = new FlatFile(this);
         }
 
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        Bukkit.getOnlinePlayers().forEach((p) -> {
             CoinsAPI.createPlayer(p);
-        }
+        });
     }
 
     @Override
@@ -99,7 +99,7 @@ public class Main extends JavaPlugin {
 
         Bukkit.getScheduler().cancelTasks(this);
 
-        motd();
+        motd(false);
     }
 
     private void copyFiles() {
@@ -168,7 +168,7 @@ public class Main extends JavaPlugin {
 
     public void debug(String str) {
         if (getConfig().getBoolean("Debug")) {
-            console.sendMessage(rep("&8[&cCoins&8] &cDebug: &7"));
+            console.sendMessage(rep("&8[&cCoins&8] &cDebug: &7" + str));
         }
     }
 
@@ -184,26 +184,30 @@ public class Main extends JavaPlugin {
         return msg;
     }
 
-    private void motd() {
+    private void motd(Boolean enable) {
         if (getDescription().getVersion().contains("BETA")) {
             console.sendMessage(rep(""));
-            console.sendMessage(rep("    §c+=======================+"));
-            console.sendMessage(rep("    §c|   §4Coins §fBy: §7Broxxx§c    |"));
-            console.sendMessage(rep("    §c|-----------------------|"));
-            console.sendMessage(rep("    §c|     §4v:§f" + getDescription().getVersion() + "      §c|"));
-            console.sendMessage(rep("    §c+=======================+"));
+            console.sendMessage(rep("    &c+=======================+"));
+            console.sendMessage(rep("    &c|   &4Coins &fBy: &7Broxxx&c    |"));
+            console.sendMessage(rep("    &c|-----------------------|"));
+            console.sendMessage(rep("    &c|     &4v:&f" + getDescription().getVersion() + "      &c|"));
+            console.sendMessage(rep("    &c+=======================+"));
             console.sendMessage(rep(""));
+            console.sendMessage(rep("&cThis is a BETA, please report bugs!"));
         } else {
             console.sendMessage(rep(""));
-            console.sendMessage(rep("    §c+==================+"));
-            console.sendMessage(rep("    §c| §4Coins §fBy: §7Broxxx§c |"));
-            console.sendMessage(rep("    §c|------------------|"));
-            console.sendMessage(rep("    §c|     §4v:§f" + getDescription().getVersion() + "      §c|"));
-            console.sendMessage(rep("    §c+==================+"));
+            console.sendMessage(rep("    &c+==================+"));
+            console.sendMessage(rep("    &c| &4Coins &fBy: &7Broxxx&c |"));
+            console.sendMessage(rep("    &c|------------------|"));
+            console.sendMessage(rep("    &c|     &4v:&f" + getDescription().getVersion() + "      &c|"));
+            console.sendMessage(rep("    &c+==================+"));
             console.sendMessage(rep(""));
         }
-        if (getConfig().getBoolean("Debug", false)) {
-            log("Debug mode is enabled.");
+        // Only send this in the onEnable
+        if (enable) {
+          if (getConfig().getBoolean("Debug", false)) {
+              log("Debug mode is enabled.");
+          }
         }
     }
 }
