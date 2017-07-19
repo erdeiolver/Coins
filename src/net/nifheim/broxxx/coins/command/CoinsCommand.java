@@ -43,12 +43,12 @@ public class CoinsCommand extends BukkitCommand {
     private final FileConfiguration config = Main.getInstance().getConfig();
     private final FileConfiguration messages = plugin.getMessages();
 
-    public CoinsCommand(String command, String description, String usage, String permission, List<String> aliases) {
+    public CoinsCommand(String command, String desc, String usage, String permission, List<String> aliases) {
         super(command);
-        this.description = description;
-        this.usageMessage = usage;
-        this.setPermission(permission);
-        this.setAliases(aliases);
+        description = desc;
+        usageMessage = usage;
+        setPermission(permission);
+        setAliases(aliases);
     }
 
     @Override
@@ -64,29 +64,29 @@ public class CoinsCommand extends BukkitCommand {
                 return true;
             }
         } else if (args[0].equalsIgnoreCase("execute")) {
-            return this._execute(sender, args);
+            return _execute(sender, args);
         } else if ((args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("ayuda")) && args.length == 1) {
-            return this._help(sender, args);
+            return _help(sender, args);
         } else if ((args[0].equalsIgnoreCase("pay") || args[0].equalsIgnoreCase("p") || args[0].equalsIgnoreCase("pagar"))) {
-            return this._pay(sender, args);
+            return _pay(sender, args);
         } else if ((args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("dar"))) {
-            return this._give(sender, args);
+            return _give(sender, args);
         } else if ((args[0].equalsIgnoreCase("take") || args[0].equalsIgnoreCase("quitar"))) {
-            return this._take(sender, args);
+            return _take(sender, args);
         } else if ((args[0].equalsIgnoreCase("reset"))) {
-            return this._reset(sender, args);
+            return _reset(sender, args);
         } else if ((args[0].equalsIgnoreCase("set"))) {
-            return this._set(sender, args);
+            return _set(sender, args);
         } else if (args[0].equalsIgnoreCase("multiplier")) {
-            return this._multiplier(sender, args);
+            return _multiplier(sender, args);
         } else if (args[0].equalsIgnoreCase("reload")) {
-            return this._reload(sender, args);
+            return _reload(sender, args);
         } else if (args[0].equalsIgnoreCase("top") && args.length == 1) {
-            return this._top(sender, args);
+            return _top(sender, args);
         } else if (args.length == 1) {
             if (CoinsAPI.isindb(Bukkit.getOfflinePlayer(args[0]))) {
                 if (Bukkit.getPlayer(args[0]) != null || Bukkit.getOfflinePlayer(args[0]) != null) {
-                    return this._target(sender, args);
+                    return _target(sender, args);
                 }
             } else {
                 sender.sendMessage(plugin.rep(messages.getString("Errors.Unknow command")));
@@ -328,6 +328,7 @@ public class CoinsCommand extends BukkitCommand {
 
     private boolean _multiplier(CommandSender sender, String[] args) {
         // TODO: finish this
+        // TODO: messages
         // 0(multiplier) 1(use|set|create) 2(id|player|amount) 3(multiplier)
         if (sender.hasPermission("nifheim.admin")) {
             if (args[1].equalsIgnoreCase("create") && args.length >= 3) {
@@ -343,7 +344,7 @@ public class CoinsCommand extends BukkitCommand {
                 }
             }
             if (args[1].equalsIgnoreCase("set") && args.length == 3) {
-                if (Integer.parseInt(args[2]) > 0 && Integer.parseInt(args[1]) < 5) {
+                if (Integer.parseInt(args[1]) > 0 && Integer.parseInt(args[1]) < 5) {
                     config.set("Multiplier.Amount", Integer.parseInt(args[1]));
                     Main.getInstance().saveConfig();
                     sender.sendMessage(plugin.getString("Multipliers.Set"));
@@ -379,29 +380,67 @@ public class CoinsCommand extends BukkitCommand {
     }
 
     private boolean _execute(CommandSender sender, String[] args) {
-        if (config.getConfigurationSection("Command executor." + "" + args[1]) != null) {
+        if (config.getConfigurationSection("Command executor." + String.valueOf(args[1])) != null) {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
-                String command = (config.getString("Command executor." + args[1] + ".Command")).replaceAll("%player%", p.getName());
+                String command;
                 if (config.getDouble("Command executor." + args[1] + ".Cost") > 0) {
                     if (CoinsAPI.getCoins(p) < (config.getDouble("Command executor." + args[1] + ".Cost"))) {
                         sender.sendMessage(plugin.rep(messages.getString("Errors.No Coins")));
                     } else {
                         CoinsAPI.takeCoins(p, (config.getDouble("Command executor." + args[1] + ".Cost")));
-                        if (command != null) {
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-                        } else if (config.getStringList("Command executor." + args[1] + ".Command") != null) {
+                        if (config.getStringList("Command executor." + args[1] + ".Command") != null) {
                             for (String str : config.getStringList("Command executor." + args[1] + ".Command")) {
                                 command = str.replaceAll("%player%", p.getName());
+                                if (command.startsWith("message: ")) {
+                                    p.sendMessage(command.substring(command.lastIndexOf("message: ") + 1));
+                                } else if (command.startsWith("broadcast: ")) {
+                                    command = command.substring(command.lastIndexOf("broadcast: " + 1));
+                                    Bukkit.getServer().broadcastMessage(command);
+                                } else {
+                                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+                                }
+                            }
+                        } else if (config.getString("Command executor." + args[1] + ".Command") != null) {
+                            command = config.getString("Command executor." + args[1] + ".Command").replaceAll("%player%", p.getName());
+                            plugin.log("single");
+                            if (command.startsWith("message: ")) {
+                                plugin.log("message");
+                                p.sendMessage(command.substring(command.lastIndexOf("message: ")));
+                            } else if (command.startsWith("broadcast: ")) {
+                                plugin.log("broadcast");
+                                Bukkit.getServer().broadcastMessage(command.substring(command.lastIndexOf("broadcast: ")));
+                            } else {
+                                plugin.log("command");
                                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
                             }
                         }
                     }
                 } else {
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+                    command = config.getString("Command executor." + args[1] + ".Command");
+                    if (command != null) {
+                        if (command.startsWith("message:")) {
+                            sender.sendMessage(command.substring(command.lastIndexOf("message:")));
+                        } else if (command.startsWith("broadcast:")) {
+                            Bukkit.getServer().broadcastMessage(command.substring(command.lastIndexOf("broadcast:")));
+                        } else {
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+                        }
+                    } else if (config.getStringList("Command executor." + args[1] + ".Command") != null) {
+                        for (String str : config.getStringList("Command executor." + args[1] + ".Command")) {
+                            command = str;
+                            if (command.startsWith("message:")) {
+                                sender.sendMessage(command.substring(command.lastIndexOf("message:")));
+                            } else if (command.startsWith("broadcast:")) {
+                                Bukkit.getServer().broadcastMessage(command.substring(command.lastIndexOf("broadcast:")));
+                            } else {
+                                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+                            }
+                        }
+                    }
                 }
             } else {
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), config.getString("Command executor." + args[1] + ".Command"));
+                sender.sendMessage(plugin.getString("Errors.Console"));
             }
         } else {
             sender.sendMessage(plugin.rep(messages.getString("Errors.No Execute")));

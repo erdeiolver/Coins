@@ -306,7 +306,7 @@ public class MySQL {
 
             if (res.getString("uuid") != null) {
                 Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + 0 + " WHERE uuid = '" + localplayer + "';");
+                update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + plugin.getConfig().getInt("General.Starting Coins", 0) + " WHERE uuid = '" + localplayer + "';");
             }
         } catch (SQLException ex) {
             plugin.log("&cAn internal error has occurred reseting the coins of player: " + p.getName());
@@ -324,7 +324,7 @@ public class MySQL {
 
             if (res.getString("uuid") != null) {
                 Statement update = c.createStatement();
-                update.executeUpdate("UPDATE " + prefix + "Data SET balance = 0 WHERE uuid = '" + localplayer + "';");
+                update.executeUpdate("UPDATE " + prefix + "Data SET balance = " + plugin.getConfig().getInt("General.Starting Coins", 0) + " WHERE uuid = '" + localplayer + "';");
             }
         } catch (SQLException ex) {
             plugin.log("&cAn internal error has occurred reseting the coins of player: " + p.getName());
@@ -368,17 +368,32 @@ public class MySQL {
         }
     }
 
-    public boolean isindb(OfflinePlayer p) {
+    public boolean isindb(UUID p) {
         try {
-            String localplayer = player(p);
+            String localplayer = p.toString();
             Statement check = c.createStatement();
             ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + localplayer + "';");
             if (res.next()) {
                 return res.getString("uuid") != null;
             }
         } catch (SQLException ex) {
-            plugin.log("&cAn internal error has occurred cheking if the player: " + p.getName() + " exists in the database.");
+            plugin.log("&cAn internal error has occurred cheking if the player: " + Bukkit.getPlayer(p).getName() + " exists in the database.");
             plugin.debug("&cThe error code is: " + ex.getErrorCode());
+        }
+        return false;
+    }
+
+    public boolean isindb(String playerName) {
+        try {
+            Statement check = c.createStatement();
+            ResultSet res = check.executeQuery("SELECT * FROM " + prefix + "Data WHERE uuid = '" + playerName + "';");
+            if (res.next()) {
+                return res.getString("nick") != null;
+            }
+        } catch (SQLException ex) {
+            plugin.log("&cAn internal error has occurred cheking if the player: " + playerName + " exists in the database.");
+            plugin.debug("&cThe error code is: " + ex.getErrorCode());
+            plugin.debug(ex.getMessage());
         }
         return false;
     }
@@ -409,23 +424,28 @@ public class MySQL {
                 if (!res.next()) {
                     Statement update = c.createStatement();
                     update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + localplayer + "', '" + p.getName() + "', 0.0, " + System.currentTimeMillis() + ");");
+                    plugin.debug("An entry in the database was created for: " + p.getName());
                 } else {
                     Statement update = c.createStatement();
                     update.executeUpdate("UPDATE " + prefix + "Data SET nick = '" + p.getName() + "', lastlogin = " + System.currentTimeMillis() + " WHERE uuid = '" + localplayer + "';");
+                    plugin.debug("The nickname of: " + p.getName() + " was updated in the database.");
                 }
             } else {
                 ResultSet res = check.executeQuery("SELECT nick FROM " + prefix + "Data WHERE nick = '" + p.getName() + "';");
                 if (!res.next()) {
                     Statement update = c.createStatement();
                     update.executeUpdate("INSERT INTO " + prefix + "Data VALUES ('" + localplayer + "', '" + p.getName() + "', 0.0, " + System.currentTimeMillis() + ");");
+                    plugin.debug("An entry in the database was created for: " + p.getName());
                 } else {
                     Statement update = c.createStatement();
                     update.executeUpdate("UPDATE " + prefix + "Data SET uuid = '" + localplayer + "', lastlogin = " + System.currentTimeMillis() + " WHERE nick = '" + p.getName() + "';");
+                    plugin.debug("The uuid of: " + localplayer + " was updated in the database.");
                 }
             }
         } catch (SQLException ex) {
             plugin.log("&cAn internal error has occurred creating the player: " + p.getName() + " in the database.");
             plugin.debug("&cThe error code is: " + ex.getErrorCode());
+            plugin.debug(ex.getMessage());
         }
     }
 
@@ -518,5 +538,18 @@ public class MySQL {
             Logger.getLogger(MySQL.class.getName()).log(Level.SEVERE, null, ex);
         }
         return enabler;
+    }
+
+    public int getMultiplierAmount(String server) {
+        int amount = 1;
+        try {
+            ResultSet res = c.createStatement().executeQuery("SELECT * FROM " + prefix + "Multipliers WHERE enabled = true AND server = '" + server + "';");
+            if (res.next()) {
+                amount = res.getInt("multiplier");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(MySQL.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return amount;
     }
 }

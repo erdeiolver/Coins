@@ -23,12 +23,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import java.text.DecimalFormat;
-
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,7 +48,6 @@ public class FlatFile {
     private final File dataFile;
     private final YamlConfiguration data;
     private String player;
-    private final DecimalFormat df = new DecimalFormat("#.##");
 
     public FlatFile(Main plugin) {
         this.plugin = plugin;
@@ -140,21 +139,25 @@ public class FlatFile {
         saveData();
     }
 
-    public boolean isindb(OfflinePlayer p) {
-        String localplayer = player(p);
+    public boolean isindb(UUID p) {
+        String localplayer = p.toString();
         return (data.getString("Players." + localplayer) != null);
     }
 
-    public List<String> getTop(int top) {
-        List<String> toplist = new ArrayList<>();
+    public boolean isindb(String playerName) {
+        return data.getConfigurationSection("Players").getKeys(false).stream().anyMatch((str) -> (data.getString("Players." + str + ".Name").equalsIgnoreCase(playerName)));
+    }
 
+    public List<String> getTop(int top) {
+        Map map = new HashMap<>();
         data.getConfigurationSection("Players").getKeys(false).forEach((localplayer) -> {
             int coins = data.getInt("Players." + localplayer + ".Coins");
             String playername = data.getString("Players." + localplayer + ".Name");
-            toplist.add(playername);
-            
+            map.put(playername, coins);
         });
-        return toplist;
+        LinkedList linkedList = new LinkedList(map.keySet());
+        Collections.sort(linkedList, (Map.Entry var, Map.Entry var1) -> ((Integer) var.getValue()) - ((Integer) var1.getValue()));
+        return linkedList;
     }
 
     public void createPlayer(Player p) {

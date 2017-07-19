@@ -63,30 +63,56 @@ public class Multiplier {
      * @return The multiplier time formated.
      */
     public String getMultiplierTimeFormated() {
-        return String.format("%1$td, %1$tH:%1$tM:%1$tS", -75600000L + MYSQL.getMultiplierTime(SERVER));
+        Long endtime = MYSQL.getMultiplierTime(SERVER);
+        String format;
+        if (endtime > 86400000) {
+            format = "%1$td, %1$tH:%1$tM:%1$tS";
+        } else if (endtime > 3600000) {
+            format = "%1$tH:%1$tM:%1$tS";
+        } else {
+            format = "%1$tM:%1$tS";
+        }
+        return String.format(format, -75600000L + MYSQL.getMultiplierTime(SERVER));
     }
 
     /**
-     * Get the enabled multiplier for a server.
+     * Get the enabled multiplier amount for the Server.
      *
      * @return
      */
     public Integer getMultiplierAmount() {
-        if (CONFIG.getString("Multipliers.Server") != null) {
-            return CONFIG.getInt("Multipliers.Amount");
-        }
-        return 0;
+        return MYSQL.getMultiplierAmount(SERVER);
     }
 
+    /**
+     * Use the multiplier of a player in the server by the multiplier id.
+     *
+     * @param p Player that has a multiplier.
+     * @param id The id of the multiplier.
+     * @param type The type of the multiplier.
+     */
     public void useMultiplier(Player p, Integer id, MultiplierType type) {
         MYSQL.useMultiplier(p, id, SERVER, type);
     }
 
+    /**
+     * Get the multipliers of a player in this server.
+     *
+     * @param p The player to get the multipliers.
+     * @return
+     */
     public Set<Integer> getMultipliersFor(Player p) {
         return MYSQL.getMultipliersFor(p, SERVER);
     }
-    
-    public Player getEnabler() {
+
+    /**
+     * Get the enabler of a multiplier for this server.
+     *
+     * @return
+     * @throws NullPointerException if the server doesn't has a multiplier
+     * active or the multiplier wasn't enabled by a player.
+     */
+    public Player getEnabler() throws NullPointerException {
         return ENABLER;
     }
 }

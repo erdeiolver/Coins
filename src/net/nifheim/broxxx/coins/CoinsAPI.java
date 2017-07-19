@@ -20,12 +20,16 @@
 package net.nifheim.broxxx.coins;
 
 import java.text.DecimalFormat;
+import java.util.HashMap;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import net.nifheim.broxxx.coins.databasehandler.FlatFile;
 
 import net.nifheim.broxxx.coins.databasehandler.MySQL;
 import net.nifheim.broxxx.coins.multiplier.Multiplier;
+import org.bukkit.Bukkit;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -41,6 +45,7 @@ public class CoinsAPI {
     private static final MySQL MYSQL = Main.mysql;
     private static final FlatFile FLATFILE = Main.flatfile;
     private static final DecimalFormat DF = new DecimalFormat("#.#");
+    private static final Map<Player, Double> CACHE = new HashMap<>();
 
     private static boolean mysql() {
         return CONFIG.getBoolean("MySQL.Use");
@@ -56,6 +61,11 @@ public class CoinsAPI {
      * @return
      */
     public static Double getCoins(Player p) {
+        Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
+            if (!CACHE.containsKey(p)) {
+                CACHE.put(p, getCoinsOffline(p));
+            }
+        });
         return getCoinsOffline(p);
     }
 
@@ -92,11 +102,7 @@ public class CoinsAPI {
     public static String getCoinsStringOffline(OfflinePlayer p) {
         if (p != null) {
             double coins = getCoinsOffline(p);
-            if (coins == 0.0 || coins == 0) {
-                return "0";
-            } else {
-                return (DF.format(coins));
-            }
+            return (DF.format(coins));
         } else {
             return "Player can't be null";
         }
@@ -110,7 +116,7 @@ public class CoinsAPI {
      *
      * @param p The player to add the coins.
      * @param coins The coins to add.
-     * @deprecated This shouldn't used.
+     * @deprecated This should not be used.
      * @see #addCoins(org.bukkit.entity.Player, java.lang.Double,
      * java.lang.Boolean)
      */
@@ -231,16 +237,45 @@ public class CoinsAPI {
     }
 
     /**
-     * Get if the Offline Player is in the database.
+     * Get if this offline player is in the plugin database.
      *
-     * @param p
-     * @return
+     * @param offlinePlayer The offline player to check.
+     * @return true if the player exists in the database or false if not.
+     * @deprecated
+     * @see #isindb(java.lang.String)
+     * @see #isindb(java.util.UUID)
      */
-    public static boolean isindb(OfflinePlayer p) {
+    @Deprecated
+    public static boolean isindb(OfflinePlayer offlinePlayer) {
+        return isindb(offlinePlayer.getUniqueId());
+    }
+
+    /**
+     * Get if a player with the specified name exists in the database. Is not
+     * recommended check a player by his name because it can change.
+     *
+     * @param playerName The name to look for in the database.
+     * @return true if the player exists in the database or false if not.
+     */
+    public static boolean isindb(String playerName) {
         if (mysql()) {
-            return MYSQL.isindb(p);
+            return MYSQL.isindb(playerName);
         } else {
-            return FLATFILE.isindb(p);
+            return FLATFILE.isindb(playerName);
+        }
+    }
+
+    /**
+     * Get if a player with the specified uuid exists in the database.
+     *
+     * @param uuid The uuid to look for in the database.
+     * @return true if the player exists in the database or false if not.
+     */
+    public static boolean isindb(UUID uuid) {
+        if (mysql()) {
+            return MYSQL.isindb(uuid);
+        } else {
+            return FLATFILE.isindb(uuid);
         }
     }
 
@@ -265,7 +300,7 @@ public class CoinsAPI {
      * @param p The player to register.
      */
     public static void createPlayer(Player p) {
-        if (!isindb(p)) {
+        if (!isindb(p.getUniqueId())) {
             if (mysql()) {
                 MYSQL.createPlayer(p);
             } else {
@@ -274,6 +309,12 @@ public class CoinsAPI {
         }
     }
 
+    /**
+     * Get and modify information about multipliers for a specified server.
+     *
+     * @param server The server to modify and get info about multiplier.
+     * @return
+     */
     public static Multiplier getMultiplier(String server) {
         return new Multiplier(server);
     }

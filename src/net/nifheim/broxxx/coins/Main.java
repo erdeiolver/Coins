@@ -19,15 +19,9 @@
  */
 package net.nifheim.broxxx.coins;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import net.nifheim.broxxx.coins.command.CommandManager;
 import net.nifheim.broxxx.coins.databasehandler.FlatFile;
 import net.nifheim.broxxx.coins.databasehandler.MySQL;
-import net.nifheim.broxxx.coins.databasehandler.SQLite;
 import net.nifheim.broxxx.coins.hooks.MVdWPlaceholderAPIHook;
 import net.nifheim.broxxx.coins.hooks.PlaceholderAPI;
 import net.nifheim.broxxx.coins.listener.CommandListener;
@@ -36,18 +30,11 @@ import net.nifheim.broxxx.coins.utils.FileUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
 
-    public final File messagesFile = new File(getDataFolder(), "messages.yml");
-    private FileConfiguration messages;
-    public final File configFile = new File(getDataFolder(), "config.yml");
-
-    public static String rep;
     private final ConsoleCommandSender console = Bukkit.getConsoleSender();
 
     private static Main instance;
@@ -65,8 +52,8 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        copyFiles();
-        messages = YamlConfiguration.loadConfiguration(messagesFile);
+        fileUtils = new FileUtils(this);
+        fileUtils.copyFiles();
     }
 
     @Override
@@ -74,7 +61,6 @@ public class Main extends JavaPlugin {
 
         instance = this;
         commandManager = new CommandManager(this);
-        fileUtils = new FileUtils(this);
         loadConfig(false);
         updateFiles();
         motd(true);
@@ -89,9 +75,11 @@ public class Main extends JavaPlugin {
             flatfile = new FlatFile(this);
         }
 
-        Bukkit.getOnlinePlayers().forEach((p) -> {
-            CoinsAPI.createPlayer(p);
-        });
+        Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
+            Bukkit.getOnlinePlayers().forEach((p) -> {
+                CoinsAPI.createPlayer(p);
+            });
+        }, 30);
     }
 
     @Override
@@ -102,25 +90,10 @@ public class Main extends JavaPlugin {
         motd(false);
     }
 
-    private void copyFiles() {
-        getDataFolder().mkdirs();
-
-        if (!messagesFile.exists()) {
-            fileUtils.copy(getResource("messages.yml"), messagesFile);
-        }
-        if (!configFile.exists()) {
-            fileUtils.copy(getResource("config.yml"), configFile);
-        }
-    }
-
     private void loadConfig(boolean reloadConfig) {
         if (reloadConfig) {
-            try {
-                reloadConfig();
-                getMessages().load(messagesFile);
-            } catch (IOException | InvalidConfigurationException ex) {
-                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            fileUtils.reloadConfig();
+            fileUtils.reloadMessages();
         }
     }
 
@@ -144,10 +117,6 @@ public class Main extends JavaPlugin {
         }
     }
 
-    public FileConfiguration getMessages() {
-        return messages;
-    }
-
     public String rep(String str) {
         return str
                 .replaceAll("%prefix%", getMessages().getString("Prefix"))
@@ -160,6 +129,8 @@ public class Main extends JavaPlugin {
         loadConfig(true);
 
         loadManagers();
+
+        debug("Plugin reloaded");
     }
 
     public void log(String str) {
@@ -205,9 +176,13 @@ public class Main extends JavaPlugin {
         }
         // Only send this in the onEnable
         if (enable) {
-          if (getConfig().getBoolean("Debug", false)) {
-              log("Debug mode is enabled.");
-          }
+            if (getConfig().getBoolean("Debug", false)) {
+                log("Debug mode is enabled.");
+            }
         }
+    }
+
+    public FileConfiguration getMessages() {
+        return fileUtils.getMessages();
     }
 }
