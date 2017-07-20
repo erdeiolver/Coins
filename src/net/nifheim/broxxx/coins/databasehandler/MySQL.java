@@ -517,7 +517,11 @@ public class MySQL {
         String localplayer = player(p);
         Set<Integer> multipliers = new HashSet<>();
         try {
-            ResultSet res = c.createStatement().executeQuery("SELECT * FROM " + prefix + "Multipliers WHERE uuid = '" + localplayer + "' AND enabled = false AND server = '" + server + "';");
+            String query = "SELECT * FROM " + prefix + "Multipliers WHERE uuid = '" + localplayer + "' AND enabled = false";
+            if (server != null) {
+                query += " AND server = '" + server + "'";
+            }
+            ResultSet res = c.createStatement().executeQuery(query + ";");
             while (res.next()) {
                 multipliers.add(res.getInt("id"));
             }

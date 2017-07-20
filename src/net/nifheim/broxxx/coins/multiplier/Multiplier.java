@@ -97,6 +97,7 @@ public class Multiplier {
 
     /**
      * Get the multipliers of a player in this server.
+     * <p>If the server is set to null it shows all the multipliers for this player</p>
      *
      * @param p The player to get the multipliers.
      * @return
