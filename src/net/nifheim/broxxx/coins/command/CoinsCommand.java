@@ -391,48 +391,26 @@ public class CoinsCommand extends BukkitCommand {
                         CoinsAPI.takeCoins(p, (config.getDouble("Command executor." + args[1] + ".Cost")));
                         if (config.getStringList("Command executor." + args[1] + ".Command") != null) {
                             for (String str : config.getStringList("Command executor." + args[1] + ".Command")) {
-                                command = str.replaceAll("%player%", p.getName());
+                                command = plugin.rep(str).replaceAll("%player%", p.getName());
                                 if (command.startsWith("message: ")) {
-                                    p.sendMessage(command.substring(command.lastIndexOf("message: ") + 1));
+                                    p.sendMessage(command.replaceFirst("message: ", ""));
                                 } else if (command.startsWith("broadcast: ")) {
-                                    command = command.substring(command.lastIndexOf("broadcast: " + 1));
-                                    Bukkit.getServer().broadcastMessage(command);
+                                    Bukkit.getServer().broadcastMessage(command.replaceFirst("broadcast: ", ""));
                                 } else {
                                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
                                 }
                             }
-                        } else if (config.getString("Command executor." + args[1] + ".Command") != null) {
-                            command = config.getString("Command executor." + args[1] + ".Command").replaceAll("%player%", p.getName());
-                            plugin.log("single");
-                            if (command.startsWith("message: ")) {
-                                plugin.log("message");
-                                p.sendMessage(command.substring(command.lastIndexOf("message: ")));
-                            } else if (command.startsWith("broadcast: ")) {
-                                plugin.log("broadcast");
-                                Bukkit.getServer().broadcastMessage(command.substring(command.lastIndexOf("broadcast: ")));
-                            } else {
-                                plugin.log("command");
-                                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-                            }
                         }
                     }
                 } else {
-                    command = config.getString("Command executor." + args[1] + ".Command");
-                    if (command != null) {
-                        if (command.startsWith("message:")) {
-                            sender.sendMessage(command.substring(command.lastIndexOf("message:")));
-                        } else if (command.startsWith("broadcast:")) {
-                            Bukkit.getServer().broadcastMessage(command.substring(command.lastIndexOf("broadcast:")));
-                        } else {
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-                        }
-                    } else if (config.getStringList("Command executor." + args[1] + ".Command") != null) {
+                    if (config.getStringList("Command executor." + args[1] + ".Command") != null) {
                         for (String str : config.getStringList("Command executor." + args[1] + ".Command")) {
-                            command = str;
-                            if (command.startsWith("message:")) {
-                                sender.sendMessage(command.substring(command.lastIndexOf("message:")));
-                            } else if (command.startsWith("broadcast:")) {
-                                Bukkit.getServer().broadcastMessage(command.substring(command.lastIndexOf("broadcast:")));
+                            command = plugin.rep(str).replaceAll("%player%", p.getName());
+                            plugin.log(command);
+                            if (command.startsWith("message: ")) {
+                                p.sendMessage(command.replaceFirst("message: ", ""));
+                            } else if (command.startsWith("broadcast: ")) {
+                                Bukkit.getServer().broadcastMessage(command.replaceFirst("broadcast: ", ""));
                             } else {
                                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
                             }
