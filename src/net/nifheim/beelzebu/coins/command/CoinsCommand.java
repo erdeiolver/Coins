@@ -22,9 +22,9 @@ package net.nifheim.beelzebu.coins.command;
 import java.util.List;
 
 import net.nifheim.beelzebu.coins.CoinsAPI;
-import net.nifheim.beelzebu.coins.Main;
-import net.nifheim.beelzebu.coins.multiplier.MultiplierType;
-import net.nifheim.beelzebu.coins.utils.MultipliersGUI;
+import net.nifheim.beelzebu.coins.bukkit.Main;
+import net.nifheim.beelzebu.coins.core.multiplier.MultiplierType;
+import net.nifheim.beelzebu.coins.bukkit.utils.MultipliersGUI;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;

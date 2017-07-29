@@ -23,7 +23,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import net.nifheim.beelzebu.coins.Main;
+import net.nifheim.beelzebu.coins.bukkit.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.SimpleCommandMap;

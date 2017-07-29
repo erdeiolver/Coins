@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins.databasehandler;
+package net.nifheim.beelzebu.coins.core.databasehandler;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -33,8 +33,8 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.nifheim.beelzebu.coins.Main;
-import net.nifheim.beelzebu.coins.multiplier.MultiplierType;
+import net.nifheim.beelzebu.coins.bukkit.Main;
+import net.nifheim.beelzebu.coins.core.multiplier.MultiplierType;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;

@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins;
+package net.nifheim.beelzebu.coins.bungee;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
@@ -33,17 +33,17 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.event.EventHandler;
 
-import net.nifheim.beelzebu.coins.executor.ExecutorManager;
+import net.nifheim.beelzebu.coins.core.executor.ExecutorManager;
 
 /**
  *
  * @author Beelzebu
  */
-public class BungeeMain extends Plugin implements Listener {
+public class Main extends Plugin implements Listener {
 
-    private static BungeeMain plugin;
+    private static Main plugin;
 
-    public BungeeMain getInstance() {
+    public Main getInstance() {
         return plugin;
     }
 

@@ -19,15 +19,16 @@
  */
 package net.nifheim.beelzebu.coins;
 
+import net.nifheim.beelzebu.coins.bukkit.Main;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import net.nifheim.beelzebu.coins.databasehandler.FlatFile;
-import net.nifheim.beelzebu.coins.databasehandler.MySQL;
-import net.nifheim.beelzebu.coins.multiplier.Multiplier;
+import net.nifheim.beelzebu.coins.core.databasehandler.FlatFile;
+import net.nifheim.beelzebu.coins.core.databasehandler.MySQL;
+import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
 import org.bukkit.Bukkit;
 
 import org.bukkit.OfflinePlayer;

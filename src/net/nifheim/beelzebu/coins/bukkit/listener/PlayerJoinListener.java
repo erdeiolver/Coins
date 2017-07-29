@@ -17,39 +17,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins.utils.placeholders;
-
-import me.clip.placeholderapi.external.EZPlaceholderHook;
+package net.nifheim.beelzebu.coins.bukkit.listener;
 
 import net.nifheim.beelzebu.coins.CoinsAPI;
-import net.nifheim.beelzebu.coins.Main;
+import net.nifheim.beelzebu.coins.bukkit.Main;
 
-import org.bukkit.entity.Player;
+import org.bukkit.Bukkit;
+
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 /**
  * 
  * @author Beelzebu
  */
-public class PlaceholderAPI extends EZPlaceholderHook {
+public class PlayerJoinListener implements Listener {
 
-    private final Main plugin;
-
-    public PlaceholderAPI(Main plugin) {
-        super(plugin, "coins");
-        this.plugin = plugin;
-    }
-
-    @Override
-    public String onPlaceholderRequest(Player p, String coins) {
-        if (p == null) {
-            return "Player needed!";
-        }
-        if (coins.equalsIgnoreCase("amount")) {
-            return CoinsAPI.getCoinsString(p);
-        }
-        if (coins.startsWith("multiplier_")) {
-            return CoinsAPI.getMultiplier(coins.substring(11)).getMultiplierTimeFormated();
-        }
-        return "0";
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
+            CoinsAPI.createPlayer(e.getPlayer());
+        }, 5L);
     }
 }

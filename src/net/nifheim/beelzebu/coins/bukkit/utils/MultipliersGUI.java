@@ -17,12 +17,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins.utils;
+package net.nifheim.beelzebu.coins.bukkit.utils;
 
 import net.nifheim.beelzebu.coins.CoinsAPI;
-import net.nifheim.beelzebu.coins.Main;
-import net.nifheim.beelzebu.coins.multiplier.MultiplierType;
-import net.nifheim.beelzebu.coins.utils.gui.BaseGUI;
+import net.nifheim.beelzebu.coins.bukkit.Main;
+import net.nifheim.beelzebu.coins.core.multiplier.MultiplierType;
+import net.nifheim.beelzebu.coins.bukkit.utils.gui.BaseGUI;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
