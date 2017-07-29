@@ -17,13 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.broxxx.coins.utils.placeholders;
+package net.nifheim.beelzebu.coins.utils.placeholders;
 
 import be.maximvdw.placeholderapi.PlaceholderAPI;
 import be.maximvdw.placeholderapi.PlaceholderReplaceEvent;
 
-import net.nifheim.broxxx.coins.CoinsAPI;
-import net.nifheim.broxxx.coins.Main;
+import net.nifheim.beelzebu.coins.CoinsAPI;
+import net.nifheim.beelzebu.coins.Main;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;

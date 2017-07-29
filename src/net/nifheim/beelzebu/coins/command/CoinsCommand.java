@@ -17,14 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.broxxx.coins.command;
+package net.nifheim.beelzebu.coins.command;
 
 import java.util.List;
 
-import net.nifheim.broxxx.coins.CoinsAPI;
-import net.nifheim.broxxx.coins.Main;
-import net.nifheim.broxxx.coins.multiplier.MultiplierType;
-import net.nifheim.broxxx.coins.utils.MultipliersGUI;
+import net.nifheim.beelzebu.coins.CoinsAPI;
+import net.nifheim.beelzebu.coins.Main;
+import net.nifheim.beelzebu.coins.multiplier.MultiplierType;
+import net.nifheim.beelzebu.coins.utils.MultipliersGUI;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;

@@ -1,5 +1,5 @@
 name: Coins
 softdepend: [MVdWPlaceholderAPI, PlaceholderAPI]
-main: net.nifheim.broxxx.coins.Main
+main: net.nifheim.beelzebu.coins.Main
 version: ${project.version}
-author: Broxxx
+author: Beelzebu

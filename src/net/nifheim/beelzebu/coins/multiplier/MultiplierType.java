@@ -17,28 +17,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.broxxx.coins.listener;
-
-import net.nifheim.broxxx.coins.CoinsAPI;
-
-import net.nifheim.broxxx.coins.Main;
-
-import org.bukkit.Bukkit;
-
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
+package net.nifheim.beelzebu.coins.multiplier;
 
 /**
- * 
+ *
  * @author Beelzebu
  */
-public class PlayerJoinListener implements Listener {
-
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent e) {
-        Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
-            CoinsAPI.createPlayer(e.getPlayer());
-        }, 5L);
-    }
+public enum MultiplierType {
+    GLOBAL, SERVER, PERSONAL
 }

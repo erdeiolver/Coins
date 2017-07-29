@@ -17,36 +17,37 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.broxxx.coins.executor;
+package net.nifheim.beelzebu.coins.executor;
 
-import java.util.List;
-import net.nifheim.broxxx.coins.Main;
+import java.util.HashSet;
+import java.util.Set;
+import net.nifheim.beelzebu.coins.Main;
 
 /**
  *
  * @author Beelzebu
  */
-public class Executor {
+public class ExecutorManager {
 
-    private final String ID;
-    private final int cost;
-    private final List<String> commands;
+    private static final Set<Executor> executors = new HashSet<>();
 
-    public Executor(String i, int c, List<String> cmds) {
-        ID = i;
-        cost = c;
-        commands = cmds;
+    public ExecutorManager() {
     }
 
-    public String getID() {
-        return ID;
+    public void addExecutor(Executor ex) {
+        executors.add(ex);
     }
 
-    public Integer getCost() {
-        return cost;
+    public Set<Executor> getExecutors() {
+        return executors;
     }
 
-    public List<String> getCommands() {
-        return commands;
+    public Executor getExecutor(String id) {
+        for (Executor ex : executors) {
+            if (ex.getID().equals(id)) {
+                return ex;
+            }
+        }
+        return null;
     }
 }

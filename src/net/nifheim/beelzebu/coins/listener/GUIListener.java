@@ -17,11 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.broxxx.coins.listener;
+package net.nifheim.beelzebu.coins.listener;
 
 import java.util.UUID;
-import net.nifheim.broxxx.coins.Main;
-import net.nifheim.broxxx.coins.utils.gui.BaseGUI;
+import net.nifheim.beelzebu.coins.Main;
+import net.nifheim.beelzebu.coins.utils.gui.BaseGUI;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

@@ -17,10 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.broxxx.coins.listener;
+package net.nifheim.beelzebu.coins.listener;
 
-import net.nifheim.broxxx.coins.CoinsAPI;
-import net.nifheim.broxxx.coins.Main;
+import net.nifheim.beelzebu.coins.CoinsAPI;
+import net.nifheim.beelzebu.coins.Main;
 
 import org.bukkit.configuration.file.FileConfiguration;
 

@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.broxxx.coins;
+package net.nifheim.beelzebu.coins;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -25,10 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import net.nifheim.broxxx.coins.databasehandler.FlatFile;
-
-import net.nifheim.broxxx.coins.databasehandler.MySQL;
-import net.nifheim.broxxx.coins.multiplier.Multiplier;
+import net.nifheim.beelzebu.coins.databasehandler.FlatFile;
+import net.nifheim.beelzebu.coins.databasehandler.MySQL;
+import net.nifheim.beelzebu.coins.multiplier.Multiplier;
 import org.bukkit.Bukkit;
 
 import org.bukkit.OfflinePlayer;

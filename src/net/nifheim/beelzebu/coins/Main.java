@@ -17,21 +17,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.broxxx.coins;
+package net.nifheim.beelzebu.coins;
 
+import net.nifheim.beelzebu.coins.listener.PlayerJoinListener;
+import net.nifheim.beelzebu.coins.listener.CommandListener;
+import net.nifheim.beelzebu.coins.listener.GUIListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.nifheim.broxxx.coins.command.CommandManager;
-import net.nifheim.broxxx.coins.databasehandler.FlatFile;
-import net.nifheim.broxxx.coins.databasehandler.MySQL;
-import net.nifheim.broxxx.coins.utils.placeholders.MVdWPlaceholderAPIHook;
-import net.nifheim.broxxx.coins.utils.placeholders.PlaceholderAPI;
-import net.nifheim.broxxx.coins.listener.*;
-import net.nifheim.broxxx.coins.utils.FileUtils;
+import net.nifheim.beelzebu.coins.command.CommandManager;
+import net.nifheim.beelzebu.coins.databasehandler.FlatFile;
+import net.nifheim.beelzebu.coins.databasehandler.MySQL;
+import net.nifheim.beelzebu.coins.utils.placeholders.MVdWPlaceholderAPIHook;
+import net.nifheim.beelzebu.coins.utils.placeholders.PlaceholderAPI;
+import net.nifheim.beelzebu.coins.utils.FileUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
@@ -182,20 +184,20 @@ public class Main extends JavaPlugin {
     private void motd(Boolean enable) {
         if (getDescription().getVersion().contains("BETA")) {
             console.sendMessage(rep(""));
-            console.sendMessage(rep("    &c+=======================+"));
-            console.sendMessage(rep("    &c|   &4Coins &fBy: &7Broxxx&c    |"));
-            console.sendMessage(rep("    &c|-----------------------|"));
-            console.sendMessage(rep("    &c|     &4v:&f" + getDescription().getVersion() + "      &c|"));
-            console.sendMessage(rep("    &c+=======================+"));
+            console.sendMessage(rep("    &c+==========================+"));
+            console.sendMessage(rep("    &c|    &4Coins &fBy: &7Beelzebu&c    |"));
+            console.sendMessage(rep("    &c|--------------------------|"));
+            console.sendMessage(rep("    &c|       &4v:&f" + getDescription().getVersion() + "       &c|"));
+            console.sendMessage(rep("    &c+==========================+"));
             console.sendMessage(rep(""));
             console.sendMessage(rep("&cThis is a BETA, please report bugs!"));
         } else {
             console.sendMessage(rep(""));
-            console.sendMessage(rep("    &c+==================+"));
-            console.sendMessage(rep("    &c| &4Coins &fBy: &7Broxxx&c |"));
-            console.sendMessage(rep("    &c|------------------|"));
-            console.sendMessage(rep("    &c|     &4v:&f" + getDescription().getVersion() + "      &c|"));
-            console.sendMessage(rep("    &c+==================+"));
+            console.sendMessage(rep("    &c+======================+"));
+            console.sendMessage(rep("    &c|   &4Coins &fBy: &7Beelzebu&c   |"));
+            console.sendMessage(rep("    &c|----------------------|"));
+            console.sendMessage(rep("    &c|       &4v:&f" + getDescription().getVersion() + "        &c|"));
+            console.sendMessage(rep("    &c+====================+"));
             console.sendMessage(rep(""));
         }
         // Only send this in the onEnable

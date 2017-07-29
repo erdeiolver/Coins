@@ -17,12 +17,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.broxxx.coins.multiplier;
+package net.nifheim.beelzebu.coins.multiplier;
 
 import java.util.Set;
 
-import net.nifheim.broxxx.coins.Main;
-import net.nifheim.broxxx.coins.databasehandler.MySQL;
+import net.nifheim.beelzebu.coins.Main;
+import net.nifheim.beelzebu.coins.databasehandler.MySQL;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;

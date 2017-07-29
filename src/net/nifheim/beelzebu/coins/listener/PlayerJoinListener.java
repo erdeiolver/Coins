@@ -17,37 +17,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.broxxx.coins.executor;
+package net.nifheim.beelzebu.coins.listener;
 
-import java.util.HashSet;
-import java.util.Set;
-import net.nifheim.broxxx.coins.Main;
+import net.nifheim.beelzebu.coins.CoinsAPI;
+import net.nifheim.beelzebu.coins.Main;
+
+import org.bukkit.Bukkit;
+
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 /**
- *
+ * 
  * @author Beelzebu
  */
-public class ExecutorManager {
+public class PlayerJoinListener implements Listener {
 
-    private static final Set<Executor> executors = new HashSet<>();
-
-    public ExecutorManager() {
-    }
-
-    public void addExecutor(Executor ex) {
-        executors.add(ex);
-    }
-
-    public Set<Executor> getExecutors() {
-        return executors;
-    }
-
-    public Executor getExecutor(String id) {
-        for (Executor ex : executors) {
-            if (ex.getID().equals(id)) {
-                return ex;
-            }
-        }
-        return null;
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
+            CoinsAPI.createPlayer(e.getPlayer());
+        }, 5L);
     }
 }
