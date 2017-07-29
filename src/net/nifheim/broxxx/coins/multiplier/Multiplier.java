@@ -35,11 +35,15 @@ public class Multiplier {
 
     private final FileConfiguration CONFIG = Main.getInstance().getConfig();
     private final MySQL MYSQL = Main.mysql;
-    private final String SERVER;
+    private String SERVER = CONFIG.getString("Multipliers.Server");
     private final Player ENABLER;
     private Boolean enabled;
     private Integer amount;
     private Long timeleft;
+
+    public Multiplier() {
+        ENABLER = MYSQL.getEnabler(SERVER);
+    }
 
     public Multiplier(String sv) {
         SERVER = sv;
@@ -65,6 +69,7 @@ public class Multiplier {
     public String getMultiplierTimeFormated() {
         Long endtime = MYSQL.getMultiplierTime(SERVER);
         String format;
+        Long time = -75600000L + MYSQL.getMultiplierTime(SERVER);
         if (endtime > 86400000) {
             format = "%1$td, %1$tH:%1$tM:%1$tS";
         } else if (endtime > 3600000) {
@@ -72,7 +77,10 @@ public class Multiplier {
         } else {
             format = "%1$tM:%1$tS";
         }
-        return String.format(format, -75600000L + MYSQL.getMultiplierTime(SERVER));
+        if (time <= 0) {
+            return String.format(format, time);
+        }
+        return "Ninguno :(";
     }
 
     /**
@@ -97,7 +105,9 @@ public class Multiplier {
 
     /**
      * Get the multipliers of a player in this server.
-     * <p>If the server is set to null it shows all the multipliers for this player</p>
+     * <p>
+     * If the server is set to null it shows all the multipliers for this
+     * player</p>
      *
      * @param p The player to get the multipliers.
      * @return

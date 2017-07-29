@@ -19,13 +19,18 @@
  */
 package net.nifheim.broxxx.coins;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.nifheim.broxxx.coins.command.CommandManager;
 import net.nifheim.broxxx.coins.databasehandler.FlatFile;
 import net.nifheim.broxxx.coins.databasehandler.MySQL;
-import net.nifheim.broxxx.coins.hooks.MVdWPlaceholderAPIHook;
-import net.nifheim.broxxx.coins.hooks.PlaceholderAPI;
-import net.nifheim.broxxx.coins.listener.CommandListener;
-import net.nifheim.broxxx.coins.listener.PlayerJoinListener;
+import net.nifheim.broxxx.coins.utils.placeholders.MVdWPlaceholderAPIHook;
+import net.nifheim.broxxx.coins.utils.placeholders.PlaceholderAPI;
+import net.nifheim.broxxx.coins.listener.*;
 import net.nifheim.broxxx.coins.utils.FileUtils;
 
 import org.bukkit.Bukkit;
@@ -68,6 +73,7 @@ public class Main extends JavaPlugin {
 
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new CommandListener(), this);
+        Bukkit.getServer().getPluginManager().registerEvents(new GUIListener(this), this);
 
         if (getConfig().getBoolean("MySQL.Use")) {
             mysql = new MySQL(this);
@@ -133,13 +139,31 @@ public class Main extends JavaPlugin {
         debug("Plugin reloaded");
     }
 
-    public void log(String str) {
-        console.sendMessage(rep("&8[&cCoins&8] &7" + str));
+    public void log(Object log) {
+        console.sendMessage(rep("&8[&cCoins&8] &7" + log));
     }
 
     public void debug(String str) {
         if (getConfig().getBoolean("Debug")) {
             console.sendMessage(rep("&8[&cCoins&8] &cDebug: &7" + str));
+            File log = new File(getDataFolder() + "/Debug.log");
+            BufferedWriter writer = null;
+            // TODO Java 9:
+            // try (writer = new BufferedWriter(new FileWriter(log, true))) {
+            try {
+                writer = new BufferedWriter(new FileWriter(log, true));
+                writer.write(removeColor(str));
+                writer.newLine();
+            } catch (IOException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Can''t save the debug to the file", ex);
+            } finally {
+                try {
+                    if (writer != null) {
+                        writer.close();
+                    }
+                } catch (IOException e) {
+                }
+            }
         }
     }
 
@@ -184,5 +208,30 @@ public class Main extends JavaPlugin {
 
     public FileConfiguration getMessages() {
         return fileUtils.getMessages();
+    }
+
+    private String removeColor(String str) {
+        return str
+                .replaceAll("&0", "")
+                .replaceAll("&1", "")
+                .replaceAll("&2", "")
+                .replaceAll("&3", "")
+                .replaceAll("&4", "")
+                .replaceAll("&5", "")
+                .replaceAll("&6", "")
+                .replaceAll("&7", "")
+                .replaceAll("&8", "")
+                .replaceAll("&9", "")
+                .replaceAll("&a", "")
+                .replaceAll("&b", "")
+                .replaceAll("&c", "")
+                .replaceAll("&d", "")
+                .replaceAll("&e", "")
+                .replaceAll("&f", "")
+                .replaceAll("&r", "")
+                .replaceAll("&l", "")
+                .replaceAll("&m", "")
+                .replaceAll("&n", "")
+                .replaceAll("&o", "");
     }
 }

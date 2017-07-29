@@ -318,4 +318,8 @@ public class CoinsAPI {
     public static Multiplier getMultiplier(String server) {
         return new Multiplier(server);
     }
+
+    public static Multiplier getMultiplier() {
+        return new Multiplier();
+    }
 }

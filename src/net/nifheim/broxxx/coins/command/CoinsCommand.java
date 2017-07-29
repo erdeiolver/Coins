@@ -24,6 +24,7 @@ import java.util.List;
 import net.nifheim.broxxx.coins.CoinsAPI;
 import net.nifheim.broxxx.coins.Main;
 import net.nifheim.broxxx.coins.multiplier.MultiplierType;
+import net.nifheim.broxxx.coins.utils.MultipliersGUI;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -331,7 +332,9 @@ public class CoinsCommand extends BukkitCommand {
         // TODO: messages
         // 0(multiplier) 1(use|set|create) 2(id|player|amount) 3(multiplier)
         if (sender.hasPermission("nifheim.admin")) {
-            if (args[1].equalsIgnoreCase("create") && args.length >= 3) {
+            plugin.log("tienes permisos");
+            plugin.log(args.length);
+            if (args.length >= 3 && args[1].equalsIgnoreCase("create")) {
                 if (Bukkit.getPlayer(args[2]) != null) {
                     try {
                         int multiplier = Integer.parseInt(args[3]);
@@ -343,29 +346,34 @@ public class CoinsCommand extends BukkitCommand {
                     }
                 }
             }
-            if (args[1].equalsIgnoreCase("set") && args.length == 3) {
+            if (args.length == 3 && args[1].equalsIgnoreCase("set")) {
                 if (Integer.parseInt(args[1]) > 0 && Integer.parseInt(args[1]) < 5) {
                     config.set("Multiplier.Amount", Integer.parseInt(args[1]));
                     Main.getInstance().saveConfig();
                     sender.sendMessage(plugin.getString("Multipliers.Set"));
                 }
             }
-            if (args[1].equalsIgnoreCase("use") && args.length >= 2 && sender instanceof Player) {
+            if (args.length >= 2 && args[1].equalsIgnoreCase("use") && sender instanceof Player) {
                 Player p = (Player) sender;
                 if (args.length == 3) {
-                    if (CoinsAPI.getMultiplier("Multipliers.Server").getMultiplierAmount() <= 1) {
-                        CoinsAPI.getMultiplier("Multipliers.Server").useMultiplier((Player) sender, Integer.parseInt(args[2]), MultiplierType.SERVER);
+                    if (CoinsAPI.getMultiplier(config.getString("Multipliers.Server", "default")).getMultiplierAmount() <= 1) {
+                        CoinsAPI.getMultiplier(config.getString("Multipliers.Server", "default")).useMultiplier((Player) sender, Integer.parseInt(args[2]), MultiplierType.SERVER);
                     } else {
                         p.sendMessage(plugin.getString("Multipliers.Already active"));
                     }
                 } else {
-                    CoinsAPI.getMultiplier("Multipliers.Server").getMultipliersFor(p).forEach((i) -> {
+                    CoinsAPI.getMultiplier(config.getString("Multipliers.Server", "default")).getMultipliersFor(p).forEach((i) -> {
                         p.sendMessage("" + i);
                     });
                 }
             }
-            if (args[1].equalsIgnoreCase("get") && args.length == 2) {
-                sender.sendMessage(CoinsAPI.getMultiplier("Multipliers.Server").getMultiplierTimeFormated());
+            if (args.length == 2 && args[1].equalsIgnoreCase("get")) {
+                sender.sendMessage(CoinsAPI.getMultiplier(config.getString("Multipliers.Server", "default")).getMultiplierTimeFormated());
+            }
+            if (args.length == 1 && sender instanceof Player) {
+                plugin.log("abriendo menú");
+                Player p = (Player) sender;
+                new MultipliersGUI(p, "Menú de multiplicadores").open(p);
             }
         }
         return true;
