@@ -17,37 +17,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.broxxx.coins.hooks;
+package net.nifheim.broxxx.coins.utils.placeholders;
 
-import me.clip.placeholderapi.external.EZPlaceholderHook;
+import be.maximvdw.placeholderapi.PlaceholderAPI;
+import be.maximvdw.placeholderapi.PlaceholderReplaceEvent;
 
 import net.nifheim.broxxx.coins.CoinsAPI;
 import net.nifheim.broxxx.coins.Main;
 
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 /**
  * 
  * @author Beelzebu
  */
-public class PlaceholderAPI extends EZPlaceholderHook {
+public class MVdWPlaceholderAPIHook {
 
-    private final Main plugin;
-
-    public PlaceholderAPI(Main plugin) {
-        super(plugin, "coins");
-        this.plugin = plugin;
-    }
-
-    @Override
-    public String onPlaceholderRequest(Player p, String coins) {
-        if (p == null) {
-            return "Player needed!";
+    public static void hook(Main plugin) {
+        if (Bukkit.getPluginManager().isPluginEnabled("MVdWPlaceHolderAPI")) {
+            PlaceholderAPI.registerPlaceholder(plugin, "coins", (PlaceholderReplaceEvent e) -> {
+                final Player p = e.getPlayer();
+                final OfflinePlayer offp = e.getPlayer();
+                if (offp == null) {
+                    return "Player is needed!";
+                }
+                String coins = CoinsAPI.getCoinsString(p);
+                if (coins != null) {
+                    return coins;
+                } else {
+                    return "0";
+                }
+            });
         }
-        if (coins.equalsIgnoreCase("amount")) {
-            String coinsamount = CoinsAPI.getCoinsString(p);
-            return coinsamount;
-        }
-        return "0";
     }
 }
