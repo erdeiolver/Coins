@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.nifheim.beelzebu.coins.CoinsAPI;
-import net.nifheim.beelzebu.coins.command.CommandManager;
+import net.nifheim.beelzebu.coins.bukkit.command.CommandManager;
 import net.nifheim.beelzebu.coins.core.databasehandler.FlatFile;
 import net.nifheim.beelzebu.coins.core.databasehandler.MySQL;
 import net.nifheim.beelzebu.coins.bukkit.utils.placeholders.MVdWPlaceholderAPIHook;
