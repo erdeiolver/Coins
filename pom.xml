@@ -9,13 +9,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <minimize>true</minimize>
+        <optimize>true</optimize>
     </properties>
     <repositories>
-        <repository>
-            <id>mvdw-software</id>
-            <name>MVdW Public Repositories</name>
-            <url>http://repo.mvdw-software.be/content/groups/public/</url>
-        </repository>
         <repository>
             <id>placeholderapi</id>
             <url>http://repo.extendedclip.com/content/repositories/placeholderapi/</url>
@@ -28,17 +25,16 @@
             <id>bungeecord-repo</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>1.8.8-R0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>be.maximvdw</groupId>
-            <artifactId>MVdWPlaceholderAPI</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>me.clip</groupId>
@@ -52,8 +48,37 @@
             <version>1.12-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
+        <dependency>			
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>2.4.1</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.zaxxer:HikariCP</include>
+                                </includes>
+                            </artifactSet>
+                            <minimizeJar>${minimize}</minimizeJar>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
         <finalName>${project.name}</finalName>
         <sourceDirectory>src</sourceDirectory>
         <resources>

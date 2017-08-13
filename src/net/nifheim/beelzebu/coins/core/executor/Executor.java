@@ -20,7 +20,6 @@
 package net.nifheim.beelzebu.coins.core.executor;
 
 import java.util.List;
-import net.nifheim.beelzebu.coins.bukkit.Main;
 
 /**
  *

@@ -45,7 +45,7 @@ public class PlaceholderAPI extends EZPlaceholderHook {
             return "Player needed!";
         }
         if (coins.equalsIgnoreCase("amount")) {
-            return CoinsAPI.getCoinsString(p);
+            return CoinsAPI.getCoinsString(p.getName());
         }
         if (coins.startsWith("multiplier_")) {
             return CoinsAPI.getMultiplier(coins.substring(11)).getMultiplierTimeFormated();

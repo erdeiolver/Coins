@@ -19,22 +19,12 @@
  */
 package net.nifheim.beelzebu.coins.bukkit;
 
-import net.nifheim.beelzebu.coins.bukkit.listener.PlayerJoinListener;
-import net.nifheim.beelzebu.coins.bukkit.listener.CommandListener;
-import net.nifheim.beelzebu.coins.bukkit.listener.GUIListener;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.command.CommandManager;
-import net.nifheim.beelzebu.coins.core.databasehandler.FlatFile;
-import net.nifheim.beelzebu.coins.core.databasehandler.MySQL;
-import net.nifheim.beelzebu.coins.bukkit.utils.placeholders.MVdWPlaceholderAPIHook;
-import net.nifheim.beelzebu.coins.bukkit.utils.placeholders.PlaceholderAPI;
+import net.nifheim.beelzebu.coins.bukkit.listener.*;
 import net.nifheim.beelzebu.coins.bukkit.utils.FileUtils;
+import net.nifheim.beelzebu.coins.bukkit.utils.placeholders.PlaceholderAPI;
+import net.nifheim.beelzebu.coins.core.Core;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
@@ -49,10 +39,8 @@ public class Main extends JavaPlugin {
     private CommandManager commandManager;
     private FileUtils fileUtils;
 
-    public static MySQL mysql;
-    public static FlatFile flatfile;
-
     private PlaceholderAPI placeholderAPI;
+    private Core core = Core.getInstance();
 
     public static Main getInstance() {
         return instance;
@@ -66,10 +54,9 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-
         instance = this;
+        core.setup(new BukkitMethods());
         commandManager = new CommandManager(this);
-        loadConfig(false);
         updateFiles();
         motd(true);
         loadManagers();
@@ -78,32 +65,18 @@ public class Main extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new CommandListener(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new GUIListener(this), this);
 
-        if (getConfig().getBoolean("MySQL.Use")) {
-            mysql = new MySQL(this);
-        } else {
-            flatfile = new FlatFile(this);
-        }
-
         Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
             Bukkit.getOnlinePlayers().forEach((p) -> {
-                CoinsAPI.createPlayer(p);
+                CoinsAPI.createPlayer(p.getName(), p.getUniqueId());
             });
         }, 30);
     }
 
     @Override
     public void onDisable() {
-
         Bukkit.getScheduler().cancelTasks(this);
 
         motd(false);
-    }
-
-    private void loadConfig(boolean reloadConfig) {
-        if (reloadConfig) {
-            fileUtils.reloadConfig();
-            fileUtils.reloadMessages();
-        }
     }
 
     private void updateFiles() {
@@ -115,126 +88,41 @@ public class Main extends JavaPlugin {
         // Create the command
         commandManager.registerCommand();
         // Hook placeholders
-        if (getServer().getPluginManager().isPluginEnabled("MVdWPlaceholderAPI")) {
-            log("MVdWPlaceholderAPI found, hooking in ");
-            MVdWPlaceholderAPIHook.hook(this);
-        }
         if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-            log("PlaceholderAPI found, hooking in ");
+            core.getMethods().log("PlaceholderAPI found, hooking in ");
             placeholderAPI = new PlaceholderAPI(this);
             placeholderAPI.hook();
         }
     }
 
-    public String rep(String str) {
-        return str
-                .replaceAll("%prefix%", getMessages().getString("Prefix"))
-                .replaceAll("&", "§");
-    }
-
-    public void reload() {
-        getServer().getScheduler().cancelTasks(this);
-
-        loadConfig(true);
-
-        loadManagers();
-
-        debug("Plugin reloaded");
-    }
-
-    public void log(Object log) {
-        console.sendMessage(rep("&8[&cCoins&8] &7" + log));
-    }
-
-    public void debug(String str) {
-        if (getConfig().getBoolean("Debug")) {
-            console.sendMessage(rep("&8[&cCoins&8] &cDebug: &7" + str));
-            File log = new File(getDataFolder() + "/Debug.log");
-            BufferedWriter writer = null;
-            // TODO Java 9:
-            // try (writer = new BufferedWriter(new FileWriter(log, true))) {
-            try {
-                writer = new BufferedWriter(new FileWriter(log, true));
-                writer.write(removeColor(str));
-                writer.newLine();
-            } catch (IOException ex) {
-                Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Can''t save the debug to the file", ex);
-            } finally {
-                try {
-                    if (writer != null) {
-                        writer.close();
-                    }
-                } catch (IOException e) {
-                }
-            }
-        }
-    }
-
-    public String getString(String msg) {
-        try {
-            msg = rep(getMessages().getString(msg));
-        } catch (NullPointerException ex) {
-            log("The string " + msg + " does not exists in the messages file, please add this manually.");
-            log("If you belive that this is an error please contact to the developer.");
-            debug(ex.getCause().getMessage());
-            msg = "";
-        }
-        return msg;
-    }
-
     private void motd(Boolean enable) {
         if (getDescription().getVersion().contains("BETA")) {
-            console.sendMessage(rep(""));
-            console.sendMessage(rep("    &c+==========================+"));
-            console.sendMessage(rep("    &c|    &4Coins &fBy: &7Beelzebu&c    |"));
-            console.sendMessage(rep("    &c|--------------------------|"));
-            console.sendMessage(rep("    &c|       &4v:&f" + getDescription().getVersion() + "       &c|"));
-            console.sendMessage(rep("    &c+==========================+"));
-            console.sendMessage(rep(""));
-            console.sendMessage(rep("&cThis is a BETA, please report bugs!"));
+            console.sendMessage(core.rep(""));
+            console.sendMessage(core.rep("    &c+==========================+"));
+            console.sendMessage(core.rep("    &c|    &4Coins &fBy: &7Beelzebu&c    |"));
+            console.sendMessage(core.rep("    &c|--------------------------|"));
+            console.sendMessage(core.rep("    &c|       &4v:&f" + getDescription().getVersion() + "       &c|"));
+            console.sendMessage(core.rep("    &c+==========================+"));
+            console.sendMessage(core.rep(""));
+            console.sendMessage(core.rep("&cThis is a BETA, please report bugs!"));
         } else {
-            console.sendMessage(rep(""));
-            console.sendMessage(rep("    &c+======================+"));
-            console.sendMessage(rep("    &c|   &4Coins &fBy: &7Beelzebu&c   |"));
-            console.sendMessage(rep("    &c|----------------------|"));
-            console.sendMessage(rep("    &c|       &4v:&f" + getDescription().getVersion() + "        &c|"));
-            console.sendMessage(rep("    &c+====================+"));
-            console.sendMessage(rep(""));
+            console.sendMessage(core.rep(""));
+            console.sendMessage(core.rep("    &c+======================+"));
+            console.sendMessage(core.rep("    &c|   &4Coins &fBy: &7Beelzebu&c   |"));
+            console.sendMessage(core.rep("    &c|----------------------|"));
+            console.sendMessage(core.rep("    &c|       &4v:&f" + getDescription().getVersion() + "        &c|"));
+            console.sendMessage(core.rep("    &c+====================+"));
+            console.sendMessage(core.rep(""));
         }
         // Only send this in the onEnable
         if (enable) {
             if (getConfig().getBoolean("Debug", false)) {
-                log("Debug mode is enabled.");
+                core.getMethods().log("Debug mode is enabled.");
             }
         }
     }
-
-    public FileConfiguration getMessages() {
-        return fileUtils.getMessages();
-    }
-
-    private String removeColor(String str) {
-        return str
-                .replaceAll("&0", "")
-                .replaceAll("&1", "")
-                .replaceAll("&2", "")
-                .replaceAll("&3", "")
-                .replaceAll("&4", "")
-                .replaceAll("&5", "")
-                .replaceAll("&6", "")
-                .replaceAll("&7", "")
-                .replaceAll("&8", "")
-                .replaceAll("&9", "")
-                .replaceAll("&a", "")
-                .replaceAll("&b", "")
-                .replaceAll("&c", "")
-                .replaceAll("&d", "")
-                .replaceAll("&e", "")
-                .replaceAll("&f", "")
-                .replaceAll("&r", "")
-                .replaceAll("&l", "")
-                .replaceAll("&m", "")
-                .replaceAll("&n", "")
-                .replaceAll("&o", "");
+    
+    public FileConfiguration getMessages(String lang) {
+        return fileUtils.getMessages(lang);
     }
 }

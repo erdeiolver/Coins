@@ -19,21 +19,12 @@
  */
 package net.nifheim.beelzebu.coins;
 
-import net.nifheim.beelzebu.coins.bukkit.Main;
 import java.text.DecimalFormat;
-import java.util.HashMap;
-
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import net.nifheim.beelzebu.coins.core.databasehandler.FlatFile;
-import net.nifheim.beelzebu.coins.core.databasehandler.MySQL;
+import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
-import org.bukkit.Bukkit;
-
-import org.bukkit.OfflinePlayer;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Player;
+import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 
 /**
  *
@@ -41,56 +32,17 @@ import org.bukkit.entity.Player;
  */
 public class CoinsAPI {
 
-    private static final FileConfiguration CONFIG = Main.getInstance().getConfig();
-    private static final MySQL MYSQL = Main.mysql;
-    private static final FlatFile FLATFILE = Main.flatfile;
+    private static final Core core = Core.getInstance();
     private static final DecimalFormat DF = new DecimalFormat("#.#");
-    private static final Map<Player, Double> CACHE = new HashMap<>();
-
-    private static boolean mysql() {
-        return CONFIG.getBoolean("MySQL.Use");
-    }
-
-    private CoinsAPI() {
-    }
 
     /**
-     * Get the coins of a Online Player.
+     * Get the coins of a Player by his name.
      *
-     * @param p Player to get the coins.
+     * @param player Player to get the coins.
      * @return
      */
-    public static Double getCoins(Player p) {
-        Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
-            if (!CACHE.containsKey(p)) {
-                CACHE.put(p, getCoinsOffline(p));
-            }
-        });
-        return getCoinsOffline(p);
-    }
-
-    /**
-     * Get the coins of a Offline Player.
-     *
-     * @param p Player to get the coins.
-     * @return
-     */
-    public static Double getCoinsOffline(OfflinePlayer p) {
-        if (mysql()) {
-            return MYSQL.getCoinsOffline(p);
-        } else {
-            return FLATFILE.getCoinsOffline(p);
-        }
-    }
-
-    /**
-     * Get the coins String of a Online Player.
-     *
-     * @param p Player to get the coins string.
-     * @return
-     */
-    public static String getCoinsString(Player p) {
-        return getCoinsStringOffline(p);
+    public static Double getCoins(String player) {
+        return core.getDatabase().getCoins(player);
     }
 
     /**
@@ -99,18 +51,15 @@ public class CoinsAPI {
      * @param p Player to get the coins string.
      * @return
      */
-    public static String getCoinsStringOffline(OfflinePlayer p) {
+    public static String getCoinsString(String p) {
         if (p != null) {
-            double coins = getCoinsOffline(p);
+            double coins = getCoins(p);
             return (DF.format(coins));
         } else {
             return "Player can't be null";
         }
     }
 
-    /**
-     *
-     */
     /**
      * Add coins to a Online Player.
      *
@@ -121,7 +70,7 @@ public class CoinsAPI {
      * java.lang.Boolean)
      */
     @Deprecated
-    public static void addCoins(Player p, Double coins) {
+    public static void addCoins(String p, Double coins) {
         addCoins(p, coins, false);
     }
 
@@ -132,26 +81,8 @@ public class CoinsAPI {
      * @param coins The coins to add.
      * @param multiply Multiply coins if there are any active multipliers
      */
-    public static void addCoins(Player p, Double coins, Boolean multiply) {
-        if (mysql()) {
-            MYSQL.addCoins(p, coins, multiply);
-        } else {
-            FLATFILE.addCoins(p, coins);
-        }
-    }
-
-    /**
-     * Add coins to a Offline Player.
-     *
-     * @param p
-     * @param coins
-     */
-    public static void addCoinsOffline(OfflinePlayer p, Double coins) {
-        if (mysql()) {
-            MYSQL.addCoinsOffline(p, coins);
-        } else {
-            FLATFILE.addCoinsOffline(p, coins);
-        }
+    public static void addCoins(String p, Double coins, Boolean multiply) {
+        core.getDatabase().addCoins(p, coins, multiply);
     }
 
     /**
@@ -160,26 +91,8 @@ public class CoinsAPI {
      * @param p
      * @param coins
      */
-    public static void takeCoins(Player p, Double coins) {
-        if (mysql()) {
-            MYSQL.takeCoins(p, coins);
-        } else {
-            FLATFILE.takeCoins(p, coins);
-        }
-    }
-
-    /**
-     * Take coins of a Offline Player.
-     *
-     * @param p
-     * @param coins
-     */
-    public static void takeCoinsOffline(OfflinePlayer p, Double coins) {
-        if (mysql()) {
-            MYSQL.takeCoinsOffline(p, coins);
-        } else {
-            FLATFILE.takeCoinsOffline(p, coins);
-        }
+    public static void takeCoins(String p, Double coins) {
+        core.getDatabase().takeCoins(p, coins);
     }
 
     /**
@@ -187,25 +100,8 @@ public class CoinsAPI {
      *
      * @param p
      */
-    public static void resetCoins(Player p) {
-        if (mysql()) {
-            MYSQL.resetCoins(p);
-        } else {
-            FLATFILE.resetCoins(p);
-        }
-    }
-
-    /**
-     * Reset the coins of a Offline Player.
-     *
-     * @param p
-     */
-    public static void resetCoinsOffline(OfflinePlayer p) {
-        if (mysql()) {
-            MYSQL.resetCoinsOffline(p);
-        } else {
-            FLATFILE.resetCoinsOffline(p);
-        }
+    public static void resetCoins(String p) {
+        core.getDatabase().resetCoins(p);
     }
 
     /**
@@ -214,55 +110,19 @@ public class CoinsAPI {
      * @param p
      * @param coins
      */
-    public static void setCoins(Player p, Double coins) {
-        if (mysql()) {
-            MYSQL.setCoins(p, coins);
-        } else {
-            FLATFILE.setCoins(p, coins);
-        }
-    }
-
-    /**
-     * Set the coins of a Offline Player
-     *
-     * @param p
-     * @param coins
-     */
-    public static void setCoinsOffline(OfflinePlayer p, Double coins) {
-        if (mysql()) {
-            MYSQL.setCoinsOffline(p, coins);
-        } else {
-            FLATFILE.setCoinsOffline(p, coins);
-        }
-    }
-
-    /**
-     * Get if this offline player is in the plugin database.
-     *
-     * @param offlinePlayer The offline player to check.
-     * @return true if the player exists in the database or false if not.
-     * @deprecated
-     * @see #isindb(java.lang.String)
-     * @see #isindb(java.util.UUID)
-     */
-    @Deprecated
-    public static boolean isindb(OfflinePlayer offlinePlayer) {
-        return isindb(offlinePlayer.getUniqueId());
+    public static void setCoins(String p, Double coins) {
+        core.getDatabase().setCoins(p, coins);
     }
 
     /**
      * Get if a player with the specified name exists in the database. Is not
      * recommended check a player by his name because it can change.
      *
-     * @param playerName The name to look for in the database.
+     * @param player The name to look for in the database.
      * @return true if the player exists in the database or false if not.
      */
-    public static boolean isindb(String playerName) {
-        if (mysql()) {
-            return MYSQL.isindb(playerName);
-        } else {
-            return FLATFILE.isindb(playerName);
-        }
+    public static boolean isindb(String player) {
+        return core.getDatabase().isindb(player);
     }
 
     /**
@@ -272,11 +132,7 @@ public class CoinsAPI {
      * @return true if the player exists in the database or false if not.
      */
     public static boolean isindb(UUID uuid) {
-        if (mysql()) {
-            return MYSQL.isindb(uuid);
-        } else {
-            return FLATFILE.isindb(uuid);
-        }
+        return core.getDatabase().isindb(uuid);
     }
 
     /**
@@ -287,26 +143,17 @@ public class CoinsAPI {
      * @return The ordered top list.
      */
     public static List<String> getTop(int top) {
-        if (mysql()) {
-            return MYSQL.getTop(top);
-        } else {
-            return FLATFILE.getTop(top);
-        }
+        return core.getDatabase().getTop(top);
     }
 
     /**
      * Register a player in the database.
      *
      * @param p The player to register.
+     * @param uuid The uuid of the player
      */
-    public static void createPlayer(Player p) {
-        if (!isindb(p.getUniqueId())) {
-            if (mysql()) {
-                MYSQL.createPlayer(p);
-            } else {
-                FLATFILE.createPlayer(p);
-            }
-        }
+    public static void createPlayer(String p, UUID uuid) {
+        core.getDatabase().createPlayer(p, uuid);
     }
 
     /**
@@ -316,10 +163,10 @@ public class CoinsAPI {
      * @return
      */
     public static Multiplier getMultiplier(String server) {
-        return new Multiplier(server);
+        return new Multiplier(core, server);
     }
 
     public static Multiplier getMultiplier() {
-        return new Multiplier();
+        return new Multiplier(core);
     }
 }

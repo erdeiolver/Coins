@@ -29,15 +29,17 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 /**
- * 
+ *
  * @author Beelzebu
  */
 public class PlayerJoinListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
-        Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
-            CoinsAPI.createPlayer(e.getPlayer());
-        }, 5L);
+//        Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Main.getInstance(), () -> {
+//            if (e.getPlayer() != null) { // autologin? idk
+//                CoinsAPI.createPlayer(e.getPlayer().getName(), e.getPlayer().getUniqueId());
+//            }
+//        }, 5L);
     }
 }

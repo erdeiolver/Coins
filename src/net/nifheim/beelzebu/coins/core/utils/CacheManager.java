@@ -17,36 +17,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins.core.executor;
+package net.nifheim.beelzebu.coins.core.utils;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  *
  * @author Beelzebu
  */
-public class ExecutorManager {
+public class CacheManager {
 
-    private static final Set<Executor> executors = new HashSet<>();
+    private static final Map<UUID, Double> data = new HashMap<>();
 
-    public ExecutorManager() {
+    public static Map<UUID, Double> getData() {
+        return data;
     }
 
-    public void addExecutor(Executor ex) {
-        executors.add(ex);
-    }
-
-    public Set<Executor> getExecutors() {
-        return executors;
-    }
-
-    public Executor getExecutor(String id) {
-        for (Executor ex : executors) {
-            if (ex.getID().equals(id)) {
-                return ex;
-            }
+    public static void updateCoins(UUID uuid, Double coins) {
+        if (data.containsKey(uuid)) {
+            data.replace(uuid, coins);
         }
-        return null;
+    }
+
+    public static void remove(UUID uuid) {
+        if (data.containsKey(uuid)) {
+            data.remove(uuid);
+        }
     }
 }

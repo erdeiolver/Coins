@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import net.nifheim.beelzebu.coins.bukkit.Main;
+import net.nifheim.beelzebu.coins.core.Core;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.SimpleCommandMap;
@@ -36,10 +37,12 @@ import org.bukkit.plugin.SimplePluginManager;
 public class CommandManager {
 
     private final Main plugin;
+    private final String commandName;
     private final List<String> commandAliases = new ArrayList<>();
 
     public CommandManager(Main main) {
         plugin = main;
+        commandName = plugin.getConfig().getString("Command.Name", "coins");
     }
 
     public void registerCommand() {
@@ -52,7 +55,6 @@ public class CommandManager {
             bukkitCommandMap.setAccessible(true);
             CommandMap commandMap = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
 
-            String commandName = plugin.getConfig().getString("Command.Name", "coins");
             String commandDescription = plugin.getConfig().getString("Command.Description", "Base command of the Coins plugin");
             String commandUsage = plugin.getConfig().getString("Command.Usage", "/coins");
             String commandPermission = plugin.getConfig().getString("Command.Permission", "coins.use");
@@ -65,8 +67,8 @@ public class CommandManager {
             commandMap.register(commandName, new CoinsCommand(commandName, commandDescription, commandUsage, commandPermission, commandAliases));
 
         } catch (SecurityException | IllegalArgumentException | NoSuchFieldException | IllegalAccessException ex) {
-            plugin.log("An internal error has ocurred while registering the command for the plugin.");
-            plugin.debug(ex.getCause().getMessage());
+            Core.getInstance().getMethods().log("An internal error has ocurred while registering the command for the plugin.");
+            Core.getInstance().debug(ex.getCause().getMessage());
         }
     }
 
@@ -85,8 +87,8 @@ public class CommandManager {
                 });
                 knownCommands.remove(command);
             } catch (IllegalArgumentException | NoSuchFieldException | IllegalAccessException | SecurityException ex) {
-                plugin.log("An internal error has ocurred while registering the command for the plugin.");
-                plugin.debug(ex.getCause().getMessage());
+                Core.getInstance().getMethods().log("An internal error has ocurred while registering the command for the plugin.");
+                Core.getInstance().debug(ex.getCause().getMessage());
             }
         }
     }

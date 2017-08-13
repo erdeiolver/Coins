@@ -10,14 +10,13 @@ Online Mode: true
 
 # Here are the MySQL server settings.
 MySQL:
-  Use: true
   Host: localhost
   Port: 3306
   Database: minecraft
   User: root
   Password: S3CUR3P4SSW0RD
   Prefix: Coins_
-  Connection Interval: 5
+#  Connection Interval: 5
 
 # Here you can configure the base command of the plugin.
 Command:

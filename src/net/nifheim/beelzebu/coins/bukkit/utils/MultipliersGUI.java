@@ -20,9 +20,9 @@
 package net.nifheim.beelzebu.coins.bukkit.utils;
 
 import net.nifheim.beelzebu.coins.CoinsAPI;
-import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.core.multiplier.MultiplierType;
 import net.nifheim.beelzebu.coins.bukkit.utils.gui.BaseGUI;
+import net.nifheim.beelzebu.coins.core.Core;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -43,21 +43,21 @@ public class MultipliersGUI extends BaseGUI {
     }
 
     private void setItems() {
-        if (p != null && CoinsAPI.getMultiplier(null).getMultipliersFor(p).size() > 0) {
-            for (int i = 0; i < CoinsAPI.getMultiplier(null).getMultipliersFor(p).size() && i < 37; i++) {
+        if (p != null && CoinsAPI.getMultiplier(null).getMultipliersFor(p.getUniqueId()).size() > 0) {
+            for (int i = 0; i < CoinsAPI.getMultiplier(null).getMultipliersFor(p.getUniqueId()).size() && i < 37; i++) {
                 final int k = i;
-                CoinsAPI.getMultiplier(null).getMultipliersFor(p).forEach(j -> {
+                CoinsAPI.getMultiplier(null).getMultipliersFor(p.getUniqueId()).forEach(j -> {
                     ItemStack item = new ItemStack(Material.NETHER_STAR);
                     ItemMeta meta = item.getItemMeta();
                     meta.setDisplayName("" + j);
                     item.setItemMeta(meta);
                     setItem(k, item, player -> {
-                        CoinsAPI.getMultiplier().useMultiplier(player, j, MultiplierType.SERVER);
+                        CoinsAPI.getMultiplier().useMultiplier(player.getUniqueId(), j, MultiplierType.SERVER);
                         player.sendMessage("Has usado el multiplicador con id: " + j);
                     });
                 });
-                CoinsAPI.getMultiplier().getMultipliersFor(p).forEach((j) -> {
-                    Main.getInstance().log(j);
+                CoinsAPI.getMultiplier().getMultipliersFor(p.getUniqueId()).forEach((j) -> {
+                    Core.getInstance().getMethods().log(j);
                 });
             }
         }
