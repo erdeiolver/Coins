@@ -20,23 +20,19 @@
 package net.nifheim.beelzebu.coins.bungee;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStream;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
-import net.md_5.bungee.config.ConfigurationProvider;
-import net.md_5.bungee.config.YamlConfiguration;
 
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.MethodInterface;
+import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 
 /**
  *
@@ -44,44 +40,22 @@ import net.nifheim.beelzebu.coins.core.MethodInterface;
  */
 public class BungeeMethods implements MethodInterface {
 
-    private final File configFile = new File(getDataFolder(), "config.yml");
-    private final File messageFile = new File(getDataFolder(), "messages.yml");
-    private Configuration config;
-    private Configuration messages;
+    private final Main plugin = Main.getInstance();
     private final CommandSender console = ProxyServer.getInstance().getConsole();
-
-    public void createFiles() {
-        try {
-            if (!getDataFolder().exists()) {
-                //noinspection ResultOfMethodCallIgnored
-                getDataFolder().mkdirs();
-            }
-            if (!configFile.exists()) {
-                Files.copy(((Plugin) getPlugin()).getResourceAsStream("config.yml"), configFile.toPath());
-            }
-            if (!messageFile.exists()) {
-                Files.copy(((Plugin) getPlugin()).getResourceAsStream("messages.yml"), messageFile.toPath());
-            }
-            config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
-            messages = ConfigurationProvider.getProvider(YamlConfiguration.class).load(messageFile);
-        } catch (IOException ex) {
-            Logger.getLogger(BungeeMethods.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
 
     @Override
     public Object getPlugin() {
-        return Main.getInstance();
+        return plugin;
     }
 
     @Override
-    public Object getConfig() {
-        return config;
+    public IConfiguration getConfig() {
+        return plugin.getConfiguration();
     }
 
     @Override
     public Object getMessages() {
-        return messages;
+        return null;
     }
 
     @Override
@@ -118,11 +92,6 @@ public class BungeeMethods implements MethodInterface {
     }
 
     @Override
-    public File getDataFolder() {
-        return ((Plugin) getPlugin()).getDataFolder();
-    }
-
-    @Override
     public void log(Object log) {
         console.sendMessage(Core.getInstance().rep("&8[&cCoins&8] &7" + log));
     }
@@ -135,21 +104,6 @@ public class BungeeMethods implements MethodInterface {
     @Override
     public String getNick(UUID uuid) {
         return ProxyServer.getInstance().getPlayer(uuid).getName();
-    }
-
-    @Override
-    public String getString(Object file, Object player, String path) {
-        return ((Configuration) file).getString(path);
-    }
-
-    @Override
-    public Integer getInt(Object file, String path) {
-        return ((Configuration) file).getInt(path);
-    }
-
-    @Override
-    public Boolean getBoolean(Object file, String path) {
-        return ((Configuration) file).getBoolean(path);
     }
 
     @Override
@@ -170,5 +124,15 @@ public class BungeeMethods implements MethodInterface {
     @Override
     public void sendMessage(Object CommandSender, String msg) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public File getDataFolder() {
+        return plugin.getDataFolder();
+    }
+
+    @Override
+    public InputStream getResource(String file) {
+        return plugin.getResourceAsStream(file);
     }
 }

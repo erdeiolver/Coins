@@ -50,8 +50,7 @@ public class PluginMessage implements PluginMessageListener {
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
         String subchannel = in.readUTF();
         if (subchannel.equals("Coins")) {
-            // Use the code sample in the 'Response' sections below to read
-            // the data.
+            in.readUTF();
         }
     }
 }

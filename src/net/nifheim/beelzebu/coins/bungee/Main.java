@@ -32,6 +32,7 @@ import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.event.EventHandler;
+import net.nifheim.beelzebu.coins.bungee.utils.Configuration;
 import net.nifheim.beelzebu.coins.core.Core;
 
 import net.nifheim.beelzebu.coins.core.executor.ExecutorManager;
@@ -42,21 +43,22 @@ import net.nifheim.beelzebu.coins.core.executor.ExecutorManager;
  */
 public class Main extends Plugin implements Listener {
 
-    private static Main plugin;
+    private static Main instance;
+    private Configuration configuration;
     private Core core = Core.getInstance();
-    BungeeMethods bm = new BungeeMethods();
+    private BungeeMethods bm = new BungeeMethods();
 
     public static Main getInstance() {
-        return plugin;
+        return instance;
     }
 
     @Override
     public void onEnable() {
-        plugin = this;
+        instance = this;
+        configuration = new Configuration(this);
         core.setup(bm);
-        bm.createFiles();
         ProxyServer.getInstance().registerChannel("Coins");
-        ProxyServer.getInstance().getPluginManager().registerListener(plugin, this);
+        ProxyServer.getInstance().getPluginManager().registerListener(instance, this);
     }
 
     @EventHandler
@@ -93,5 +95,9 @@ public class Main extends Plugin implements Listener {
             }
             */
         }
+    }
+    
+    public Configuration getConfiguration() {
+        return configuration;
     }
 }

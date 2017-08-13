@@ -24,13 +24,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.core.Core;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -40,16 +37,15 @@ import org.bukkit.configuration.file.YamlConfiguration;
  */
 public class FileUtils {
 
-    private final Main plugin;
+    private final Core core;
     private final File messagesFile;
     private FileConfiguration messages;
     private final File configFile;
-    private FileConfiguration config;
 
-    public FileUtils(Main main) {
-        plugin = main;
-        messagesFile = new File(plugin.getDataFolder(), "messages.yml");
-        configFile = new File(plugin.getDataFolder(), "config.yml");
+    public FileUtils(Core c) {
+        core = c;
+        messagesFile = new File(core.getDataFolder(), "messages.yml");
+        configFile = new File(core.getDataFolder(), "config.yml");
     }
 
     public void copy(InputStream in, File file) {
@@ -69,37 +65,7 @@ public class FileUtils {
 
     public void updateConfig() {
         // TODO: create v4
-        if (plugin.getConfig().getInt("version") == 1) {
-            Core.getInstance().getMethods().log("Config file is outdated, trying to update ...");
-
-            List<String> aliases = new ArrayList<>();
-            aliases.add("mycoins");
-            aliases.add("coinsalias");
-            plugin.getConfig().set("Command.Name", "coins");
-            plugin.getConfig().set("Command.Description", "Base command of the Coins plugin");
-            plugin.getConfig().set("Command.Usage", "/coins");
-            plugin.getConfig().set("Command.Permission", "coins.use");
-            plugin.getConfig().set("Command.Aliases", aliases);
-            plugin.getConfig().set("version", 2);
-            try {
-                plugin.getConfig().save(configFile);
-                Core.getInstance().getMethods().log("Config file has been updated from version 1 to 2!");
-            } catch (IOException ex) {
-                Core.getInstance().getMethods().log("&cAn internal error has ocurred when updating config file, disabling plugin.");
-                Bukkit.getPluginManager().disablePlugin(plugin);
-            }
-        }
-        if (plugin.getConfig().getInt("version") == 2) {
-            plugin.getConfig().set("Debug", false);
-            plugin.getConfig().set("version", 3);
-            try {
-                plugin.getConfig().save(configFile);
-                Core.getInstance().getMethods().log("Config file has been updated from version 2 to 3!");
-            } catch (IOException ex) {
-                Core.getInstance().getMethods().log("&cAn internal error has ocurred when updating config file, disabling plugin.");
-                Bukkit.getPluginManager().disablePlugin(plugin);
-            }
-        }
+        // TODO: do this with a writer for add comments.   
     }
 
     public void updateMessages() {
@@ -113,7 +79,7 @@ public class FileUtils {
         } else if (lang.length() > 2) {
             locale = lang.split("_")[0];;
         }
-        File messagesFile_ = new File(plugin.getDataFolder(), "/messages" + (locale.length() == 2 ? "_" + locale : locale) + ".yml");
+        File messagesFile_ = new File(core.getDataFolder(), "messages" + (locale.length() == 2 ? "_" + locale : locale) + ".yml");
         FileConfiguration messages_ = YamlConfiguration.loadConfiguration(messagesFile_);
         if (messagesFile_.exists()) {
             return messages_;
@@ -126,17 +92,17 @@ public class FileUtils {
     }
 
     public void copyFiles() {
-        plugin.getDataFolder().mkdirs();
+        core.getDataFolder().mkdirs();
 
         if (!messagesFile.exists()) {
-            copy(plugin.getResource("messages.yml"), messagesFile);
+            copy(core.getResource("messages.yml"), messagesFile);
         }
         if (!configFile.exists()) {
-            copy(plugin.getResource("config.yml"), configFile);
+            copy(core.getResource("config.yml"), configFile);
         }
-        File es = new File(plugin.getDataFolder(), "messages_es.yml");
+        File es = new File(core.getDataFolder(), "messages_es.yml");
         if (!es.exists()) {
-            copy(plugin.getResource("messages_es.yml"), es);
+            copy(core.getResource("messages_es.yml"), es);
         }
     }
 }

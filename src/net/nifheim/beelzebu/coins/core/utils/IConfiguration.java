@@ -17,50 +17,41 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins.core;
+package net.nifheim.beelzebu.coins.core.utils;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.UUID;
-import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
+import java.util.List;
 
 /**
  *
  * @author Beelzebu
  */
-public interface MethodInterface {
+public interface IConfiguration {
     
-    Object getPlugin();
+    Object get(String path);
     
-    IConfiguration getConfig();
+    String getString(String path);
     
-    Object getMessages();
+    List<String> getStringList(String path);
     
-    String getString(Object player, String path);
+    Boolean getBoolean(String path);
     
-    void runAsync(Runnable rn);
+    Integer getInt(String path);
     
-    void runAsync(Runnable rn, Long timer);
-
-    void runSync(Runnable rn);
-
-    void executeCommand(String cmd);
+    Double getDouble(String path);
     
-    void log(Object log);
+    Object get(String path, Object def);
     
-    String getNick(Object player);
+    String getString(String path, String def);
     
-    String getNick(UUID uuid);
+    List<String> getStringList(String path, List<String> def);
     
-    UUID getUUID(Object player);
+    Boolean getBoolean(String path, boolean def);
     
-    UUID getUUID(String player);
+    Integer getInt(String path, int def);
     
-    Object getConsole();
+    Double getDouble(String path, double def);
     
-    void sendMessage(Object CommandSender, String msg);
+    void set(String path, Object value);
     
-    File getDataFolder();
-    
-    InputStream getResource(String filename);
+    Object getConfigurationSection(String path);
 }

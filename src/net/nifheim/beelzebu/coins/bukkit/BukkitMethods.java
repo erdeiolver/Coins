@@ -20,15 +20,15 @@
 package net.nifheim.beelzebu.coins.bukkit;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.UUID;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.MethodInterface;
+import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  *
@@ -36,21 +36,22 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class BukkitMethods implements MethodInterface {
 
+    private final Main plugin = Main.getInstance();
     private final CommandSender console = Bukkit.getConsoleSender();
 
     @Override
     public Object getPlugin() {
-        return Main.getInstance();
+        return plugin;
     }
 
     @Override
-    public Object getConfig() {
-        return Main.getInstance().getConfig();
+    public IConfiguration getConfig() {
+        return plugin.getConfiguration();
     }
 
     @Override
     public Object getMessages() {
-        return Main.getInstance().getMessages(null);
+        return plugin.getMessages(null);
     }
 
     @Override
@@ -68,14 +69,14 @@ public class BukkitMethods implements MethodInterface {
             locale = "";
         }
         try {
-            msg = Core.getInstance().rep(Main.getInstance().getMessages(locale).getString(msg));
+            msg = Core.getInstance().rep(plugin.getMessages(locale).getString(msg));
         } catch (NullPointerException ex) {
             log("The string " + msg + " does not exists in the messages file, please add this manually.");
             log("If you belive that this is an error please contact to the developer.");
             Core.getInstance().debug(ex);
             msg = "";
         }
-        return msg.replaceAll("%prefix%", Main.getInstance().getMessages(locale).getString("Prefix"));
+        return msg.replaceAll("%prefix%", plugin.getMessages(locale).getString("Prefix"));
     }
 
     @Override
@@ -99,11 +100,6 @@ public class BukkitMethods implements MethodInterface {
     }
 
     @Override
-    public File getDataFolder() {
-        return ((JavaPlugin) getPlugin()).getDataFolder();
-    }
-
-    @Override
     public void log(Object log) {
         console.sendMessage(Core.getInstance().rep("&8[&cCoins&8] &7" + log));
     }
@@ -116,22 +112,6 @@ public class BukkitMethods implements MethodInterface {
     @Override
     public String getNick(UUID uuid) {
         return Bukkit.getPlayer(uuid).getName();
-    }
-
-    @Override
-    public String getString(Object file, Object player, String path) {
-        //Player p = (Player) player;
-        return ((FileConfiguration) file).getString(path, "");
-    }
-
-    @Override
-    public Integer getInt(Object file, String path) {
-        return ((FileConfiguration) file).getInt(path, 0);
-    }
-
-    @Override
-    public Boolean getBoolean(Object file, String path) {
-        return ((FileConfiguration) file).getBoolean(path, false);
     }
 
     @Override
@@ -152,5 +132,15 @@ public class BukkitMethods implements MethodInterface {
     @Override
     public void sendMessage(Object CommandSender, String msg) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public File getDataFolder() {
+        return plugin.getDataFolder();
+    }
+    
+    @Override
+    public InputStream getResource(String file) {
+        return plugin.getResource(file);
     }
 }

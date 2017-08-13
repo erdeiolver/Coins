@@ -39,8 +39,8 @@ public class Multiplier {
 
     private final Core core;
     private static Connection connection = null;
-    private static final String PREFIX = Core.getInstance().getMethods().getString(Core.getInstance().getMethods().getConfig(), null, "MySQL.PREFIX");
-    private static String SERVER = Core.getInstance().getMethods().getString(Core.getInstance().getMethods().getConfig(), null, "Multipliers.Server");
+    private static final String PREFIX = Core.getInstance().getConfig().getString("MySQL.PREFIX");
+    private static String SERVER = Core.getInstance().getConfig().getString("Multipliers.Server");
     private final String ENABLER;
     private Boolean ENABLED;
     private Integer AMOUNT;
@@ -76,7 +76,7 @@ public class Multiplier {
      */
     public void createMultiplier(UUID uuid, Integer multiplier, Integer minutes) {
         try {
-            connection.createStatement().executeUpdate("INSERT INTO " + PREFIX + "Multipliers VALUES(NULL, '" + uuid + "', " + multiplier + ", -1, " + minutes + ", 0, 0, " + "'" + Core.getInstance().getMethods().getString(Core.getInstance().getMethods().getConfig(), null, "Multipliers.Server") + "'" + ", false);");
+            connection.createStatement().executeUpdate("INSERT INTO " + PREFIX + "Multipliers VALUES(NULL, '" + uuid + "', " + multiplier + ", -1, " + minutes + ", 0, 0, " + "'" + Core.getInstance().getConfig().getString("Multipliers.Server") + "'" + ", false);");
         } catch (SQLException ex) {
             core.getMethods().log("&cSomething was wrong when creating a multiplier for " + core.getNick(uuid));
             core.debug("The error code is: " + ex.getErrorCode());

@@ -26,6 +26,7 @@ import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.bukkit.utils.MultipliersGUI;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.multiplier.MultiplierType;
+import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -41,8 +42,7 @@ import org.bukkit.entity.Player;
 public class CoinsCommand extends BukkitCommand {
 
     public Main plugin = Main.getInstance();
-    private final FileConfiguration config = (FileConfiguration) Core.getInstance().getMethods().getConfig();
-    private final FileConfiguration messages = (FileConfiguration) Core.getInstance().getMethods().getMessages();
+    private final IConfiguration config = Core.getInstance().getConfig();
 
     public CoinsCommand(String command, String desc, String usage, String permission, List<String> aliases) {
         super(command);
@@ -158,7 +158,7 @@ public class CoinsCommand extends BukkitCommand {
             if (args[3].equalsIgnoreCase("true")) {
                 int amount = config.getInt("Multipliers.Amount");
                 if (amount > 1) {
-                    multiplier = Core.getInstance().rep(Core.getInstance().getMethods().getString(sender, "Multipliers.Format", "&8(&bx%multiplier%&8) &aMultiplier enabled by &c%enabler%&a!").replaceAll("%multiplier%", String.valueOf(amount)).replaceAll("%enabler%", CoinsAPI.getMultiplier(config.getString("Multipliers.Server")).getEnabler()));
+                    multiplier = Core.getInstance().rep(Core.getInstance().getConfig().getString("Multipliers.Format").replaceAll("%multiplier%", String.valueOf(amount)).replaceAll("%enabler%", CoinsAPI.getMultiplier(config.getString("Multipliers.Server")).getEnabler()));
                 }
                 multiply = true;
             }

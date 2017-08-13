@@ -23,12 +23,14 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.core.databasehandler.Database;
 import net.nifheim.beelzebu.coins.core.databasehandler.MySQL;
+import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 
 /**
  *
@@ -54,10 +56,10 @@ public class Core {
     }
 
     public void debug(Object msg) {
-        if (mi.getBoolean(mi.getConfig(), "Debug")) {
+        if (getConfig().getBoolean("Debug")) {
             mi.sendMessage(mi.getConsole(), (rep("&8[&cCoins&8] &cDebug: &7" + msg)));
         }
-        File log = new File(mi.getDataFolder() + "/Debug.log");
+        File log = new File(getDataFolder(),"Debug.log");
         BufferedWriter writer = null;
         // TODO Java 9:
         // try (writer = new BufferedWriter(new FileWriter(log, true))) {
@@ -104,5 +106,17 @@ public class Core {
     
     public String removeColor(String str) {
         return "";
+    }
+    
+    public IConfiguration getConfig() {
+        return mi.getConfig();
+    }
+    
+    public File getDataFolder() {
+        return mi.getDataFolder();
+    }
+    
+    public InputStream getResource(String filename) {
+        return mi.getResource(filename);
     }
 }

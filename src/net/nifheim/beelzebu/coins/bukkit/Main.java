@@ -22,9 +22,11 @@ package net.nifheim.beelzebu.coins.bukkit;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.command.CommandManager;
 import net.nifheim.beelzebu.coins.bukkit.listener.*;
+import net.nifheim.beelzebu.coins.bukkit.utils.Configuration;
 import net.nifheim.beelzebu.coins.bukkit.utils.FileUtils;
 import net.nifheim.beelzebu.coins.bukkit.utils.placeholders.PlaceholderAPI;
 import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
@@ -40,6 +42,7 @@ public class Main extends JavaPlugin {
     private FileUtils fileUtils;
 
     private PlaceholderAPI placeholderAPI;
+    private Configuration configuration;
     private Core core = Core.getInstance();
 
     public static Main getInstance() {
@@ -47,15 +50,12 @@ public class Main extends JavaPlugin {
     }
 
     @Override
-    public void onLoad() {
-        fileUtils = new FileUtils(this);
-        fileUtils.copyFiles();
-    }
-
-    @Override
     public void onEnable() {
         instance = this;
+        configuration = new Configuration(this);
         core.setup(new BukkitMethods());
+        fileUtils = new FileUtils(core);
+        fileUtils.copyFiles();
         commandManager = new CommandManager(this);
         updateFiles();
         motd(true);
@@ -121,8 +121,12 @@ public class Main extends JavaPlugin {
             }
         }
     }
-    
+
     public FileConfiguration getMessages(String lang) {
         return fileUtils.getMessages(lang);
+    }
+
+    public IConfiguration getConfiguration() {
+        return configuration;
     }
 }
