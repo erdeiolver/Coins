@@ -56,7 +56,7 @@ Coins:
     Header: '&8&m+-------------------&8- &c&lCoins TOP &8&m--------------------+'
     List: ' &c%top%. &8%player%&f: &7%coins%'
   Get: '%prefix% &a%target% &7has &f%coins%&7 coins.'
-  Own coins: '%prefix% Your has &f%coins%&7 coins.'
+  Own coins: '%prefix% You have &f%coins%&7 coins.'
   Pay: '%prefix% You paid &f%coins%&7 coins to &f%target%&7.'
   Pay target: '%prefix% &f%from%&7 paid you &f%coins%&7 coins.'
   Give: '%prefix% You gived &f%coins%&7 coins to &f%target%&7.'
