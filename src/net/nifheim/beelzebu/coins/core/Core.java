@@ -103,8 +103,8 @@ public class Core {
 
     public String rep(String msg) {
         return msg
-                .replaceAll("&", "§")
-                .replaceAll("%prefix%", getConfig().getString("Prefix"));
+                .replaceAll("%prefix%", getConfig().getString("Prefix"))
+                .replaceAll("&", "§");
     }
     
     public String removeColor(String str) {
