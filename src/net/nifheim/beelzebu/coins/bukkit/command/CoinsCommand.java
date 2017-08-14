@@ -89,8 +89,6 @@ public class CoinsCommand extends BukkitCommand {
             } else if (args.length == 1) {
                 if (CoinsAPI.isindb(args[0])) {
                     _target(sender, args);
-                } else {
-                    sender.sendMessage(core.rep(core.getString("Errors.Unknow command", lang)));
                 }
             } else {
                 sender.sendMessage(core.rep(core.getString("Errors.Unknow command", lang)));
@@ -118,23 +116,22 @@ public class CoinsCommand extends BukkitCommand {
     }
 
     public boolean _pay(CommandSender sender, String[] args) {
-        Player target = Bukkit.getPlayer(args[1]);
         if (args.length < 3 || args[1].equalsIgnoreCase("?")) {
             sender.sendMessage(core.rep(core.getString("Help.Pay Usage", lang)));
         }
         if (sender instanceof Player) {
             if (args.length == 3 && !args[1].equalsIgnoreCase(sender.getName())) {
+                Player target = Bukkit.getPlayer(args[1]);
                 if (CoinsAPI.isindb(args[1])) {
                     Player p = (Player) sender;
                     double coins = Double.parseDouble(args[2]);
-                    String coins_string = "" + coins;
                     if ((coins > 0)) {
-                        if ((CoinsAPI.getCoins(p.getName()) > 0) && (CoinsAPI.getCoins(p.getName()) > coins)) {
+                        if ((CoinsAPI.getCoins(p.getName()) > 0) && (CoinsAPI.getCoins(p.getName()) >= coins)) {
                             if (target != null) {
                                 CoinsAPI.takeCoins(p.getName(), coins);
-                                sender.sendMessage(core.rep(core.getString("Coins.Pay", lang)).replaceAll("%coins%", coins_string).replaceAll("%target%", target.getName()));
+                                sender.sendMessage(core.rep(core.getString("Coins.Pay", lang)).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%target%", target.getName()));
                                 CoinsAPI.addCoins(args[1], coins, false);
-                                target.sendMessage(core.rep(core.getString("Coins.Pay target", lang)).replaceAll("%coins%", coins_string).replaceAll("%from%", p.getName()));
+                                target.sendMessage(core.rep(core.getString("Coins.Pay target", lang)).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%from%", p.getName()));
                             } else {
                                 p.sendMessage(core.rep(core.getString("Errors.Unknow Player", lang)));
                             }
@@ -146,8 +143,6 @@ public class CoinsCommand extends BukkitCommand {
                     }
                 }
 
-            } else {
-                sender.sendMessage(core.rep(core.getString("Help.Pay Usage", lang)));
             }
         }
         if (sender instanceof ConsoleCommandSender) {
@@ -171,6 +166,7 @@ public class CoinsCommand extends BukkitCommand {
         if (args.length == 3 || args.length == 4) {
             if (!sender.hasPermission("nifheim.admin")) {
                 sender.sendMessage(core.rep(core.getString("Errors.No permissions", lang)));
+                return false;
             }
             if (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("dar")) {
                 double coins = Double.parseDouble(args[2]);
@@ -217,11 +213,12 @@ public class CoinsCommand extends BukkitCommand {
     }
 
     public boolean _take(CommandSender sender, String[] args) {
-        Player target = Bukkit.getPlayer(args[1]);
         if (args.length == 3) {
             if (!sender.hasPermission("nifheim.admin")) {
                 sender.sendMessage(core.rep(core.getString("Errors.No permissions", lang)));
+                return false;
             }
+            Player target = Bukkit.getPlayer(args[1]);
             if (args[0].equalsIgnoreCase("take")) {
                 double coins = Double.parseDouble(args[2]);
                 double finalcoins = coins - Double.parseDouble(args[2]);
@@ -253,9 +250,11 @@ public class CoinsCommand extends BukkitCommand {
     public boolean _reset(CommandSender sender, String[] args) {
         if (!sender.hasPermission("nifheim.admin")) {
             sender.sendMessage(core.rep(core.getString("Errors.No permissions", lang)));
+            return false;
         }
         if (args.length < 2) {
             sender.sendMessage(core.rep(core.getString("Help.Reset Usage", lang)));
+            return false;
         }
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
@@ -274,11 +273,12 @@ public class CoinsCommand extends BukkitCommand {
     }
 
     public boolean _set(CommandSender sender, String[] args) {
-        Player target = Bukkit.getPlayer(args[1]);
         if (args.length == 3) {
             if (!sender.hasPermission("nifheim.admin")) {
                 sender.sendMessage(core.rep(core.getString("Errors.No permissions", lang)));
+                return false;
             }
+            Player target = Bukkit.getPlayer(args[1]);
             if (args[0].equalsIgnoreCase("set")) {
                 double coins = Double.parseDouble(args[2]);
                 if (target == null) {
