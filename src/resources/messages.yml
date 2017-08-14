@@ -3,9 +3,8 @@
 # the official github repo https://github.com/Beelzebu/Coins/issuses/
 
 # The version of this file, don't edit!
-version: 4
+version: 5
 
-Prefix: '&c&lCoins &6»&7'
 Help:
   User:
   - '&8&m+-------------------------------------------------+'
