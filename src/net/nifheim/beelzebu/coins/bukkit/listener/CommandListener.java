@@ -37,7 +37,6 @@ public class CommandListener implements Listener {
 
     private final Main plugin = Main.getInstance();
     private final FileConfiguration config = plugin.getConfig();
-    private final FileConfiguration messages = (FileConfiguration) Core.getInstance().getMethods().getMessages();
 
     @EventHandler
     public void onCommandEvent(PlayerCommandPreprocessEvent e) {
@@ -45,7 +44,7 @@ public class CommandListener implements Listener {
         if (config.getDouble("Command Cost." + msg) != 0) {
             if (CoinsAPI.getCoins(e.getPlayer().getName()) < config.getDouble("Command Cost." + msg)) {
                 e.setCancelled(true);
-                e.getPlayer().sendMessage(Core.getInstance().rep(messages.getString("Errors.No Coins")));
+                e.getPlayer().sendMessage(Core.getInstance().rep(Core.getInstance().getMessages(e.getPlayer().spigot().getLocale()).getString("Errors.No Coins")));
             } else {
                 CoinsAPI.takeCoins(e.getPlayer().getName(), config.getDouble("Command Cost." + msg));
             }
