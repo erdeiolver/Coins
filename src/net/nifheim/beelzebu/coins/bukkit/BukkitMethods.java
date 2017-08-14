@@ -22,19 +22,21 @@ package net.nifheim.beelzebu.coins.bukkit;
 import java.io.File;
 import java.io.InputStream;
 import java.util.UUID;
+import net.nifheim.beelzebu.coins.bukkit.utils.Messages;
 import net.nifheim.beelzebu.coins.core.Core;
-import net.nifheim.beelzebu.coins.core.MethodInterface;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
+import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import net.nifheim.beelzebu.coins.core.utils.IMethods;
 
 /**
  *
  * @author Beelzebu
  */
-public class BukkitMethods implements MethodInterface {
+public class BukkitMethods implements IMethods {
 
     private final Main plugin = Main.getInstance();
     private final CommandSender console = Bukkit.getConsoleSender();
@@ -50,33 +52,8 @@ public class BukkitMethods implements MethodInterface {
     }
 
     @Override
-    public Object getMessages() {
-        return plugin.getMessages(null);
-    }
-
-    @Override
-    public String getString(Object player, String msg) {
-        Player p;
-        String locale;
-        try {
-            p = (Player) player;
-            if (Bukkit.getServer().getPlayer(p.getName()) != null) {
-                locale = p.spigot().getLocale();
-            } else {
-                locale = "";
-            }
-        } catch (Exception ex) {
-            locale = "";
-        }
-        try {
-            msg = Core.getInstance().rep(plugin.getMessages(locale).getString(msg));
-        } catch (NullPointerException ex) {
-            log("The string " + msg + " does not exists in the messages file, please add this manually.");
-            log("If you belive that this is an error please contact to the developer.");
-            Core.getInstance().debug(ex);
-            msg = "";
-        }
-        return msg.replaceAll("%prefix%", plugin.getMessages(locale).getString("Prefix"));
+    public MessagesManager getMessages(String lang) {
+        return new Messages(lang);
     }
 
     @Override

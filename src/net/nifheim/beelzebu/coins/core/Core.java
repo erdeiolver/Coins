@@ -19,6 +19,7 @@
  */
 package net.nifheim.beelzebu.coins.core;
 
+import net.nifheim.beelzebu.coins.core.utils.IMethods;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -31,6 +32,7 @@ import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.core.databasehandler.Database;
 import net.nifheim.beelzebu.coins.core.databasehandler.MySQL;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
+import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
 
 /**
  *
@@ -39,19 +41,19 @@ import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 public class Core {
 
     private static Core instance;
-    private MethodInterface mi;
+    private IMethods mi;
     private Database db;
 
     public static Core getInstance() {
         return instance == null ? instance = new Core() : instance;
     }
 
-    public void setup(MethodInterface methodinterface) {
+    public void setup(IMethods methodinterface) {
         mi = methodinterface;
         db = new MySQL(this);
     }
 
-    public MethodInterface getMethods() {
+    public IMethods getMethods() {
         return mi;
     }
 
@@ -101,7 +103,8 @@ public class Core {
 
     public String rep(String msg) {
         return msg
-                .replaceAll("&", "§");
+                .replaceAll("&", "§")
+                .replaceAll("%prefix%", getConfig().getString("Prefix"));
     }
     
     public String removeColor(String str) {
@@ -118,5 +121,21 @@ public class Core {
     
     public InputStream getResource(String filename) {
         return mi.getResource(filename);
+    }
+    
+    public MessagesManager getMessages(String lang) {
+        return mi.getMessages(lang);
+    }
+    
+    public String getString(String path, String lang) {
+        try {
+            path = rep(getMessages(lang).getString(path));
+        } catch (NullPointerException ex) {
+            mi.log("The string " + path + " does not exists in the messages" + lang + ".yml file, please add this manually.");
+            mi.log("If you belive that this is an error please contact to the developer.");
+            path = rep(getMessages("").getString(path));
+            Core.getInstance().debug(ex);
+        }
+        return path;
     }
 }

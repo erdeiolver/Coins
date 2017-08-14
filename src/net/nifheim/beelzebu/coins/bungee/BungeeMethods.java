@@ -28,17 +28,18 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
-import net.md_5.bungee.config.Configuration;
+import net.nifheim.beelzebu.coins.bungee.utils.Messages;
 
 import net.nifheim.beelzebu.coins.core.Core;
-import net.nifheim.beelzebu.coins.core.MethodInterface;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
+import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
+import net.nifheim.beelzebu.coins.core.utils.IMethods;
 
 /**
  *
  * @author Beelzebu
  */
-public class BungeeMethods implements MethodInterface {
+public class BungeeMethods implements IMethods {
 
     private final Main plugin = Main.getInstance();
     private final CommandSender console = ProxyServer.getInstance().getConsole();
@@ -54,21 +55,8 @@ public class BungeeMethods implements MethodInterface {
     }
 
     @Override
-    public Object getMessages() {
-        return null;
-    }
-
-    @Override
-    public String getString(Object player, String path) {
-        try {
-            path = Core.getInstance().rep(((Configuration) getMessages()).getString(path));
-        } catch (NullPointerException ex) {
-            log("The string " + path + " does not exists in the messages file, please add this manually.");
-            log("If you belive that this is an error please contact to the developer.");
-            Core.getInstance().debug(ex.getCause().getMessage());
-            path = "";
-        }
-        return path;
+    public MessagesManager getMessages(String lang) {
+        return new Messages(lang);
     }
 
     @Override
