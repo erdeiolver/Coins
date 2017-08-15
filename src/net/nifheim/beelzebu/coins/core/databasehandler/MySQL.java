@@ -268,26 +268,20 @@ public class MySQL implements Database {
     @Override
     public void takeCoins(String player, Double coins) {
         try (Connection c = getConnection()) {
-            ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + prefix + "Data WHERE nick = '" + player + "';").executeQuery();
-                if (res.next() && res.getString("uuid") != null) {
-                    double beforeCoins = res.getDouble("balance");
-                    if (beforeCoins - coins < 0) {
-                        c.prepareStatement("UPDATE " + prefix + "Data SET balance = 0 WHERE nick = '" + player + "';").executeUpdate();
-                        CacheManager.updateCoins(core.getUUID(player), 0D);
-                    } else if (beforeCoins == coins) {
-                        c.prepareStatement("UPDATE " + prefix + "Data SET balance = 0 WHERE nick = '" + player + "';").executeUpdate();
-                        CacheManager.updateCoins(core.getUUID(player), 0D);
-                    } else if (beforeCoins > coins) {
-                        c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE nick = '" + player + "';").executeUpdate();
-                        CacheManager.updateCoins(core.getUUID(player), (beforeCoins - coins));
-                    }
+                double beforeCoins = getCoins(player);
+                if (beforeCoins - coins < 0) {
+                    c.prepareStatement("UPDATE " + prefix + "Data SET balance = 0 WHERE nick = '" + player + "';").executeUpdate();
+                    CacheManager.updateCoins(core.getUUID(player), 0D);
+                } else if (beforeCoins == coins) {
+                    c.prepareStatement("UPDATE " + prefix + "Data SET balance = 0 WHERE nick = '" + player + "';").executeUpdate();
+                    CacheManager.updateCoins(core.getUUID(player), 0D);
+                } else if (beforeCoins > coins) {
+                    c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE nick = '" + player + "';").executeUpdate();
+                    CacheManager.updateCoins(core.getUUID(player), (beforeCoins - coins));
                 }
+
             } finally {
-                if (res != null) {
-                    res.close();
-                }
                 c.close();
             }
         } catch (SQLException ex) {
@@ -429,26 +423,20 @@ public class MySQL implements Database {
     @Override
     public void takeCoins(UUID player, Double coins) {
         try (Connection c = getConnection()) {
-            ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + prefix + "Data WHERE uuid = '" + player + "';").executeQuery();
-                double beforeCoins = res.getDouble("balance");
-                if (res.next() && res.getString("uuid") != null) {
-                    if (beforeCoins - coins < 0) {
-                        c.prepareStatement("UPDATE " + prefix + "Data SET balance = 0 WHERE uuid = '" + player + "';").executeUpdate();
-                        CacheManager.updateCoins(player, 0D);
-                    } else if (beforeCoins == coins) {
-                        c.prepareStatement("UPDATE " + prefix + "Data SET balance = 0 WHERE uuid = '" + player + "';").executeUpdate();
-                        CacheManager.updateCoins(player, 0D);
-                    } else if (beforeCoins > coins) {
-                        c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE uuid = '" + player + "';").executeUpdate();
-                        CacheManager.updateCoins(player, beforeCoins - coins);
-                    }
+                double beforeCoins = getCoins(player);
+                if (beforeCoins - coins < 0) {
+                    c.prepareStatement("UPDATE " + prefix + "Data SET balance = 0 WHERE uuid = '" + player + "';").executeUpdate();
+                    CacheManager.updateCoins(player, 0D);
+                } else if (beforeCoins == coins) {
+                    c.prepareStatement("UPDATE " + prefix + "Data SET balance = 0 WHERE uuid = '" + player + "';").executeUpdate();
+                    CacheManager.updateCoins(player, 0D);
+                } else if (beforeCoins > coins) {
+                    c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE uuid = '" + player + "';").executeUpdate();
+                    CacheManager.updateCoins(player, beforeCoins - coins);
                 }
+
             } finally {
-                if (res != null) {
-                    res.close();
-                }
                 c.close();
             }
         } catch (SQLException ex) {
