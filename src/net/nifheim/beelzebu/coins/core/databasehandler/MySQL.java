@@ -242,21 +242,16 @@ public class MySQL implements Database {
     @Override
     public void addCoins(String player, Double coins, Boolean multiply) {
         try (Connection c = getConnection()) {
-            ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + prefix + "Data WHERE nick ='" + player + "';").executeQuery();
-                if (res.next() && res.getString("uuid") != null) {
+                if (isindb(player) && getCoins(player) >= 0) {
                     if (multiply) {
                         coins = coins * core.getConfig().getInt("Multipliers.Amount");
                     }
-                    double oldCoins = res.getDouble("balance");
+                    double oldCoins = getCoins(player);
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE nick = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(core.getUUID(player), oldCoins + coins);
                 }
             } finally {
-                if (res != null) {
-                    res.close();
-                }
                 c.close();
             }
         } catch (SQLException ex) {
@@ -293,17 +288,12 @@ public class MySQL implements Database {
     @Override
     public void resetCoins(String player) {
         try (Connection c = getConnection()) {
-            ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + prefix + "Data WHERE nick = '" + player + "';").executeQuery();
-                if (res.next() && res.getString("uuid") != null) {
+                if (isindb(player) && getCoins(player) >= 0) {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + core.getConfig().getDouble("General.Starting Coins") + " WHERE nick = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
                 }
             } finally {
-                if (res != null) {
-                    res.close();
-                }
                 c.close();
             }
         } catch (SQLException ex) {
@@ -315,17 +305,12 @@ public class MySQL implements Database {
     @Override
     public void setCoins(String player, Double coins) {
         try (Connection c = getConnection()) {
-            ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + prefix + "Data WHERE nick = '" + player + "';").executeQuery();
-                if (res.next() && res.getString("uuid") != null) {
+                if (isindb(player) && getCoins(player) >= 0) {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + coins + " WHERE nick = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(core.getUUID(player), coins);
                 }
             } finally {
-                if (res != null) {
-                    res.close();
-                }
                 c.close();
             }
         } catch (SQLException ex) {
@@ -396,21 +381,16 @@ public class MySQL implements Database {
     @Override
     public void addCoins(UUID player, Double coins, Boolean multiply) {
         try (Connection c = getConnection()) {
-            ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + prefix + "Data WHERE uuid ='" + player + "';").executeQuery();
-                if (res.next() && res.getString("uuid") != null) {
+                if (isindb(player) && getCoins(player) >= 0) {
                     if (multiply) {
                         coins = coins * core.getConfig().getInt("Multipliers.Amount");
                     }
-                    double oldCoins = res.getDouble("balance");
+                    double oldCoins = getCoins(player);
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE uuid = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(player, oldCoins + coins);
                 }
             } finally {
-                if (res != null) {
-                    res.close();
-                }
                 c.close();
             }
         } catch (SQLException ex) {
@@ -448,17 +428,12 @@ public class MySQL implements Database {
     @Override
     public void resetCoins(UUID player) {
         try (Connection c = getConnection()) {
-            ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + prefix + "Data WHERE uuid = '" + player + "';").executeQuery();
-                if (res.next() && res.getString("uuid") != null) {
+                if (isindb(player) && getCoins(player) >= 0) {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + core.getConfig().getDouble("General.Starting Coins") + " WHERE uuid = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(player, core.getConfig().getDouble("General.Starting Coins"));
                 }
             } finally {
-                if (res != null) {
-                    res.close();
-                }
                 c.close();
             }
         } catch (SQLException ex) {
@@ -470,17 +445,12 @@ public class MySQL implements Database {
     @Override
     public void setCoins(UUID player, Double coins) {
         try (Connection c = getConnection()) {
-            ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + prefix + "Data WHERE uuid = '" + player + "';").executeQuery();
-                if (res.next() && res.getString("uuid") != null) {
+                if (isindb(player) && getCoins(player) >= 0) {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + coins + " WHERE uuid = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(player, coins);
                 }
             } finally {
-                if (res != null) {
-                    res.close();
-                }
                 c.close();
             }
         } catch (SQLException ex) {
