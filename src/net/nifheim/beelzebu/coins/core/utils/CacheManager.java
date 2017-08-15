@@ -19,6 +19,7 @@
  */
 package net.nifheim.beelzebu.coins.core.utils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -29,7 +30,7 @@ import java.util.UUID;
  */
 public class CacheManager {
 
-    private static final Map<UUID, Double> data = new HashMap<>();
+    private static final Map<UUID, Double> data = Collections.synchronizedMap(new HashMap<>());
 
     public static Map<UUID, Double> getData() {
         return data;
@@ -41,7 +42,7 @@ public class CacheManager {
         }
     }
 
-    public static void remove(UUID uuid) {
+    public void remove(UUID uuid) {
         if (data.containsKey(uuid)) {
             data.remove(uuid);
         }

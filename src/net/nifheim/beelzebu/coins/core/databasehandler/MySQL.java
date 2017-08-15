@@ -88,7 +88,7 @@ public class MySQL implements Database {
                 core.debug("The error code is: " + ex.getErrorCode());
                 core.debug(ex.getMessage());
             }
-        }, 10L);
+        }, (long) core.getConfig().getInt("MySQL.Connection Interval"));
     }
 
     private void Connect() {
