@@ -121,10 +121,6 @@ public class Main extends JavaPlugin {
         }
     }
 
-    public FileConfiguration getMessages(String lang) {
-        return fileUtils.getMessages(lang);
-    }
-
     public IConfiguration getConfiguration() {
         return configuration;
     }

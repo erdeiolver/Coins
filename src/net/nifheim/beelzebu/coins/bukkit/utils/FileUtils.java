@@ -26,10 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.core.Core;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
  *
@@ -39,7 +36,6 @@ public class FileUtils {
 
     private final Core core;
     private final File messagesFile;
-    private FileConfiguration messages;
     private final File configFile;
 
     public FileUtils(Core c) {
@@ -59,38 +55,19 @@ public class FileUtils {
             out.close();
             in.close();
         } catch (IOException e) {
-            Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Can't copy the file " + file.getName() + " to the plugin data folder.", e.getCause());
+            Logger.getLogger(FileUtils.class.getName()).log(Level.WARNING, "Can't copy the file " + file.getName() + " to the plugin data folder.", e.getCause());
         }
     }
 
     public void updateConfig() {
         // TODO: create v4
-        // TODO: do this with a writer for add comments.   
+        // TODO: do this with a writer for add comments.
     }
 
     public void updateMessages() {
         // TODO: do this with a writer for add comments.
     }
-
-    public FileConfiguration getMessages(String lang) {
-        String locale = lang;
-        if (lang == null) {
-            locale = "";
-        } else if (lang.length() > 2) {
-            locale = lang.split("_")[0];;
-        }
-        File messagesFile_ = new File(core.getDataFolder(), "messages" + (locale.length() == 2 ? "_" + locale : locale) + ".yml");
-        FileConfiguration messages_ = YamlConfiguration.loadConfiguration(messagesFile_);
-        if (messagesFile_.exists()) {
-            return messages_;
-        }
-        if (messages == null) {
-            messages = YamlConfiguration.loadConfiguration(messagesFile);
-        }
-        return messages;
-
-    }
-
+    
     public void copyFiles() {
         core.getDataFolder().mkdirs();
 
