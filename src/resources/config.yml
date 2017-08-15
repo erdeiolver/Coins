@@ -3,7 +3,7 @@
 # the official github repo https://github.com/Beelzebu/Coins/issues/
 
 # The version of the config, don't touch!
-version: 4
+version: 5
 
 # This is the prefix used in all the messages.
 Prefix: '&c&lCoins &6&l>&7'
@@ -21,26 +21,26 @@ MySQL:
   Prefix: Coins_
   Connection Interval: 5
 
-# Here you can configure the base command of the plugin.
-Command:
-  Name: 'coins'
-  Description: 'Base command of the Coins plugin'
-  Usage: '/coins'
-  Permission: 'coins.use'
-  Aliases:
-  - 'mycoins'
-  - 'coinsalias'
-
 # Plugin general configurations.
 General:
   # Here you can define the starting coins of a player when is registred in the
   # database or his coins are reset with "/coins reset"
   Starting Coins: 0
+  # Here you can configure the base command of the plugin.
+  Command:
+    Name: 'coins'
+    Description: 'Base command of the Coins plugin'
+    Usage: '/coins'
+    Permission: 'coins.use'
+    Aliases:
+    - 'mycoins'
+    - 'coinsalias'
 
 # Here you can define a cost to use a specific command.
 Command Cost:
   /example: 100.0 # When a player use this command, we gonna take 100 coins from his account.
   /command: 5.5 # You can use decimals too.
+
 # Here you can make that coins run a command from the console and take a cost to the user.
 Command executor:
   # This is the command name to use in /coins execute
@@ -83,6 +83,7 @@ Multipliers:
   Server: 'default'
   # You should't touch this number, this can be set with /coins multiplier set
   Amount: 1
+
 # This is for enable the debug mode, this gonna send more messages to the console to see what
 # is happening with the plugin, please enable this to report bugs.
 Debug: false

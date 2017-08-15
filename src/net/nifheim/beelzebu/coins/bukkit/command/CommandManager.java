@@ -37,17 +37,19 @@ import org.bukkit.plugin.SimplePluginManager;
 public class CommandManager {
 
     private final Main plugin;
+    private final Core core;
     private final String commandName;
     private final List<String> commandAliases = new ArrayList<>();
 
     public CommandManager(Main main) {
         plugin = main;
-        commandName = plugin.getConfig().getString("Command.Name", "coins");
+        core = Core.getInstance();
+        commandName = core.getConfig().getString("General.Command.Name", "coins");
     }
 
     public void registerCommand() {
         try {
-            plugin.getConfig().getStringList("Command.Aliases").forEach((str) -> {
+            core.getConfig().getStringList("General.Command.Aliases").forEach((str) -> {
                 commandAliases.add(str);
             });
 
@@ -55,9 +57,9 @@ public class CommandManager {
             bukkitCommandMap.setAccessible(true);
             CommandMap commandMap = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
 
-            String commandDescription = plugin.getConfig().getString("Command.Description", "Base command of the Coins plugin");
-            String commandUsage = plugin.getConfig().getString("Command.Usage", "/coins");
-            String commandPermission = plugin.getConfig().getString("Command.Permission", "coins.use");
+            String commandDescription = core.getConfig().getString("General.Command.Description", "Base command of the Coins plugin");
+            String commandUsage = core.getConfig().getString("General.Command.Usage", "/coins");
+            String commandPermission = core.getConfig().getString("General.Command.Permission", "coins.use");
 
             commandAliases.forEach((str) -> {
                 unregisterCommand(str);
@@ -67,8 +69,8 @@ public class CommandManager {
             commandMap.register(commandName, new CoinsCommand(commandName, commandDescription, commandUsage, commandPermission, commandAliases));
 
         } catch (SecurityException | IllegalArgumentException | NoSuchFieldException | IllegalAccessException ex) {
-            Core.getInstance().getMethods().log("An internal error has ocurred while registering the command for the plugin.");
-            Core.getInstance().debug(ex.getCause().getMessage());
+            core.getMethods().log("An internal error has ocurred while registering the command for the plugin.");
+            core.debug(ex.getCause().getMessage());
         }
     }
 
@@ -87,8 +89,8 @@ public class CommandManager {
                 });
                 knownCommands.remove(command);
             } catch (IllegalArgumentException | NoSuchFieldException | IllegalAccessException | SecurityException ex) {
-                Core.getInstance().getMethods().log("An internal error has ocurred while registering the command for the plugin.");
-                Core.getInstance().debug(ex.getCause().getMessage());
+                core.getMethods().log("An internal error has ocurred while registering the command for the plugin.");
+                core.debug(ex.getCause().getMessage());
             }
         }
     }
