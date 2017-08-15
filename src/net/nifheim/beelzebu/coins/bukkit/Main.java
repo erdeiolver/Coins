@@ -23,7 +23,7 @@ import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.command.CommandManager;
 import net.nifheim.beelzebu.coins.bukkit.listener.*;
 import net.nifheim.beelzebu.coins.bukkit.utils.Configuration;
-import net.nifheim.beelzebu.coins.bukkit.utils.FileUtils;
+import net.nifheim.beelzebu.coins.core.utils.FileUtils;
 import net.nifheim.beelzebu.coins.bukkit.utils.placeholders.PlaceholderAPI;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
