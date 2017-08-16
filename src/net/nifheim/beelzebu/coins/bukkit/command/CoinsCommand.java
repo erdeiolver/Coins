@@ -322,7 +322,7 @@ public class CoinsCommand extends BukkitCommand {
             core.getMethods().log("tienes permisos");
             core.getMethods().log(args.length);
             if (args.length >= 3 && args[1].equalsIgnoreCase("create")) {
-                if (Bukkit.getPlayer(args[2]) != null) {
+                if (CoinsAPI.isindb(args[2])) {
                     try {
                         int multiplier = Integer.parseInt(args[3]);
                         int minutes = Integer.parseInt(args[4]);
