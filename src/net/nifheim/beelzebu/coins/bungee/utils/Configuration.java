@@ -113,4 +113,9 @@ public class Configuration implements IConfiguration {
     public Object getConfigurationSection(String path) {
         return config.getSection(path);
     }
+
+    @Override
+    public void reload() {
+        throw new UnsupportedOperationException("reload is not finished yet.");
+    }
 }

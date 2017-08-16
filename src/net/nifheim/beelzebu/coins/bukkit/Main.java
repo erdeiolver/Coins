@@ -23,14 +23,12 @@ import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.command.CommandManager;
 import net.nifheim.beelzebu.coins.bukkit.listener.*;
 import net.nifheim.beelzebu.coins.bukkit.utils.Configuration;
-import net.nifheim.beelzebu.coins.core.utils.FileUtils;
 import net.nifheim.beelzebu.coins.bukkit.utils.placeholders.PlaceholderAPI;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
@@ -39,7 +37,6 @@ public class Main extends JavaPlugin {
 
     private static Main instance;
     private CommandManager commandManager;
-    private FileUtils fileUtils;
 
     private PlaceholderAPI placeholderAPI;
     private Configuration configuration;
@@ -54,10 +51,7 @@ public class Main extends JavaPlugin {
         instance = this;
         configuration = new Configuration(this);
         core.setup(new BukkitMethods());
-        fileUtils = new FileUtils(core);
-        fileUtils.copyFiles();
         commandManager = new CommandManager(this);
-        updateFiles();
         motd(true);
         loadManagers();
 
@@ -76,11 +70,6 @@ public class Main extends JavaPlugin {
         Bukkit.getScheduler().cancelTasks(this);
 
         motd(false);
-    }
-
-    private void updateFiles() {
-        fileUtils.updateConfig();
-        fileUtils.updateMessages();
     }
 
     private void loadManagers() {

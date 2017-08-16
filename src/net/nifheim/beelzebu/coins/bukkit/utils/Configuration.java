@@ -29,10 +29,10 @@ import org.bukkit.configuration.file.FileConfiguration;
  * @author Beelzebu
  */
 public class Configuration implements IConfiguration {
-    
+
     private final Main plugin;
     private final FileConfiguration config;
-    
+
     public Configuration(Main main) {
         plugin = main;
         config = main.getConfig();
@@ -106,5 +106,10 @@ public class Configuration implements IConfiguration {
     @Override
     public Object getConfigurationSection(String path) {
         return config.getConfigurationSection(path);
+    }
+
+    @Override
+    public void reload() {
+        plugin.reloadConfig();
     }
 }

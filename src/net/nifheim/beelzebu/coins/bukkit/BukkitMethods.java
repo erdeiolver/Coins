@@ -103,12 +103,12 @@ public class BukkitMethods implements IMethods {
 
     @Override
     public Object getConsole() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Bukkit.getConsoleSender();
     }
 
     @Override
-    public void sendMessage(Object CommandSender, String msg) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void sendMessage(Object commandsender, String msg) {
+        ((CommandSender) commandsender).sendMessage(msg);
     }
     
     @Override

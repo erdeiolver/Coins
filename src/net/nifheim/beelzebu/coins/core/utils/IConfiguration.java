@@ -54,4 +54,6 @@ public interface IConfiguration {
     void set(String path, Object value);
     
     Object getConfigurationSection(String path);
+    
+    void reload();
 }

@@ -28,9 +28,11 @@ import java.io.InputStream;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.md_5.bungee.api.ChatColor;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.core.databasehandler.Database;
 import net.nifheim.beelzebu.coins.core.databasehandler.MySQL;
+import net.nifheim.beelzebu.coins.core.utils.FileUpdater;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
 
@@ -43,6 +45,7 @@ public class Core {
     private static Core instance;
     private IMethods mi;
     private Database db;
+    private FileUpdater fileUpdater;
 
     public static Core getInstance() {
         return instance == null ? instance = new Core() : instance;
@@ -51,6 +54,9 @@ public class Core {
     public void setup(IMethods methodinterface) {
         mi = methodinterface;
         db = new MySQL(this);
+        fileUpdater = new FileUpdater(this);
+        fileUpdater.copyFiles();
+        fileUpdater.updateConfig();
     }
 
     public IMethods getMethods() {
@@ -61,23 +67,17 @@ public class Core {
         if (getConfig().getBoolean("Debug")) {
             mi.sendMessage(mi.getConsole(), (rep("&8[&cCoins&8] &cDebug: &7" + msg)));
         }
-        File log = new File(getDataFolder(),"Debug.log");
-        BufferedWriter writer = null;
-        // TODO Java 9:
-        // try (writer = new BufferedWriter(new FileWriter(log, true))) {
-        try {
-            writer = new BufferedWriter(new FileWriter(log, true));
-            writer.write(removeColor(msg.toString()));
-            writer.newLine();
+        File log = new File(getDataFolder(), "Debug.log");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(log, true))) {
+            try {
+                writer.write(removeColor(msg.toString()));
+                writer.newLine();
+            } finally {
+                writer.close();
+
+            }
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Can''t save the debug to the file", ex);
-        } finally {
-            try {
-                if (writer != null) {
-                    writer.close();
-                }
-            } catch (IOException e) {
-            }
         }
     }
 
@@ -106,27 +106,27 @@ public class Core {
                 .replaceAll("%prefix%", getConfig().getString("Prefix"))
                 .replaceAll("&", "§");
     }
-    
+
     public String removeColor(String str) {
-        return "";
+        return ChatColor.stripColor(str).replaceAll("Debug: ", "");
     }
-    
+
     public IConfiguration getConfig() {
         return mi.getConfig();
     }
-    
+
     public File getDataFolder() {
         return mi.getDataFolder();
     }
-    
+
     public InputStream getResource(String filename) {
         return mi.getResource(filename);
     }
-    
+
     public MessagesManager getMessages(String lang) {
         return mi.getMessages(lang);
     }
-    
+
     public String getString(String path, String lang) {
         try {
             path = rep(getMessages(lang).getString(path));
