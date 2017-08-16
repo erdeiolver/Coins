@@ -23,11 +23,14 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import net.nifheim.beelzebu.coins.CoinsAPI;
 
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.CacheManager;
@@ -127,32 +130,43 @@ public class MySQL implements Database {
         }
     }
 
-    public void updateDatabase() {
-        try (Connection c = getConnection()) {
+    public synchronized void updateDatabase() {
+        try (Connection c = getConnection(); Statement st = c.createStatement()) {
+            core.debug("A database connection was opened.");
             try {
-                String createData
+                DatabaseMetaData md = c.getMetaData();
+                String Data
                         = "CREATE TABLE IF NOT EXISTS `" + prefix + "Data`"
                         + "(`uuid` VARCHAR(50) NOT NULL,"
                         + "`nick` VARCHAR(50) NOT NULL,"
                         + "`balance` DOUBLE NOT NULL,"
                         + "`lastlogin` LONG NOT NULL,"
                         + "PRIMARY KEY (`uuid`));";
-                String createMultiplier
-                        = "CREATE TABLE IF NOT EXISTS `" + prefix + "Multipliers`"
+                String Multiplier = "CREATE TABLE IF NOT EXISTS `" + prefix + "Multipliers`"
                         + "(`id` INT NOT NULL AUTO_INCREMENT,"
                         + "`uuid` VARCHAR(50) NOT NULL,"
                         + "`multiplier` INT,"
-                        + "`queue` INT AUTO_INCREMENT,"
+                        + "`queue` INT,"
                         + "`minutes` INT,"
-                        + "`starttime` LONG,"
                         + "`endtime` LONG,"
                         + "`server` VARCHAR(50),"
                         + "`enabled` BOOLEAN,"
                         + "PRIMARY KEY (`id`));";
-                c.prepareStatement(createData).execute();
-                c.prepareStatement(createMultiplier).execute();
+                st.executeUpdate(Data);
+                core.debug("The data table was updated.");
+                st.executeUpdate(Multiplier);
+                if (!isColumnMissing(md, "Multipliers", "starttime")) {
+                    st.executeUpdate("ALTER TABLE `" + prefix + "Multipliers` DROP COLUMN starttime;");
+                }
+                core.debug("The multipliers table was updated");
+                if (core.getConfig().getBoolean("General.Purge.Enabled", true)) {
+                    st.executeUpdate("DELETE FROM " + prefix + "Data WHERE lastlogin >= " + (System.currentTimeMillis() - (core.getConfig().getInt("General.Purge.Days") * 86400000)) + ";");
+                    core.debug("Inactive users were removed from the database.");
+                }
             } finally {
+                st.close();
                 c.close();
+                core.debug("The connection was closed.");
             }
         } catch (SQLException ex) {
             core.getMethods().log("Something was wrong creating the default databases. Please check the debug log.");
@@ -245,7 +259,7 @@ public class MySQL implements Database {
             try {
                 if (isindb(player) && getCoins(player) >= 0) {
                     if (multiply) {
-                        coins = coins * core.getConfig().getInt("Multipliers.Amount");
+                        coins = coins * CoinsAPI.getMultiplier().getAmount();
                     }
                     double oldCoins = getCoins(player);
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE nick = '" + player + "';").executeUpdate();
@@ -384,7 +398,7 @@ public class MySQL implements Database {
             try {
                 if (isindb(player) && getCoins(player) >= 0) {
                     if (multiply) {
-                        coins = coins * core.getConfig().getInt("Multipliers.Amount");
+                        coins = coins * CoinsAPI.getMultiplier().getAmount();
                     }
                     double oldCoins = getCoins(player);
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE uuid = '" + player + "';").executeUpdate();
@@ -506,5 +520,11 @@ public class MySQL implements Database {
             core.debug(ex.getMessage());
         }
         return toplist;
+    }
+
+    private boolean isColumnMissing(DatabaseMetaData metaData, String table, String column) throws SQLException {
+        try (ResultSet res = metaData.getColumns(null, null, prefix + table, column)) {
+            return !res.next();
+        }
     }
 }
