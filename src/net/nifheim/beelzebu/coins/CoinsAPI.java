@@ -163,10 +163,10 @@ public class CoinsAPI {
      * @return
      */
     public static Multiplier getMultiplier(String server) {
-        return new Multiplier(core, server);
+        return new Multiplier(server);
     }
 
     public static Multiplier getMultiplier() {
-        return new Multiplier(core);
+        return new Multiplier();
     }
 }

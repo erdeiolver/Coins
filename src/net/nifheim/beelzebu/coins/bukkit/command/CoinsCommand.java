@@ -156,7 +156,7 @@ public class CoinsCommand extends BukkitCommand {
             if (args[3].equalsIgnoreCase("true")) {
                 int amount = CoinsAPI.getMultiplier().getAmount();
                 if (amount > 1) {
-                    multiplier = core.rep(core.getConfig().getString("Multipliers.Format", lang).replaceAll("%multiplier%", String.valueOf(amount)).replaceAll("%enabler%", CoinsAPI.getMultiplier(config.getString("Multipliers.Server")).getEnabler()));
+                    multiplier = core.rep(core.getString("Multipliers.Format", lang).replaceAll("%multiplier%", String.valueOf(amount)).replaceAll("%enabler%", CoinsAPI.getMultiplier(config.getString("Multipliers.Server")).getEnabler()));
                 }
                 multiply = true;
             }
@@ -331,13 +331,6 @@ public class CoinsCommand extends BukkitCommand {
                     } catch (NumberFormatException e) {
                         sender.sendMessage(core.rep(String.valueOf(e.getCause().getMessage())));
                     }
-                }
-            }
-            if (args.length == 3 && args[1].equalsIgnoreCase("set")) {
-                if (Integer.parseInt(args[1]) > 0 && Integer.parseInt(args[1]) < 5) {
-                    config.set("Multiplier.Amount", Integer.parseInt(args[1]));
-                    Main.getInstance().saveConfig();
-                    sender.sendMessage(core.getString("Multipliers.Set", lang));
                 }
             }
             if (args.length >= 2 && args[1].equalsIgnoreCase("use") && sender instanceof Player) {

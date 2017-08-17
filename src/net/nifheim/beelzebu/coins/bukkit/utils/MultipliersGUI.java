@@ -24,6 +24,7 @@ import net.nifheim.beelzebu.coins.core.multiplier.MultiplierType;
 import net.nifheim.beelzebu.coins.bukkit.utils.gui.BaseGUI;
 import net.nifheim.beelzebu.coins.core.Core;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -34,6 +35,7 @@ import org.bukkit.inventory.meta.ItemMeta;
  */
 public class MultipliersGUI extends BaseGUI {
 
+    private final Core core = Core.getInstance();
     private final Player p;
 
     public MultipliersGUI(Player player, String name) {
@@ -43,28 +45,26 @@ public class MultipliersGUI extends BaseGUI {
     }
 
     private void setItems() {
-        if (p != null && CoinsAPI.getMultiplier(null).getMultipliersFor(p.getUniqueId()).size() > 0) {
-            for (int i = 0; i < CoinsAPI.getMultiplier(null).getMultipliersFor(p.getUniqueId()).size() && i < 37; i++) {
-                final int k = i;
-                CoinsAPI.getMultiplier(null).getMultipliersFor(p.getUniqueId()).forEach(j -> {
-                    ItemStack item = new ItemStack(Material.NETHER_STAR);
-                    ItemMeta meta = item.getItemMeta();
-                    meta.setDisplayName("" + j);
-                    item.setItemMeta(meta);
-                    setItem(k, item, player -> {
-                        CoinsAPI.getMultiplier().useMultiplier(player.getUniqueId(), j, MultiplierType.SERVER);
-                        player.sendMessage("Has usado el multiplicador con id: " + j);
-                    });
-                });
-                CoinsAPI.getMultiplier().getMultipliersFor(p.getUniqueId()).forEach((j) -> {
-                    Core.getInstance().getMethods().log(j);
+        if (p != null && CoinsAPI.getMultiplier().getMultipliersFor(p.getUniqueId()).size() > 0) {
+            int pos = -1;
+            for (int j : CoinsAPI.getMultiplier().getMultipliersFor(p.getUniqueId())) {
+                pos++;
+                ItemStack item = new ItemStack(Material.NETHER_STAR);
+                ItemMeta meta = item.getItemMeta();
+                meta.setDisplayName("" + j);
+                item.setItemMeta(meta);
+                setItem(pos, item, player -> {
+                    CoinsAPI.getMultiplier().useMultiplier(player.getUniqueId(), j, MultiplierType.SERVER);
+                    player.sendMessage("Has usado el multiplicador con id: " + j);
                 });
             }
         }
+        short id = (short) 1;
         for (int i = 36; i < 45; i++) {
-            setItem(i, new ItemStack(Material.WOOD_STEP, 1, Short.parseShort("1")));
+            setItem(i, new ItemStack(Material.WOOD_STEP, 1, id));
         }
         setItem(49, new ItemStack(Material.REDSTONE_BLOCK), p -> {
+            p.playSound(p.getLocation(), Sound.valueOf(core.getConfig().getString("Multipliers.GUI.Close.Sound", "CLICK")), 10, core.getConfig().getInt("Multipliers.GUI.Close.Pitch", 1));
             p.closeInventory();
         });
     }

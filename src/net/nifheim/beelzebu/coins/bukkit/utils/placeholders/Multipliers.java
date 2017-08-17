@@ -23,19 +23,20 @@ import me.clip.placeholderapi.external.EZPlaceholderHook;
 
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
+import net.nifheim.beelzebu.coins.core.Core;
 
 import org.bukkit.entity.Player;
 
 /**
- * 
+ *
  * @author Beelzebu
  */
-public class PlaceholderAPI extends EZPlaceholderHook {
+public class Multipliers extends EZPlaceholderHook {
 
     private final Main plugin;
 
-    public PlaceholderAPI(Main plugin) {
-        super(plugin, "coins");
+    public Multipliers(Main plugin) {
+        super(plugin, "coins-multipliers");
         this.plugin = plugin;
     }
 
@@ -44,9 +45,16 @@ public class PlaceholderAPI extends EZPlaceholderHook {
         if (p == null) {
             return "Player needed!";
         }
-        if (coins.equalsIgnoreCase("amount")) {
-            return CoinsAPI.getCoinsString(p.getName());
+        String[] server = coins.split("_");
+        if (coins.startsWith("enabler_")) {
+            return CoinsAPI.getMultiplier(server[1]).getEnabler() != null ? CoinsAPI.getMultiplier(server[1]).getEnabler() : "";
         }
-        return "0";
+        if (coins.startsWith("amount_")) {
+            return String.valueOf(CoinsAPI.getMultiplier(server[1]).getAmount());
+        }
+        if (coins.startsWith("time_")) {
+            return CoinsAPI.getMultiplier(server[1]).getMultiplierTimeFormated();
+        }
+        return "";
     }
 }
