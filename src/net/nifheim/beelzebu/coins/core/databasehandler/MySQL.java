@@ -159,10 +159,10 @@ public class MySQL implements Database {
                     st.executeUpdate("ALTER TABLE `" + prefix + "Multipliers` DROP COLUMN starttime;");
                 }
                 core.debug("The multipliers table was updated");
-                if (core.getConfig().getBoolean("General.Purge.Enabled", true)) {
-                    st.executeUpdate("DELETE FROM " + prefix + "Data WHERE lastlogin =< " + (System.currentTimeMillis() - (core.getConfig().getInt("General.Purge.Days") * 86400000)) + ";");
-                    core.debug("Inactive users were removed from the database.");
-                }
+                //if (core.getConfig().getBoolean("General.Purge.Enabled", true)) {
+                //    st.executeUpdate("DELETE FROM " + prefix + "Data WHERE lastlogin =< " + (System.currentTimeMillis() - (core.getConfig().getInt("General.Purge.Days") * 86400000)) + ";");
+                //    core.debug("Inactive users were removed from the database.");
+                //}
             } finally {
                 st.close();
                 c.close();
