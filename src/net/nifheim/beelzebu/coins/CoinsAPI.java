@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.UUID;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
-import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 
 /**
  *
@@ -42,6 +41,16 @@ public class CoinsAPI {
      * @return
      */
     public static Double getCoins(String player) {
+        return core.getDatabase().getCoins(player);
+    }
+    
+    /**
+     * Get the coins of a Player by his name.
+     *
+     * @param player Player to get the coins.
+     * @return
+     */
+    public static Double getCoins(UUID player) {
         return core.getDatabase().getCoins(player);
     }
 

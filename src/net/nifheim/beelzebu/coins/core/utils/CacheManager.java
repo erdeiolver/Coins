@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import net.nifheim.beelzebu.coins.CoinsAPI;
 
 /**
  *
@@ -39,6 +40,8 @@ public class CacheManager {
     public static void updateCoins(UUID uuid, Double coins) {
         if (data.containsKey(uuid)) {
             data.replace(uuid, coins);
+        } else {
+            CoinsAPI.getCoins(uuid);
         }
     }
 

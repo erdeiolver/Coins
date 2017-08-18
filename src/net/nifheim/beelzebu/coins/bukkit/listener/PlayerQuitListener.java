@@ -39,8 +39,6 @@ public class PlayerQuitListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
-        if (CacheManager.getData().containsKey(e.getPlayer().getUniqueId())) {
-            CacheManager.getData().remove(e.getPlayer().getUniqueId());
-        }
+        CacheManager.getData().remove(e.getPlayer().getUniqueId());
     }
 }
