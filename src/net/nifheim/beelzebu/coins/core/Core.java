@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -67,14 +68,14 @@ public class Core {
         if (getConfig().getBoolean("Debug")) {
             mi.sendMessage(mi.getConsole(), (rep("&8[&cCoins&8] &cDebug: &7" + msg)));
         }
-        File log = new File(getDataFolder(), "Debug.log");
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        File log = new File(getDataFolder(), "/logs/latest.log");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(log, true))) {
             try {
-                writer.write(removeColor(msg.toString()));
+                writer.write("[" + sdf.format(System.currentTimeMillis()) + "] " + removeColor(msg.toString()));
                 writer.newLine();
             } finally {
                 writer.close();
-
             }
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Can''t save the debug to the file", ex);

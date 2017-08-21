@@ -25,10 +25,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.GZIPOutputStream;
 import net.nifheim.beelzebu.coins.core.Core;
 import org.apache.commons.io.FileUtils;
 
@@ -41,11 +44,16 @@ public class FileUpdater {
     private final Core core;
     private final File messagesFile;
     private final File configFile;
+    private final File logsFolder;
 
     public FileUpdater(Core c) {
         core = c;
         messagesFile = new File(core.getDataFolder(), "messages.yml");
         configFile = new File(core.getDataFolder(), "config.yml");
+        logsFolder = new File(core.getDataFolder(), "logs");
+        if (!logsFolder.exists()) {
+            logsFolder.mkdirs();
+        }
     }
 
     public void copy(InputStream in, File file) {
@@ -59,7 +67,7 @@ public class FileUpdater {
             out.close();
             in.close();
         } catch (IOException e) {
-            Logger.getLogger(FileUpdater.class.getName()).log(Level.WARNING, "Can't copy the file " + file.getName() + " to the plugin data folder.", e.getCause());
+            Logger.getLogger(FileUpdater.class.getName()).log(Level.WARNING, "Can''t copy the file {0} to the plugin data folder. {1}", new Object[]{file.getName(), e.getMessage()});
         }
     }
 
@@ -195,5 +203,29 @@ public class FileUpdater {
         if (!es.exists()) {
             copy(core.getResource("messages_es.yml"), es);
         }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        File latestLog = new File(logsFolder, "latest.log");
+        if (latestLog.exists()) {
+            try {
+                int filen = 1;
+                while (new File(logsFolder, sdf.format(latestLog.lastModified()) + "-" + filen + ".log.gz").exists()) {
+                    filen++;
+                }
+                gzipFile(Files.newInputStream(latestLog.toPath()), logsFolder + "/" + sdf.format(latestLog.lastModified()) + "-" + filen + ".log.gz");
+            } catch (IOException ex) {
+                Logger.getLogger(FileUpdater.class.getName()).log(Level.WARNING, "An unexpected error has ocurred while trying to compress the latest log file. {0}", ex.getMessage());
+            }
+        }
+    }
+
+    private void gzipFile(InputStream in, String to) throws IOException {
+        GZIPOutputStream out = new GZIPOutputStream(new FileOutputStream(to));
+        byte[] buffer = new byte[4096];
+        int bytesRead;
+        while ((bytesRead = in.read(buffer)) != -1) {
+            out.write(buffer, 0, bytesRead);
+        }
+        in.close();
+        out.close();
     }
 }
