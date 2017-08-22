@@ -22,9 +22,11 @@ package net.nifheim.beelzebu.coins.bungee.utils;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
-import net.nifheim.beelzebu.coins.bungee.Main;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 
 /**
@@ -32,16 +34,12 @@ import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
  * @author Beelzebu
  */
 public class Configuration implements IConfiguration {
-    
-    private final Main plugin;
-    private net.md_5.bungee.config.Configuration config = null;
-    
-    public Configuration (Main main) {
-        plugin = main;
-        try {
-            config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(new File(plugin.getDataFolder(), "config.yml"));
-        } catch (IOException ex) {
-        }
+
+    private final File configFile = new File(ProxyServer.getInstance().getPluginsFolder() + "/Coins", "config.yml");
+    private net.md_5.bungee.config.Configuration config;
+
+    public Configuration() {
+        reload();
     }
 
     @Override
@@ -115,7 +113,11 @@ public class Configuration implements IConfiguration {
     }
 
     @Override
-    public void reload() {
-        throw new UnsupportedOperationException("reload is not finished yet.");
+    public final void reload() {
+        try {
+            config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
+        } catch (IOException ex) {
+            Logger.getLogger(Configuration.class.getName()).log(Level.WARNING, "An unexpected error has ocurred reloading the config. {0}", ex.getMessage());
+        }
     }
 }

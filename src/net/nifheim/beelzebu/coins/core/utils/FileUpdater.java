@@ -20,6 +20,7 @@
 package net.nifheim.beelzebu.coins.core.utils;
 
 import com.google.common.base.Charsets;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,7 +33,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
+
 import net.nifheim.beelzebu.coins.core.Core;
+
 import org.apache.commons.io.FileUtils;
 
 /**

@@ -13,12 +13,12 @@ Online Mode: true
 
 # Here are the MySQL server settings.
 MySQL:
-  Host: localhost
-  Port: 3306
-  Database: minecraft
-  User: root
-  Password: S3CUR3P4SSW0RD
-  Prefix: Coins_
+  Host: 'localhost'
+  Port: '3306'
+  Database: 'minecraft'
+  User: 'root'
+  Password: 'S3CUR3P4SSW0RD'
+  Prefix: 'Coins_'
   Connection Interval: 5
 
 # Plugin general configurations.

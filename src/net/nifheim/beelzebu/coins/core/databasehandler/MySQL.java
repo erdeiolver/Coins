@@ -30,8 +30,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import net.nifheim.beelzebu.coins.CoinsAPI;
 
+import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 
