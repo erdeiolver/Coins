@@ -19,7 +19,6 @@
  */
 package net.nifheim.beelzebu.coins.core;
 
-import net.nifheim.beelzebu.coins.core.utils.IMethods;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -29,12 +28,13 @@ import java.text.SimpleDateFormat;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.md_5.bungee.api.ChatColor;
-import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.core.databasehandler.Database;
 import net.nifheim.beelzebu.coins.core.databasehandler.MySQL;
 import net.nifheim.beelzebu.coins.core.utils.FileUpdater;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
+import net.nifheim.beelzebu.coins.core.utils.IMethods;
 import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
 
 /**
@@ -78,7 +78,7 @@ public class Core {
                 writer.close();
             }
         } catch (IOException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Can''t save the debug to the file", ex);
+            Logger.getLogger(Core.class.getName()).log(Level.WARNING, "Can''t save the debug to the file", ex);
         }
     }
 
