@@ -54,10 +54,10 @@ public class Core {
 
     public void setup(IMethods methodinterface) {
         mi = methodinterface;
-        db = new MySQL(this);
         fileUpdater = new FileUpdater(this);
         fileUpdater.copyFiles();
         fileUpdater.updateConfig();
+        db = new MySQL(this);
     }
 
     public IMethods getMethods() {
