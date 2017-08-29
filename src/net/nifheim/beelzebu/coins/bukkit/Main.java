@@ -60,6 +60,7 @@ public class Main extends JavaPlugin {
         loadManagers();
 
         Bukkit.getServer().getPluginManager().registerEvents(new CommandListener(), this);
+        Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
         Bukkit.getServer().getPluginManager().registerEvents(new GUIListener(this), this);
 
