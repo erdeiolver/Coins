@@ -19,25 +19,33 @@
 package net.nifheim.beelzebu.coins.bukkit.listener;
 
 import net.nifheim.beelzebu.coins.bukkit.Main;
-import net.nifheim.beelzebu.coins.core.utils.CacheManager;
+import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 /**
  *
  * @author Beelzebu
  */
-public class PlayerQuitListener implements Listener {
+public class PlayerJoinListener implements Listener {
 
     private final Main plugin;
+    private static boolean first = true;
 
-    public PlayerQuitListener(Main main) {
+    public PlayerJoinListener(Main main) {
         plugin = main;
     }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent e) {
-        CacheManager.getData().remove(e.getPlayer().getUniqueId());
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        PluginMessage pmsg = new PluginMessage(plugin);
+        if (first) {
+            Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+                pmsg.sendToBungeeCord("Coins", "getexecutors");
+            }, 30);
+            first = false;
+        }
     }
 }

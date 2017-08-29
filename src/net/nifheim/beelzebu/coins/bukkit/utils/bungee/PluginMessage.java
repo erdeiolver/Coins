@@ -1,27 +1,33 @@
-/*
- * This file is part of Coins.
+/**
+ * This file is part of Coins
  *
- * Copyright © 2017 Beelzebu
- * Coins is licensed under the GNU General Public License.
+ * Copyright (C) 2017 Beelzebu
  *
- * Coins is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
  *
- * Coins is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package net.nifheim.beelzebu.coins.bukkit.utils.bungee;
 
+import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import java.util.ArrayList;
+import java.util.List;
 import net.nifheim.beelzebu.coins.bukkit.Main;
+import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.core.executor.Executor;
+import net.nifheim.beelzebu.coins.core.executor.ExecutorManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -33,24 +39,54 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 public class PluginMessage implements PluginMessageListener {
 
     private final Main plugin;
+    private final Core core = Core.getInstance();
     private final PluginMessage pm;
 
     public PluginMessage(Main main) {
         plugin = main;
         pm = this;
-        Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
-        Bukkit.getServer().getMessenger().registerIncomingPluginChannel(plugin, "BungeeCord", pm);
+        Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "Coins");
+        Bukkit.getServer().getMessenger().registerIncomingPluginChannel(plugin, "Coins", pm);
     }
 
     @Override
-    public void onPluginMessageReceived(String channel, Player player, byte[] message) {
-        if (!channel.equals("BungeeCord")) {
+    public synchronized void onPluginMessageReceived(String channel, Player player, byte[] message) {
+        if (!channel.equals("Coins")) {
             return;
         }
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
         String subchannel = in.readUTF();
         if (subchannel.equals("Coins")) {
-            in.readUTF();
+            String id = in.readUTF();
+            double cost = Double.valueOf(in.readUTF());
+            int cmds = Integer.valueOf(in.readUTF());
+            List<String> commands = new ArrayList<>();
+            if (cmds > 0) {
+                for (int i = 0; i < cmds; i++) {
+                    commands.add(in.readUTF());
+                }
+            }
+            Executor ex = new Executor(id, cost, commands);
+            if (!ExecutorManager.getExecutors().contains(ex)) {
+                core.getExecutorManager().addExecutor(ex);
+                core.log("The executor " + ex.getID() + " was received from BungeeCord.");
+                core.debug("ID: " + ex.getID());
+                core.debug("Cost: " + ex.getCost());
+                core.debug("Commands: ");
+                ex.getCommands().forEach((command) -> {
+                    core.debug(command);
+                });
+            }
+        }
+    }
+
+    public void sendToBungeeCord(String channel, String message) {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF(channel);
+        out.writeUTF(message);
+        Player p = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
+        if (p != null) {
+            p.sendPluginMessage(plugin, "Coins", out.toByteArray());
         }
     }
 }

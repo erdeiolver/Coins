@@ -1,20 +1,19 @@
-/*
- * This file is part of Coins.
+/**
+ * This file is part of Coins
  *
- * Copyright © 2017 Beelzebu
- * Coins is licensed under the GNU General Public License.
+ * Copyright (C) 2017 Beelzebu
  *
- * Coins is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
  *
- * Coins is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package net.nifheim.beelzebu.coins.bukkit.command;
@@ -22,9 +21,9 @@ package net.nifheim.beelzebu.coins.bukkit.command;
 import java.util.List;
 
 import net.nifheim.beelzebu.coins.CoinsAPI;
-import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.bukkit.utils.MultipliersGUI;
 import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.core.executor.Executor;
 import net.nifheim.beelzebu.coins.core.multiplier.MultiplierType;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 import net.nifheim.beelzebu.coins.core.utils.IMethods;
@@ -117,6 +116,7 @@ public class CoinsCommand extends BukkitCommand {
     public boolean _pay(CommandSender sender, String[] args) {
         if (args.length < 3 || args[1].equalsIgnoreCase("?")) {
             sender.sendMessage(core.rep(core.getString("Help.Pay Usage", lang)));
+            return true;
         }
         if (sender instanceof Player) {
             if (args.length == 3 && !args[1].equalsIgnoreCase(sender.getName())) {
@@ -150,6 +150,10 @@ public class CoinsCommand extends BukkitCommand {
     }
 
     public boolean _give(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("nifheim.admin")) {
+            sender.sendMessage(core.rep(core.getString("Errors.No permissions", lang)));
+            return true;
+        }
         String multiplier = "";
         boolean multiply = false;
         if (args.length == 4 && args[3] != null) {
@@ -162,10 +166,6 @@ public class CoinsCommand extends BukkitCommand {
             }
         }
         if (args.length == 3 || args.length == 4) {
-            if (!sender.hasPermission("nifheim.admin")) {
-                sender.sendMessage(core.rep(core.getString("Errors.No permissions", lang)));
-                return false;
-            }
             if (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("dar")) {
                 double coins = Double.parseDouble(args[2]);
                 if (args[1] == null) {
@@ -211,11 +211,11 @@ public class CoinsCommand extends BukkitCommand {
     }
 
     public boolean _take(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("nifheim.admin")) {
+            sender.sendMessage(core.rep(core.getString("Errors.No permissions", lang)));
+            return true;
+        }
         if (args.length == 3) {
-            if (!sender.hasPermission("nifheim.admin")) {
-                sender.sendMessage(core.rep(core.getString("Errors.No permissions", lang)));
-                return false;
-            }
             Player target = Bukkit.getPlayer(args[1]);
             if (args[0].equalsIgnoreCase("take")) {
                 double coins = Double.parseDouble(args[2]);
@@ -248,11 +248,11 @@ public class CoinsCommand extends BukkitCommand {
     public boolean _reset(CommandSender sender, String[] args) {
         if (!sender.hasPermission("nifheim.admin")) {
             sender.sendMessage(core.rep(core.getString("Errors.No permissions", lang)));
-            return false;
+            return true;
         }
         if (args.length < 2) {
             sender.sendMessage(core.rep(core.getString("Help.Reset Usage", lang)));
-            return false;
+            return true;
         }
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
@@ -271,11 +271,11 @@ public class CoinsCommand extends BukkitCommand {
     }
 
     public boolean _set(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("nifheim.admin")) {
+            sender.sendMessage(core.rep(core.getString("Errors.No permissions", lang)));
+            return true;
+        }
         if (args.length == 3) {
-            if (!sender.hasPermission("nifheim.admin")) {
-                sender.sendMessage(core.rep(core.getString("Errors.No permissions", lang)));
-                return false;
-            }
             Player target = Bukkit.getPlayer(args[1]);
             if (args[0].equalsIgnoreCase("set")) {
                 double coins = Double.parseDouble(args[2]);
@@ -358,32 +358,25 @@ public class CoinsCommand extends BukkitCommand {
     }
 
     private boolean _execute(CommandSender sender, String[] args) {
-        if (config.getConfigurationSection("Command executor." + String.valueOf(args[1])) != null) {
-            if (sender instanceof Player) {
-                String command;
-                if (config.getDouble("Command executor." + args[1] + ".Cost") > 0) {
-                    if (CoinsAPI.getCoins(sender.getName()) < (config.getDouble("Command executor." + args[1] + ".Cost"))) {
-                        sender.sendMessage(core.rep(core.getString("Errors.No Coins", lang)));
+        if (sender instanceof Player) {
+            Executor ex = core.getExecutorManager().getExecutor(args[1]);
+            if (ex == null) {
+                sender.sendMessage(core.rep(core.getString("Errors.No Execute", lang)));
+                return true;
+            } else {
+                if (ex.getCost() > 0) {
+                    if (CoinsAPI.getCoins(sender.getName()) >= ex.getCost()) {
+                        CoinsAPI.takeCoins(sender.getName(), ex.getCost());
                     } else {
-                        CoinsAPI.takeCoins(sender.getName(), (config.getDouble("Command executor." + args[1] + ".Cost")));
-                        if (config.getStringList("Command executor." + args[1] + ".Command") != null) {
-                            for (String str : config.getStringList("Command executor." + args[1] + ".Command")) {
-                                command = core.rep(str).replaceAll("%player%", sender.getName());
-                                if (command.startsWith("message: ")) {
-                                    sender.sendMessage(command.replaceFirst("message: ", ""));
-                                } else if (command.startsWith("broadcast: ")) {
-                                    Bukkit.getServer().broadcastMessage(command.replaceFirst("broadcast: ", ""));
-                                } else {
-                                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-                                }
-                            }
-                        }
+                        sender.sendMessage(core.rep(core.getString("Errors.No Coins", lang)));
+                        return true;
                     }
-                } else {
-                    if (config.getStringList("Command executor." + args[1] + ".Command") != null) {
-                        for (String str : config.getStringList("Command executor." + args[1] + ".Command")) {
+                }
+                if (!ex.getCommands().isEmpty()) {
+                    core.getMethods().runSync(() -> {
+                        String command;
+                        for (String str : ex.getCommands()) {
                             command = core.rep(str).replaceAll("%player%", sender.getName());
-                            core.getMethods().log(command);
                             if (command.startsWith("message: ")) {
                                 sender.sendMessage(command.replaceFirst("message: ", ""));
                             } else if (command.startsWith("broadcast: ")) {
@@ -392,13 +385,11 @@ public class CoinsCommand extends BukkitCommand {
                                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
                             }
                         }
-                    }
+                    });
                 }
-            } else {
-                sender.sendMessage(core.getString("Errors.Console", lang));
             }
         } else {
-            sender.sendMessage(core.rep(core.getString("Errors.No Execute", lang)));
+            sender.sendMessage(core.getString("Errors.Console", lang));
         }
         return true;
     }

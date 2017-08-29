@@ -1,20 +1,19 @@
-/*
- * This file is part of Coins.
+/**
+ * This file is part of Coins
  *
- * Copyright © 2017 Beelzebu
- * Coins is licensed under the GNU General Public License.
+ * Copyright (C) 2017 Beelzebu
  *
- * Coins is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
  *
- * Coins is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package net.nifheim.beelzebu.coins;
@@ -75,8 +74,7 @@ public class CoinsAPI {
      * @param p The player to add the coins.
      * @param coins The coins to add.
      * @deprecated This should not be used.
-     * @see #addCoins(org.bukkit.entity.Player, java.lang.Double,
-     * java.lang.Boolean)
+     * @see {@link CoinsAPI#addCoins(java.lang.String, java.lang.Double, java.lang.Boolean)}
      */
     @Deprecated
     public static void addCoins(String p, Double coins) {

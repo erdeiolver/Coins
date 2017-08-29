@@ -1,20 +1,19 @@
-/*
- * This file is part of Coins.
+/**
+ * This file is part of Coins
  *
- * Copyright © 2017 Beelzebu
- * Coins is licensed under the GNU General Public License.
+ * Copyright (C) 2017 Beelzebu
  *
- * Coins is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
  *
- * Coins is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package net.nifheim.beelzebu.coins.core;
@@ -32,6 +31,7 @@ import java.util.logging.Logger;
 import net.md_5.bungee.api.ChatColor;
 import net.nifheim.beelzebu.coins.core.databasehandler.Database;
 import net.nifheim.beelzebu.coins.core.databasehandler.MySQL;
+import net.nifheim.beelzebu.coins.core.executor.ExecutorManager;
 import net.nifheim.beelzebu.coins.core.utils.FileUpdater;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 import net.nifheim.beelzebu.coins.core.utils.IMethods;
@@ -47,6 +47,7 @@ public class Core {
     private IMethods mi;
     private Database db;
     private FileUpdater fileUpdater;
+    private ExecutorManager executorManager;
 
     public static Core getInstance() {
         return instance == null ? instance = new Core() : instance;
@@ -58,6 +59,7 @@ public class Core {
         fileUpdater.copyFiles();
         fileUpdater.updateConfig();
         db = new MySQL(this);
+        executorManager = new ExecutorManager();
     }
 
     public IMethods getMethods() {
@@ -80,6 +82,10 @@ public class Core {
         } catch (IOException ex) {
             Logger.getLogger(Core.class.getName()).log(Level.WARNING, "Can''t save the debug to the file", ex);
         }
+    }
+
+    public void log(Object msg) {
+        mi.log(msg);
     }
 
     public String getNick(Object player) {
@@ -138,5 +144,9 @@ public class Core {
             Core.getInstance().debug(ex);
         }
         return path;
+    }
+
+    public ExecutorManager getExecutorManager() {
+        return executorManager;
     }
 }

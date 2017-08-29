@@ -1,20 +1,19 @@
-/*
- * This file is part of Coins.
+/**
+ * This file is part of Coins
  *
- * Copyright © 2017 Beelzebu
- * Coins is licensed under the GNU General Public License.
+ * Copyright (C) 2017 Beelzebu
  *
- * Coins is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
  *
- * Coins is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package net.nifheim.beelzebu.coins.core.databasehandler;
@@ -108,10 +107,10 @@ public class MySQL implements Database {
         hc.setUsername(user);
         hc.setPassword(passwd);
         hc.setMaxLifetime(180000L);
-        hc.setMinimumIdle(5);
+        hc.setMinimumIdle(2);
         hc.setIdleTimeout(30000);
         hc.setConnectionTimeout(30000);
-        hc.setMaximumPoolSize(10);
+        hc.setMaximumPoolSize(8);
         hc.validate();
         ds = new HikariDataSource(hc);
 

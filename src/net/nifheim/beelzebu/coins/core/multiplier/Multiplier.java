@@ -1,20 +1,19 @@
-/*
- * This file is part of Coins.
+/**
+ * This file is part of Coins
  *
- * Copyright © 2017 Beelzebu
- * Coins is licensed under the GNU General Public License.
+ * Copyright (C) 2017 Beelzebu
  *
- * Coins is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
  *
- * Coins is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package net.nifheim.beelzebu.coins.core.multiplier;
@@ -35,14 +34,12 @@ import net.nifheim.beelzebu.coins.core.Core;
  */
 public final class Multiplier {
 
-    private final Core core = Core.getInstance();
+    private static final Core core = Core.getInstance();
     private final String PREFIX = core.getConfig().getString("MySQL.Prefix");
-    private String SERVER = core.getConfig().getString("Multipliers.Server");
-    private final String ENABLER;
-    private Boolean ENABLED;
-    private Integer AMOUNT = 1;
-    //private Long TIMELEFT;
-
+    private static String SERVER = core.getConfig().getString("Multipliers.Server");
+    private static String ENABLER;
+    private static Boolean ENABLED = false;
+    private static Integer AMOUNT = 1;
     private Connection getConnection() throws SQLException {
         return core.getDatabase().getConnection();
     }
@@ -51,6 +48,7 @@ public final class Multiplier {
         ENABLER = getEnabler(SERVER);
         ENABLED = isEnabled(SERVER);
         AMOUNT = getAmount(SERVER);
+        getMultiplierTime(SERVER);
     }
 
     public Multiplier(String sv) {
@@ -58,6 +56,7 @@ public final class Multiplier {
         ENABLER = getEnabler(SERVER);
         ENABLED = isEnabled(SERVER);
         AMOUNT = getAmount(SERVER);
+        getMultiplierTime(SERVER);
     }
 
     /**
@@ -169,6 +168,7 @@ public final class Multiplier {
                     } else {
                         c.prepareStatement("DELETE FROM " + PREFIX + "Multipliers WHERE server = '" + server + "' AND enabled = true;").executeUpdate();
                         AMOUNT = 1;
+                        ENABLED = false;
                     }
                 }
             } finally {
@@ -206,8 +206,6 @@ public final class Multiplier {
                         }
                         c.prepareStatement("UPDATE " + PREFIX + "Multipliers SET endtime = " + endtime + ", enabled = true, server = '" + server + "' WHERE id = " + id + ";").executeUpdate();
                         AMOUNT = res.getInt("multiplier");
-                    } else {
-                        //p.sendMessage(core.getString("Multipliers.No Multipliers"));
                     }
                 }
             } finally {
