@@ -29,8 +29,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.md_5.bungee.api.ChatColor;
-import net.nifheim.beelzebu.coins.core.databasehandler.Database;
-import net.nifheim.beelzebu.coins.core.databasehandler.MySQL;
+import net.nifheim.beelzebu.coins.core.database.Database;
+import net.nifheim.beelzebu.coins.core.database.MySQL;
 import net.nifheim.beelzebu.coins.core.executor.ExecutorManager;
 import net.nifheim.beelzebu.coins.core.utils.FileUpdater;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
