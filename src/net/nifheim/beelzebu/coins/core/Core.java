@@ -32,7 +32,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.nifheim.beelzebu.coins.core.database.Database;
 import net.nifheim.beelzebu.coins.core.database.MySQL;
 import net.nifheim.beelzebu.coins.core.executor.ExecutorManager;
-import net.nifheim.beelzebu.coins.core.utils.FileUpdater;
+import net.nifheim.beelzebu.coins.core.utils.FileManager;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 import net.nifheim.beelzebu.coins.core.utils.IMethods;
 import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
@@ -46,7 +46,7 @@ public class Core {
     private static Core instance;
     private IMethods mi;
     private Database db;
-    private FileUpdater fileUpdater;
+    private FileManager fileUpdater;
     private ExecutorManager executorManager;
 
     public static Core getInstance() {
@@ -55,7 +55,7 @@ public class Core {
 
     public void setup(IMethods methodinterface) {
         mi = methodinterface;
-        fileUpdater = new FileUpdater(this);
+        fileUpdater = new FileManager(this);
         fileUpdater.copyFiles();
         fileUpdater.updateConfig();
         db = new MySQL(this);

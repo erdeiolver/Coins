@@ -41,14 +41,14 @@ import org.apache.commons.io.FileUtils;
  *
  * @author Beelzebu
  */
-public class FileUpdater {
+public class FileManager {
 
     private final Core core;
     private final File messagesFile;
     private final File configFile;
     private final File logsFolder;
 
-    public FileUpdater(Core c) {
+    public FileManager(Core c) {
         core = c;
         messagesFile = new File(core.getDataFolder(), "messages.yml");
         configFile = new File(core.getDataFolder(), "config.yml");
@@ -69,7 +69,7 @@ public class FileUpdater {
             out.close();
             in.close();
         } catch (IOException e) {
-            Logger.getLogger(FileUpdater.class.getName()).log(Level.WARNING, "Can''t copy the file {0} to the plugin data folder. {1}", new Object[]{file.getName(), e.getMessage()});
+            Logger.getLogger(FileManager.class.getName()).log(Level.WARNING, "Can''t copy the file {0} to the plugin data folder. {1}", new Object[]{file.getName(), e.getMessage()});
         }
     }
 
@@ -215,7 +215,7 @@ public class FileUpdater {
                 }
                 gzipFile(Files.newInputStream(latestLog.toPath()), logsFolder + "/" + sdf.format(latestLog.lastModified()) + "-" + filen + ".log.gz");
             } catch (IOException ex) {
-                Logger.getLogger(FileUpdater.class.getName()).log(Level.WARNING, "An unexpected error has ocurred while trying to compress the latest log file. {0}", ex.getMessage());
+                Logger.getLogger(FileManager.class.getName()).log(Level.WARNING, "An unexpected error has ocurred while trying to compress the latest log file. {0}", ex.getMessage());
             }
         }
     }
