@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import net.nifheim.beelzebu.coins.CoinsAPI;
 
 /**
  *
@@ -31,20 +30,23 @@ import net.nifheim.beelzebu.coins.CoinsAPI;
 public class CacheManager {
 
     private static final Map<UUID, Double> data = Collections.synchronizedMap(new HashMap<>());
-
-    public static Map<UUID, Double> getData() {
-        return data;
+    
+    public static Double getCoins(UUID uuid) {
+        if (data.containsKey(uuid)) {
+            return data.get(uuid);
+        }
+        return -1D;
     }
 
     public static void updateCoins(UUID uuid, Double coins) {
         if (data.containsKey(uuid)) {
             data.replace(uuid, coins);
         } else {
-            CoinsAPI.getCoins(uuid);
+            data.put(uuid, coins);
         }
     }
 
-    public void remove(UUID uuid) {
+    public static void remove(UUID uuid) {
         if (data.containsKey(uuid)) {
             data.remove(uuid);
         }
