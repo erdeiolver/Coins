@@ -19,6 +19,7 @@
 package net.nifheim.beelzebu.coins.bukkit.listener;
 
 import net.nifheim.beelzebu.coins.bukkit.Main;
+import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -38,6 +39,8 @@ public class PlayerQuitListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
-        CacheManager.getData().remove(e.getPlayer().getUniqueId());
+        Core.getInstance().getMethods().runAsync(() -> {
+            CacheManager.remove(e.getPlayer().getUniqueId());
+        });
     }
 }
