@@ -22,7 +22,6 @@ import java.io.File;
 import java.util.List;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
@@ -34,7 +33,7 @@ public class Messages extends MessagesManager {
     private final Core core;
     private final String _lang;
     private File langFile;
-    private FileConfiguration messages;
+    private final YamlConfiguration messages;
 
     public Messages(String lang) {
         super(lang);

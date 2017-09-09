@@ -141,7 +141,7 @@ public class Core {
             mi.log("The string " + path + " does not exists in the messages" + lang + ".yml file, please add this manually.");
             mi.log("If you belive that this is an error please contact to the developer.");
             path = rep(getMessages("").getString(path));
-            Core.getInstance().debug(ex);
+            debug(ex);
         }
         return path;
     }

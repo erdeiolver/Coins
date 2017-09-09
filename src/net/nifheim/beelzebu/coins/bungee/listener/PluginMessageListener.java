@@ -25,13 +25,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
-import net.nifheim.beelzebu.coins.bungee.Main;
 import net.nifheim.beelzebu.coins.bungee.utils.Configuration;
 import net.nifheim.beelzebu.coins.core.Core;
 
@@ -56,18 +54,20 @@ public class PluginMessageListener implements Listener {
             ServerInfo server = ProxyServer.getInstance().getPlayer(e.getReceiver().toString()).getServer().getInfo();
             String input = in.readUTF();
             if (input.equals("getexecutors")) {
-                for (String id : ((net.md_5.bungee.config.Configuration) config.getConfigurationSection("Command executor")).getKeys()) {
-                    message.clear();
-                    List<String> commands = config.getStringList("Command executor." + id + ".Command");
-                    List<String> messages = Arrays.asList(
-                            id,
-                            String.valueOf(config.getDouble("Command executor." + id + ".Cost")),
-                            String.valueOf(commands.size())
-                    );
-                    message.addAll(messages);
-                    message.addAll(messages.size(), commands);
-                    sendToBukkit("Coins", message, server);
-                }
+                ((net.md_5.bungee.config.Configuration) config.getConfigurationSection("Command executor")).getKeys().forEach((id) -> {
+                    synchronized (message) {
+                        message.clear();
+                        List<String> commands = config.getStringList("Command executor." + id + ".Command");
+                        List<String> messages = Arrays.asList(
+                                id,
+                                String.valueOf(config.getDouble("Command executor." + id + ".Cost")),
+                                String.valueOf(commands.size())
+                        );
+                        message.addAll(messages);
+                        message.addAll(messages.size(), commands);
+                        sendToBukkit("Coins", message, server);
+                    }
+                });
             } else if (input.startsWith("execute ")) {
                 String[] msg = input.split(" ");
                 ProxyServer.getInstance().getPluginManager().dispatchCommand(ProxyServer.getInstance().getPlayer(msg[1]), input.substring((msg[0] + msg[1]).length() + 2));
