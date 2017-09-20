@@ -20,14 +20,12 @@ package net.nifheim.beelzebu.coins.bukkit;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.UUID;
 import net.nifheim.beelzebu.coins.bukkit.utils.Messages;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import net.nifheim.beelzebu.coins.core.utils.IMethods;
 
@@ -79,27 +77,7 @@ public class BukkitMethods implements IMethods {
     public void log(Object log) {
         console.sendMessage(Core.getInstance().rep("&8[&cCoins&8] &7" + log));
     }
-
-    @Override
-    public String getNick(Object player) {
-        return Bukkit.getPlayer((UUID) player).getName();
-    }
-
-    @Override
-    public String getNick(UUID uuid) {
-        return Bukkit.getPlayer(uuid).getName();
-    }
-
-    @Override
-    public UUID getUUID(Object player) {
-        return ((Player) player).getUniqueId();
-    }
-
-    @Override
-    public UUID getUUID(String player) {
-        return Bukkit.getServer().getOfflinePlayer(player).getUniqueId();
-    }
-
+    
     @Override
     public Object getConsole() {
         return Bukkit.getConsoleSender();

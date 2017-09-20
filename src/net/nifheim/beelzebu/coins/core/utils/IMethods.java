@@ -20,7 +20,6 @@ package net.nifheim.beelzebu.coins.core.utils;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.UUID;
 
 /**
  *
@@ -43,14 +42,6 @@ public interface IMethods {
     void executeCommand(String cmd);
     
     void log(Object log);
-    
-    String getNick(Object player);
-    
-    String getNick(UUID uuid);
-    
-    UUID getUUID(Object player);
-    
-    UUID getUUID(String player);
     
     Object getConsole();
     

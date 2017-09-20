@@ -89,20 +89,12 @@ public class Core {
         mi.log(msg);
     }
 
-    public String getNick(Object player) {
-        return mi.getNick(player);
-    }
-
     public String getNick(UUID uuid) {
-        return mi.getNick(uuid);
-    }
-
-    public UUID getUUID(Object player) {
-        return mi.getUUID(player);
+        return getDatabase().getNick(uuid);
     }
 
     public UUID getUUID(String player) {
-        return mi.getUUID(player);
+        return getDatabase().getUUID(player);
     }
 
     public Database getDatabase() {

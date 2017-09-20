@@ -70,23 +70,23 @@ public class MySQL implements Database {
         Connect();
         updateDatabase();
         core.getMethods().runAsync(() -> {
-            core.getMethods().log("Checking the database connection ...");
+            core.log("Checking the database connection ...");
             try (Connection c = getConnection()) {
                 try {
                     if (c == null || c.isClosed()) {
-                        core.getMethods().log("The database connection is null, check your MySQL settings!");
+                        core.log("The database connection is null, check your MySQL settings!");
                         if (ds != null) {
                             ds.close();
                         }
                         Connect();
                     } else {
-                        core.getMethods().log("The connection to the database is still active.");
+                        core.log("The connection to the database is still active.");
                     }
                 } finally {
                     c.close();
                 }
             } catch (SQLException ex) {
-                core.getMethods().log("The database connection is null, check your MySQL settings!");
+                core.log("The database connection is null, check your MySQL settings!");
                 core.debug("The error code is: " + ex.getErrorCode());
                 core.debug(ex.getMessage());
             }
@@ -117,15 +117,15 @@ public class MySQL implements Database {
         try (Connection c = getConnection()) {
             try {
                 if (!c.isClosed()) {
-                    core.getMethods().log("Plugin conected sucesful to the MySQL.");
+                    core.log("Plugin conected sucesful to the MySQL.");
                 }
             } finally {
                 c.close();
             }
         } catch (SQLException ex) {
             core.debug(String.format("Something was wrong with the connection, the error code is: %s", ex.getErrorCode()));
-            core.getMethods().log("Can't connect to the database...");
-            core.getMethods().log("Check your settings and restart the server.");
+            core.log("Can't connect to the database...");
+            core.log("Check your settings and restart the server.");
         }
     }
 
@@ -168,7 +168,7 @@ public class MySQL implements Database {
                 core.debug("The connection was closed.");
             }
         } catch (SQLException ex) {
-            core.getMethods().log("Something was wrong creating the default databases. Please check the debug log.");
+            core.log("Something was wrong creating the default databases. Please check the debug log.");
             core.debug("The error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
@@ -199,7 +199,7 @@ public class MySQL implements Database {
                         core.debug("An entry in the database was created for: " + player);
                     } else {
                         c.prepareStatement("UPDATE " + prefix + "Data SET uuid = '" + uuid.toString() + "', lastlogin = " + System.currentTimeMillis() + " WHERE nick = '" + player + "';").execute();
-                        core.debug("The uuid of: " + core.getNick(uuid) + " was updated in the database.");
+                        core.debug("The uuid of: " + getNick(uuid) + " was updated in the database.");
                     }
                 }
             } finally {
@@ -210,7 +210,7 @@ public class MySQL implements Database {
                 core.debug("The connection was closed.");
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cAn internal error has occurred creating the player: " + player + " in the database.");
+            core.log("&cAn internal error has occurred creating the player: " + player + " in the database.");
             core.debug("&cThe error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
@@ -218,8 +218,8 @@ public class MySQL implements Database {
 
     @Override
     public Double getCoins(String player) {
-        if (CacheManager.getCoins(core.getUUID(player)) > -1) {
-            return CacheManager.getCoins(core.getUUID(player));
+        if (CacheManager.getCoins(getUUID(player)) > -1) {
+            return CacheManager.getCoins(getUUID(player));
         }
         try (Connection c = getConnection()) {
             ResultSet res = null;
@@ -227,11 +227,11 @@ public class MySQL implements Database {
                 res = c.prepareStatement("SELECT * FROM " + prefix + "Data WHERE nick = '" + player + "';").executeQuery();
                 if (res.next() && res.getString("uuid") != null) {
                     double coins = res.getDouble("balance");
-                    CacheManager.updateCoins(core.getUUID(player), coins);
+                    CacheManager.updateCoins(getUUID(player), coins);
                     return coins;
                 } else {
-                    CacheManager.updateCoins(core.getUUID(player), 0D);
-                    createPlayer(player, core.getUUID(player));
+                    CacheManager.updateCoins(getUUID(player), 0D);
+                    createPlayer(player, getUUID(player));
                     return 0D;
                 }
             } finally {
@@ -241,7 +241,7 @@ public class MySQL implements Database {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cAn internal error has occurred creating the data for player: " + player);
+            core.log("&cAn internal error has occurred creating the data for player: " + player);
             core.debug("&cThe error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
@@ -258,13 +258,13 @@ public class MySQL implements Database {
                     }
                     double oldCoins = getCoins(player);
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE nick = '" + player + "';").executeUpdate();
-                    CacheManager.updateCoins(core.getUUID(player), oldCoins + coins);
+                    CacheManager.updateCoins(getUUID(player), oldCoins + coins);
                 }
             } finally {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cAn internal error has occurred adding coins to the player: " + player);
+            core.log("&cAn internal error has occurred adding coins to the player: " + player);
             core.debug("&cThe error code is: " + ex.getErrorCode());
         }
     }
@@ -276,17 +276,17 @@ public class MySQL implements Database {
                 double beforeCoins = getCoins(player);
                 if (beforeCoins - coins < 0 || beforeCoins == coins) {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = 0 WHERE nick = '" + player + "';").executeUpdate();
-                    CacheManager.updateCoins(core.getUUID(player), 0D);
+                    CacheManager.updateCoins(getUUID(player), 0D);
                 } else if (beforeCoins > coins) {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE nick = '" + player + "';").executeUpdate();
-                    CacheManager.updateCoins(core.getUUID(player), (beforeCoins - coins));
+                    CacheManager.updateCoins(getUUID(player), (beforeCoins - coins));
                 }
 
             } finally {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cAn internal error has occurred taking coins to the player: " + player);
+            core.log("&cAn internal error has occurred taking coins to the player: " + player);
             core.debug("&cThe error code is: " + ex.getErrorCode());
         }
     }
@@ -297,13 +297,13 @@ public class MySQL implements Database {
             try {
                 if (isindb(player) && getCoins(player) >= 0) {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + core.getConfig().getDouble("General.Starting Coins") + " WHERE nick = '" + player + "';").executeUpdate();
-                    CacheManager.updateCoins(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
+                    CacheManager.updateCoins(getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
                 }
             } finally {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cAn internal error has occurred reseting the coins of player: " + player);
+            core.log("&cAn internal error has occurred reseting the coins of player: " + player);
             core.debug("&cThe error code is: " + ex.getErrorCode());
         }
     }
@@ -314,13 +314,13 @@ public class MySQL implements Database {
             try {
                 if (isindb(player) && getCoins(player) >= 0) {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + coins + " WHERE nick = '" + player + "';").executeUpdate();
-                    CacheManager.updateCoins(core.getUUID(player), coins);
+                    CacheManager.updateCoins(getUUID(player), coins);
                 }
             } finally {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cAn internal error has occurred setting the coins of player: " + player);
+            core.log("&cAn internal error has occurred setting the coins of player: " + player);
             core.debug("&cThe error code is: " + ex.getErrorCode());
         }
     }
@@ -341,7 +341,7 @@ public class MySQL implements Database {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cAn internal error has occurred cheking if the player: " + player + " exists in the database.");
+            core.log("&cAn internal error has occurred cheking if the player: " + player + " exists in the database.");
             core.debug("&cThe error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
@@ -363,7 +363,7 @@ public class MySQL implements Database {
                     return coins;
                 } else {
                     CacheManager.updateCoins(player, 0D);
-                    createPlayer(core.getNick(player), player);
+                    createPlayer(getNick(player), player);
                     return 0D;
                 }
             } finally {
@@ -373,7 +373,7 @@ public class MySQL implements Database {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cAn internal error has occurred creating the data for player: " + core.getMethods().getNick(player));
+            core.log("&cAn internal error has occurred creating the data for player: " + getNick(player));
             core.debug("&cThe error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
@@ -396,7 +396,7 @@ public class MySQL implements Database {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cAn internal error has occurred adding coins to the player: " + core.getMethods().getNick(player));
+            core.log("&cAn internal error has occurred adding coins to the player: " + getNick(player));
             core.debug("&cThe error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
@@ -422,7 +422,7 @@ public class MySQL implements Database {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cAn internal error has occurred taking coins to the player: " + core.getMethods().getNick(player));
+            core.log("&cAn internal error has occurred taking coins to the player: " + getNick(player));
             core.debug("&cThe error code is: " + ex.getErrorCode());
         }
     }
@@ -439,7 +439,7 @@ public class MySQL implements Database {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cAn internal error has occurred reseting the coins of player: " + core.getMethods().getNick(player));
+            core.log("&cAn internal error has occurred reseting the coins of player: " + getNick(player));
             core.debug("&cThe error code is: " + ex.getErrorCode());
         }
     }
@@ -456,7 +456,7 @@ public class MySQL implements Database {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cAn internal error has occurred setting the coins of player: " + core.getMethods().getNick(player));
+            core.log("&cAn internal error has occurred setting the coins of player: " + getNick(player));
             core.debug("&cThe error code is: " + ex.getErrorCode());
         }
     }
@@ -477,7 +477,7 @@ public class MySQL implements Database {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cAn internal error has occurred cheking if the player: " + player + " exists in the database.");
+            core.log("&cAn internal error has occurred cheking if the player: " + player + " exists in the database.");
             core.debug("&cThe error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
@@ -503,7 +503,7 @@ public class MySQL implements Database {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cAn internal error has occurred generating the toplist");
+            core.log("&cAn internal error has occurred generating the toplist");
             core.debug("&cThe error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
@@ -514,5 +514,51 @@ public class MySQL implements Database {
         try (ResultSet res = metaData.getColumns(null, null, prefix + table, column)) {
             return !res.next();
         }
+    }
+
+    @Override
+    public String getNick(UUID uuid) {
+        try (Connection c = getConnection()) {
+            ResultSet res = null;
+            try {
+                res = c.prepareStatement("SELECT * FROM " + prefix + "DATA WHERE uuid = '" + uuid + "';").executeQuery();
+                if (res.next()) {
+                    return res.getString("nick");
+                }
+            } finally {
+                if (res != null) {
+                    res.close();
+                }
+                c.close();
+            }
+        } catch (SQLException ex) {
+            core.log("Something was wrong getting the nick for the uuid '" + uuid + "'");
+            core.debug("The error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public UUID getUUID(String nick) {
+        try (Connection c = getConnection()) {
+            ResultSet res = null;
+            try {
+                res = c.prepareStatement("SELECT * FROM " + prefix + "DATA WHERE nick = '" + nick + "';").executeQuery();
+                if (res.next()) {
+                    return UUID.fromString(res.getString("nick"));
+                }
+            } finally {
+                if (res != null) {
+                    res.close();
+                }
+                c.close();
+            }
+        } catch (SQLException ex) {
+            core.log("Something was wrong getting the uuid for the nick '" + nick + "'");
+            core.debug("The error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+        return null;
     }
 }

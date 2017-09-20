@@ -58,4 +58,8 @@ public interface Database {
     void createPlayer(String player, UUID uuid);
     
     Connection getConnection() throws SQLException;
+    
+    String getNick(UUID uuid);
+    
+    UUID getUUID(String nick);
 }

@@ -20,13 +20,11 @@ package net.nifheim.beelzebu.coins.bungee;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import net.nifheim.beelzebu.coins.bungee.utils.Messages;
@@ -82,26 +80,6 @@ public class BungeeMethods implements IMethods {
     @Override
     public void log(Object log) {
         console.sendMessage(Core.getInstance().rep("&8[&cCoins&8] &7" + log));
-    }
-    
-    @Override
-    public String getNick(Object player) {
-        return ((ProxiedPlayer) player).getName();
-    }
-    
-    @Override
-    public String getNick(UUID uuid) {
-        return ProxyServer.getInstance().getPlayer(uuid).getName();
-    }
-    
-    @Override
-    public UUID getUUID(Object player) {
-        return ((ProxiedPlayer) player).getUniqueId();
-    }
-    
-    @Override
-    public UUID getUUID(String player) {
-        return ProxyServer.getInstance().getPlayer(player).getUniqueId();
     }
     
     @Override
