@@ -31,11 +31,8 @@ import org.bukkit.entity.Player;
  */
 public class Multipliers extends EZPlaceholderHook {
 
-    private final Main plugin;
-
     public Multipliers(Main plugin) {
         super(plugin, "coins-multipliers");
-        this.plugin = plugin;
     }
 
     @Override

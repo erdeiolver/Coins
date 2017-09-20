@@ -156,14 +156,12 @@ public class CoinsCommand extends BukkitCommand {
         }
         String multiplier = "";
         boolean multiply = false;
-        if (args.length == 4 && args[3] != null) {
-            if (args[3].equalsIgnoreCase("true")) {
-                int amount = CoinsAPI.getMultiplier().getAmount();
-                if (amount > 1) {
-                    multiplier = core.rep(core.getString("Multipliers.Format", lang).replaceAll("%multiplier%", String.valueOf(amount)).replaceAll("%enabler%", CoinsAPI.getMultiplier(config.getString("Multipliers.Server")).getEnabler()));
-                }
-                multiply = true;
+        if (args.length == 4 && args[3] != null && args[3].equalsIgnoreCase("true")) {
+            int amount = CoinsAPI.getMultiplier().getAmount();
+            if (amount > 1) {
+                multiplier = core.rep(core.getString("Multipliers.Format", lang).replaceAll("%multiplier%", String.valueOf(amount)).replaceAll("%enabler%", CoinsAPI.getMultiplier(config.getString("Multipliers.Server")).getEnabler()));
             }
+            multiply = true;
         }
         if (args.length == 3 || args.length == 4) {
             if (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("dar")) {

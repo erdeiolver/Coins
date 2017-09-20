@@ -26,16 +26,13 @@ import net.nifheim.beelzebu.coins.bukkit.Main;
 import org.bukkit.entity.Player;
 
 /**
- * 
+ *
  * @author Beelzebu
  */
 public class PlaceholderAPI extends EZPlaceholderHook {
 
-    private final Main plugin;
-
-    public PlaceholderAPI(Main plugin) {
-        super(plugin, "coins");
-        this.plugin = plugin;
+    public PlaceholderAPI(Main main) {
+        super(main, "coins");
     }
 
     @Override

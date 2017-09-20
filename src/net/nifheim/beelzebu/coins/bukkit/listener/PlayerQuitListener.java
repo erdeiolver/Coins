@@ -18,7 +18,6 @@
  */
 package net.nifheim.beelzebu.coins.bukkit.listener;
 
-import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 import org.bukkit.event.EventHandler;
@@ -30,12 +29,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
  * @author Beelzebu
  */
 public class PlayerQuitListener implements Listener {
-
-    private final Main plugin;
-
-    public PlayerQuitListener(Main main) {
-        plugin = main;
-    }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {

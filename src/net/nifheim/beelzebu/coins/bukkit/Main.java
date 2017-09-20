@@ -61,15 +61,15 @@ public class Main extends JavaPlugin {
 
         Bukkit.getServer().getPluginManager().registerEvents(new CommandListener(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
-        Bukkit.getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
-        Bukkit.getServer().getPluginManager().registerEvents(new GUIListener(this), this);
+        Bukkit.getServer().getPluginManager().registerEvents(new PlayerQuitListener(), this);
+        Bukkit.getServer().getPluginManager().registerEvents(new GUIListener(), this);
 
         getConfig().getConfigurationSection("Command executor").getKeys(false).forEach((id) -> {
             core.getExecutorManager().addExecutor(new Executor(id, getConfig().getDouble("Command executor." + id + ".Cost", 0), getConfig().getStringList("Command executor." + id + ".Command")));
         });
         PluginMessage pmsg = new PluginMessage(this);
         Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
-        pmsg.sendToBungeeCord("Coins", "getexecutors");
+            pmsg.sendToBungeeCord("Coins", "getexecutors");
             Bukkit.getOnlinePlayers().forEach((p) -> {
                 CoinsAPI.createPlayer(p.getName(), p.getUniqueId());
             });
@@ -116,10 +116,8 @@ public class Main extends JavaPlugin {
             console.sendMessage(core.rep(""));
         }
         // Only send this in the onEnable
-        if (enable) {
-            if (getConfig().getBoolean("Debug", false)) {
-                core.getMethods().log("Debug mode is enabled.");
-            }
+        if (enable && getConfig().getBoolean("Debug", false)) {
+            core.getMethods().log("Debug mode is enabled.");
         }
     }
 

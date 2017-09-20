@@ -53,7 +53,7 @@ public class PluginMessageListener implements Listener {
         if (channel.equals("Coins")) {
             ServerInfo server = ProxyServer.getInstance().getPlayer(e.getReceiver().toString()).getServer().getInfo();
             String input = in.readUTF();
-            if (input.equals("getexecutors")) {
+            if ("getexecutors".equals(input)) {
                 ((net.md_5.bungee.config.Configuration) config.getConfigurationSection("Command executor")).getKeys().forEach((id) -> {
                     synchronized (message) {
                         message.clear();

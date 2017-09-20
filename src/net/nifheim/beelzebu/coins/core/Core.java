@@ -47,7 +47,6 @@ public class Core {
     private static Core instance;
     private IMethods mi;
     private Database db;
-    private FileManager fileUpdater;
     private ExecutorManager executorManager;
     private static boolean mysql = false;
 
@@ -57,7 +56,7 @@ public class Core {
 
     public void setup(IMethods methodinterface) {
         mi = methodinterface;
-        fileUpdater = new FileManager(this);
+        FileManager fileUpdater = new FileManager(this);
         fileUpdater.copyFiles();
         fileUpdater.updateConfig();
         getDatabase();
@@ -147,14 +146,13 @@ public class Core {
 
     public String getString(String path, String lang) {
         try {
-            path = rep(getMessages(lang).getString(path));
+            return rep(getMessages(lang).getString(path));
         } catch (NullPointerException ex) {
             mi.log("The string " + path + " does not exists in the messages" + lang + ".yml file, please add this manually.");
             mi.log("If you belive that this is an error please contact to the developer.");
-            path = rep(getMessages("").getString(path));
             debug(ex);
+            return rep(getMessages("").getString(path));
         }
-        return path;
     }
 
     public ExecutorManager getExecutorManager() {

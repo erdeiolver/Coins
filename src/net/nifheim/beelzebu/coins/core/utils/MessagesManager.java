@@ -26,10 +26,7 @@ import java.util.List;
  */
 public abstract class MessagesManager {
 
-    private final String lang;
-
     public MessagesManager(String lang) {
-        this.lang = lang;
     }
 
     public abstract Object get(String path);

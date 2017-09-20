@@ -30,7 +30,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
  */
 public class Messages extends MessagesManager {
 
-    private final Core core;
     private final String _lang;
     private File langFile;
     private final YamlConfiguration messages;
@@ -38,10 +37,9 @@ public class Messages extends MessagesManager {
     public Messages(String lang) {
         super(lang);
         _lang = lang;
-        core = Core.getInstance();
-        langFile = new File(core.getDataFolder(), "messages" + _lang + ".yml");
+        langFile = new File(Core.getInstance().getDataFolder(), "messages" + _lang + ".yml");
         if (!langFile.exists()) {
-            langFile = new File(core.getDataFolder(), "messages.yml");
+            langFile = new File(Core.getInstance().getDataFolder(), "messages.yml");
         }
         messages = YamlConfiguration.loadConfiguration(langFile);
     }

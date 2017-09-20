@@ -19,7 +19,6 @@
 package net.nifheim.beelzebu.coins.bukkit.listener;
 
 import java.util.UUID;
-import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.bukkit.utils.gui.BaseGUI;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -33,12 +32,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
  * @author Beelzebu
  */
 public class GUIListener implements Listener {
-
-    private final Main plugin;
-
-    public GUIListener(Main main) {
-        plugin = main;
-    }
 
     @EventHandler
     public void onClick(InventoryClickEvent e) {
