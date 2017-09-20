@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 import net.md_5.bungee.api.ChatColor;
 import net.nifheim.beelzebu.coins.core.database.Database;
 import net.nifheim.beelzebu.coins.core.database.MySQL;
+import net.nifheim.beelzebu.coins.core.database.SQLite;
 import net.nifheim.beelzebu.coins.core.executor.ExecutorManager;
 import net.nifheim.beelzebu.coins.core.utils.FileManager;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
@@ -48,6 +49,7 @@ public class Core {
     private Database db;
     private FileManager fileUpdater;
     private ExecutorManager executorManager;
+    private static boolean mysql = false;
 
     public static Core getInstance() {
         return instance == null ? instance = new Core() : instance;
@@ -58,7 +60,7 @@ public class Core {
         fileUpdater = new FileManager(this);
         fileUpdater.copyFiles();
         fileUpdater.updateConfig();
-        db = new MySQL(this);
+        getDatabase();
         executorManager = new ExecutorManager();
     }
 
@@ -105,7 +107,16 @@ public class Core {
     }
 
     public Database getDatabase() {
-        return db == null ? db = new MySQL(this) : db;
+        if (getConfig().getBoolean("MySQL.Use")) {
+            mysql = true;
+            return db == null ? db = new MySQL(this) : db;
+        } else {
+            return db == null ? db = new SQLite(this) : db;
+        }
+    }
+    
+    public boolean isMySQL() {
+        return mysql;
     }
 
     public String rep(String msg) {
@@ -115,7 +126,7 @@ public class Core {
     }
 
     public String removeColor(String str) {
-        return ChatColor.stripColor(str).replaceAll("Debug: ", "");
+        return ChatColor.stripColor(rep(str)).replaceAll("Debug: ", "");
     }
 
     public IConfiguration getConfig() {

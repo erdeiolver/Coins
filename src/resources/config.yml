@@ -3,7 +3,7 @@
 # the official github repo https://github.com/Beelzebu/Coins/issues/
 
 # The version of the config, don't touch!
-version: 5
+version: 6
 
 # This is the prefix used in all the messages.
 Prefix: '&c&lCoins &6&l>&7'
@@ -13,6 +13,7 @@ Online Mode: true
 
 # Here are the MySQL server settings.
 MySQL:
+  Use: false
   Host: 'localhost'
   Port: '3306'
   Database: 'minecraft'

@@ -19,89 +19,329 @@
 package net.nifheim.beelzebu.coins.core.database;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import net.nifheim.beelzebu.coins.CoinsAPI;
+import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 
 /**
+ * Manages the SQLite database.
  *
+ * @version 1.0.0
  * @author Beelzebu
+ * @since 1.8.1-BETA
  */
 public class SQLite implements Database {
 
-    @Override
-    public Double getCoins(String player) {
-        throw new UnsupportedOperationException("getCoins is not finished yet.");
-    }
+    private final Core core;
+    private static Connection connection;
 
-    @Override
-    public void addCoins(String player, Double coins, Boolean multiply) {
-        throw new UnsupportedOperationException("addCoins is not finished yet.");
-    }
-
-    @Override
-    public void takeCoins(String player, Double coins) {
-        throw new UnsupportedOperationException("takeCoins is not finished yet.");
-    }
-
-    @Override
-    public void resetCoins(String player) {
-        throw new UnsupportedOperationException("resetCoins is not finished yet.");
-    }
-
-    @Override
-    public void setCoins(String player, Double coins) {
-        throw new UnsupportedOperationException("setCoins is not finished yet.");
-    }
-
-    @Override
-    public boolean isindb(String player) {
-        throw new UnsupportedOperationException("isindb is not finished yet.");
-    }
-
-    @Override
-    public Double getCoins(UUID player) {
-        throw new UnsupportedOperationException("getCoins is not finished yet.");
-    }
-
-    @Override
-    public void addCoins(UUID player, Double coins, Boolean multiply) {
-        throw new UnsupportedOperationException("addCoins is not finished yet.");
-    }
-
-    @Override
-    public void takeCoins(UUID player, Double coins) {
-        throw new UnsupportedOperationException("takeCoins is not finished yet.");
-    }
-
-    @Override
-    public void resetCoins(UUID player) {
-        throw new UnsupportedOperationException("resetCoins is not finished yet.");
-    }
-
-    @Override
-    public void setCoins(UUID player, Double coins) {
-        throw new UnsupportedOperationException("setCoins is not finished yet.");
-    }
-
-    @Override
-    public boolean isindb(UUID player) {
-        throw new UnsupportedOperationException("isindb is not finished yet.");
-    }
-
-    @Override
-    public List<String> getTop(int top) {
-        throw new UnsupportedOperationException("getTop is not finished yet.");
-    }
-
-    @Override
-    public void createPlayer(String player, UUID uuid) {
-        throw new UnsupportedOperationException("createPlayer is not finished yet.");
+    public SQLite(Core c) {
+        core = c;
+        updateDatabase();
     }
 
     @Override
     public Connection getConnection() throws SQLException {
-        throw new UnsupportedOperationException("getConnection is not finished yet.");
+        return (connection == null ? true : connection.isClosed()) ? connection = DriverManager.getConnection("jdbc:sqlite:" + core.getDataFolder() + "/database.db") : connection;
     }
 
+    private void updateDatabase() {
+        try {
+            core.debug("A database connection was opened.");
+            String Data
+                    = "CREATE TABLE IF NOT EXISTS `Data`"
+                    + "(`uuid` VARCHAR(50),"
+                    + "`nick` VARCHAR(50),"
+                    + "`balance` DOUBLE,"
+                    + "`lastlogin` LONG);";
+            String Multiplier = "CREATE TABLE IF NOT EXISTS `Multipliers`"
+                    + "(`id` INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + "`uuid` VARCHAR(50),"
+                    + "`multiplier` INT,"
+                    + "`queue` INT,"
+                    + "`minutes` INT,"
+                    + "`endtime` LONG,"
+                    + "`server` VARCHAR(50),"
+                    + "`enabled` BOOLEAN);";
+            getConnection().createStatement().executeUpdate(Data);
+            core.debug("The data table was updated.");
+            getConnection().createStatement().executeUpdate(Multiplier);
+            core.debug("The multipliers table was updated");
+            if (core.getConfig().getBoolean("General.Purge.Enabled", true)) {
+                getConnection().createStatement().executeUpdate("DELETE FROM Data WHERE lastlogin < " + (System.currentTimeMillis() - (core.getConfig().getInt("General.Purge.Days") * 86400000)) + ";");
+                core.debug("Inactive users were removed from the database.");
+            }
+        } catch (SQLException ex) {
+            core.log("Something was wrong creating the default databases. Please check the debug log.");
+            core.debug("The error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+    }
+
+    @Override
+    public synchronized void createPlayer(String player, UUID uuid) {
+        try {
+            core.debug("A database connection was opened.");
+            ResultSet res;
+            core.debug("Trying to create or update data.");
+            if (core.getConfig().getBoolean("Online Mode")) {
+                core.debug("Preparing to create or update an entry for online mode.");
+                res = getConnection().prepareStatement("SELECT uuid FROM Data WHERE uuid = '" + uuid + "';").executeQuery();
+                if (!res.next()) {
+                    getConnection().prepareStatement("INSERT INTO Data VALUES ('" + uuid.toString() + "', '" + player + "', 0.0, " + System.currentTimeMillis() + ");").execute();
+                    core.debug("An entry in the database was created for: " + player);
+                } else {
+                    getConnection().prepareStatement("UPDATE Data SET nick = '" + player + "', lastlogin = " + System.currentTimeMillis() + " WHERE uuid = '" + uuid + "';").execute();
+                    core.debug("The nickname of: " + player + " was updated in the database.");
+                }
+            } else {
+                core.debug("Preparing to create or update an entry for offline mode.");
+                res = getConnection().prepareStatement("SELECT nick FROM Data WHERE nick = '" + player + "';").executeQuery();
+                if (!res.next()) {
+                    getConnection().prepareStatement("INSERT INTO Data VALUES ('" + uuid.toString() + "', '" + player + "', 0.0, " + System.currentTimeMillis() + ");").execute();
+                    core.debug("An entry in the database was created for: " + player);
+                } else {
+                    getConnection().prepareStatement("UPDATE Data SET uuid = '" + uuid.toString() + "', lastlogin = " + System.currentTimeMillis() + " WHERE nick = '" + player + "';").execute();
+                    core.debug("The uuid of: " + core.getNick(uuid) + " was updated in the database.");
+                }
+            }
+        } catch (SQLException ex) {
+            core.log("&cAn internal error has occurred creating the player: " + player + " in the database.");
+            core.debug("The error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+    }
+
+    @Override
+    public Double getCoins(String player) {
+        if (CacheManager.getCoins(core.getUUID(player)) > -1) {
+            return CacheManager.getCoins(core.getUUID(player));
+        }
+        try {
+            ResultSet res = getConnection().prepareStatement("SELECT * FROM Data WHERE nick = '" + player + "';").executeQuery();
+            if (res.next() && res.getString("uuid") != null) {
+                double coins = res.getDouble("balance");
+                CacheManager.updateCoins(core.getUUID(player), coins);
+                return coins;
+            } else {
+                CacheManager.updateCoins(core.getUUID(player), 0D);
+                createPlayer(player, core.getUUID(player));
+                return 0D;
+            }
+        } catch (SQLException ex) {
+            core.log("&cAn internal error has occurred creating the data for player: " + player);
+            core.debug("The error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+        return 0D;
+    }
+
+    @Override
+    public void addCoins(String player, Double coins, Boolean multiply) {
+        try {
+            if (isindb(player) && getCoins(player) >= 0) {
+                if (multiply) {
+                    coins = coins * CoinsAPI.getMultiplier().getAmount();
+                }
+                double oldCoins = getCoins(player);
+                getConnection().prepareStatement("UPDATE Data SET balance = " + (oldCoins + coins) + " WHERE nick = '" + player + "';").executeUpdate();
+                CacheManager.updateCoins(core.getUUID(player), oldCoins + coins);
+            }
+        } catch (SQLException ex) {
+            core.log("&cAn internal error has occurred adding coins to the player: " + player);
+            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+    }
+
+    @Override
+    public void takeCoins(String player, Double coins) {
+        try {
+            double beforeCoins = getCoins(player);
+            if (beforeCoins - coins < 0 || beforeCoins == coins) {
+                getConnection().prepareStatement("UPDATE Data SET balance = 0 WHERE nick = '" + player + "';").executeUpdate();
+                CacheManager.updateCoins(core.getUUID(player), 0D);
+            } else if (beforeCoins > coins) {
+                getConnection().prepareStatement("UPDATE Data SET balance = " + (beforeCoins - coins) + " WHERE nick = '" + player + "';").executeUpdate();
+                CacheManager.updateCoins(core.getUUID(player), (beforeCoins - coins));
+            }
+        } catch (SQLException ex) {
+            core.log("&cAn internal error has occurred taking coins to the player: " + player);
+            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+    }
+
+    @Override
+    public void resetCoins(String player) {
+        try {
+            if (isindb(player) && getCoins(player) >= 0) {
+                getConnection().prepareStatement("UPDATE Data SET balance = " + core.getConfig().getDouble("General.Starting Coins") + " WHERE nick = '" + player + "';").executeUpdate();
+                CacheManager.updateCoins(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
+            }
+        } catch (SQLException ex) {
+            core.log("&cAn internal error has occurred reseting the coins of player: " + player);
+            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+    }
+
+    @Override
+    public void setCoins(String player, Double coins) {
+        try {
+            if (isindb(player) && getCoins(player) >= 0) {
+                getConnection().prepareStatement("UPDATE Data SET balance = " + coins + " WHERE nick = '" + player + "';").executeUpdate();
+                CacheManager.updateCoins(core.getUUID(player), coins);
+            }
+        } catch (SQLException ex) {
+            core.log("&cAn internal error has occurred setting the coins of player: " + player);
+            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+    }
+
+    @Override
+    public boolean isindb(String player) {
+        try {
+            ResultSet res = getConnection().prepareStatement("SELECT * FROM Data WHERE nick = '" + player + "';").executeQuery();
+            if (res.next()) {
+                return res.getString("nick") != null;
+            }
+        } catch (SQLException ex) {
+            core.log("&cAn internal error has occurred cheking if the player: " + player + " exists in the database.");
+            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+        return false;
+    }
+
+    @Override
+    public Double getCoins(UUID player) {
+        if (CacheManager.getCoins(player) > -1) {
+            return CacheManager.getCoins(player);
+        }
+        try {
+            ResultSet res = getConnection().prepareStatement("SELECT * FROM Data WHERE uuid = '" + player + "';").executeQuery();
+            if (res.next() && res.getString("uuid") != null) {
+                double coins = res.getDouble("balance");
+                CacheManager.updateCoins(player, coins);
+                return coins;
+            } else {
+                CacheManager.updateCoins(player, 0D);
+                createPlayer(core.getNick(player), player);
+                return 0D;
+            }
+        } catch (SQLException ex) {
+            core.log("&cAn internal error has occurred creating the data for player: " + core.getMethods().getNick(player));
+            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+        return 0D;
+    }
+
+    @Override
+    public void addCoins(UUID player, Double coins, Boolean multiply) {
+        try {
+            if (isindb(player) && getCoins(player) >= 0) {
+                if (multiply) {
+                    coins = coins * CoinsAPI.getMultiplier().getAmount();
+                }
+                double oldCoins = getCoins(player);
+                getConnection().prepareStatement("UPDATE Data SET balance = " + (oldCoins + coins) + " WHERE uuid = '" + player + "';").executeUpdate();
+                CacheManager.updateCoins(player, oldCoins + coins);
+            }
+        } catch (SQLException ex) {
+            core.log("&cAn internal error has occurred adding coins to the player: " + core.getMethods().getNick(player));
+            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+    }
+
+    @Override
+    public void takeCoins(UUID player, Double coins) {
+        try {
+            double beforeCoins = getCoins(player);
+            if (beforeCoins - coins < 0) {
+                getConnection().prepareStatement("UPDATE Data SET balance = 0 WHERE uuid = '" + player + "';").executeUpdate();
+                CacheManager.updateCoins(player, 0D);
+            } else if (beforeCoins == coins) {
+                getConnection().prepareStatement("UPDATE Data SET balance = 0 WHERE uuid = '" + player + "';").executeUpdate();
+                CacheManager.updateCoins(player, 0D);
+            } else if (beforeCoins > coins) {
+                getConnection().prepareStatement("UPDATE Data SET balance = " + (beforeCoins - coins) + " WHERE uuid = '" + player + "';").executeUpdate();
+                CacheManager.updateCoins(player, beforeCoins - coins);
+            }
+        } catch (SQLException ex) {
+            core.log("&cAn internal error has occurred taking coins to the player: " + core.getMethods().getNick(player));
+            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+    }
+
+    @Override
+    public void resetCoins(UUID player) {
+        try {
+            if (isindb(player) && getCoins(player) >= 0) {
+                getConnection().prepareStatement("UPDATE Data SET balance = " + core.getConfig().getDouble("General.Starting Coins") + " WHERE uuid = '" + player + "';").executeUpdate();
+                CacheManager.updateCoins(player, core.getConfig().getDouble("General.Starting Coins"));
+            }
+        } catch (SQLException ex) {
+            core.log("&cAn internal error has occurred reseting the coins of player: " + core.getMethods().getNick(player));
+            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+    }
+
+    @Override
+    public void setCoins(UUID player, Double coins) {
+        try {
+            if (isindb(player) && getCoins(player) >= 0) {
+                getConnection().prepareStatement("UPDATE Data SET balance = " + coins + " WHERE uuid = '" + player + "';").executeUpdate();
+                CacheManager.updateCoins(player, coins);
+            }
+        } catch (SQLException ex) {
+            core.log("&cAn internal error has occurred setting the coins of player: " + core.getMethods().getNick(player));
+            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+    }
+
+    @Override
+    public boolean isindb(UUID player) {
+        try {
+            ResultSet res = getConnection().prepareStatement("SELECT * FROM Data WHERE uuid = '" + player + "';").executeQuery();
+            if (res.next()) {
+                return res.getString("nick") != null;
+            }
+        } catch (SQLException ex) {
+            core.log("&cAn internal error has occurred cheking if the player: " + player + " exists in the database.");
+            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+        return false;
+    }
+
+    @Override
+    public List<String> getTop(int top) {
+        List<String> toplist = new ArrayList<>();
+        try {
+            ResultSet res = getConnection().prepareStatement("SELECT * FROM Data ORDER BY balance DESC LIMIT " + top + ";").executeQuery();
+            while (res.next()) {
+                String playername = res.getString("nick");
+                int coins = (int) res.getDouble("balance");
+                toplist.add(playername + ", " + coins);
+            }
+        } catch (SQLException ex) {
+            core.log("&cAn internal error has occurred generating the toplist");
+            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+        return toplist;
+    }
 }

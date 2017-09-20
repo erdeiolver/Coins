@@ -179,6 +179,14 @@ public class FileManager {
                 FileUtils.writeLines(configFile, lines);
                 core.getConfig().reload();
                 core.getMethods().log("Configuration file updated to v5.");
+            } else if (core.getConfig().getInt("version") == 5) {
+                index = lines.indexOf("MySQL:" + 1);
+                lines.add(index, "  Use: true");
+                index = lines.indexOf("version: 5");
+                lines.set(index, "version: 6");
+                FileUtils.writeLines(configFile, lines);
+                core.getConfig().reload();
+                core.getMethods().log("Configuration file updated to v6.");
             } else {
                 core.getMethods().log("The config file is up to date.");
             }

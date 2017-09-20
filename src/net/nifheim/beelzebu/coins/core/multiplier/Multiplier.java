@@ -35,7 +35,7 @@ import net.nifheim.beelzebu.coins.core.Core;
 public final class Multiplier {
 
     private static final Core core = Core.getInstance();
-    private final String PREFIX = core.getConfig().getString("MySQL.Prefix");
+    private final String PREFIX = core.isMySQL() ? core.getConfig().getString("MySQL.Prefix") : "";
     private static String SERVER = core.getConfig().getString("Multipliers.Server");
     private static String ENABLER;
     private static Boolean ENABLED = false;
