@@ -34,29 +34,29 @@ import net.nifheim.beelzebu.coins.core.Core;
  */
 public final class Multiplier {
 
-    private static final Core core = Core.getInstance();
-    private final String PREFIX = core.isMySQL() ? core.getConfig().getString("MySQL.Prefix") : "";
-    private static String SERVER = core.getConfig().getString("Multipliers.Server");
-    private static String ENABLER;
-    private static Boolean ENABLED = false;
-    private static Integer AMOUNT = 1;
+    private final Core core = Core.getInstance();
+    private final String prefix = core.isMySQL() ? core.getConfig().getString("MySQL.prefix") : "";
+    private String server = core.getConfig().getString("Multipliers.Server");
+    private final String enabler;
+    private Boolean enabled = false;
+    private Integer amount;
     private Connection getConnection() throws SQLException {
         return core.getDatabase().getConnection();
     }
 
     public Multiplier() {
-        ENABLER = getEnabler(SERVER);
-        ENABLED = isEnabled(SERVER);
-        AMOUNT = getAmount(SERVER);
-        getMultiplierTime(SERVER);
+        enabler = getEnabler(server);
+        enabled = isEnabled(server);
+        amount = getAmount(server);
+        getMultiplierTime(server);
     }
 
     public Multiplier(String sv) {
-        SERVER = sv;
-        ENABLER = getEnabler(SERVER);
-        ENABLED = isEnabled(SERVER);
-        AMOUNT = getAmount(SERVER);
-        getMultiplierTime(SERVER);
+        server = sv;
+        enabler = getEnabler(server);
+        enabled = isEnabled(server);
+        amount = getAmount(server);
+        getMultiplierTime(server);
     }
 
     /**
@@ -65,7 +65,7 @@ public final class Multiplier {
      * @return The nick of the player.
      */
     public String getEnabler() {
-        return ENABLER;
+        return enabler;
     }
 
     /**
@@ -75,7 +75,7 @@ public final class Multiplier {
      * @return
      */
     public Boolean isEnabled() {
-        return ENABLED;
+        return enabled;
     }
 
     /**
@@ -84,7 +84,7 @@ public final class Multiplier {
      * @return
      */
     public Integer getAmount() {
-        return AMOUNT;
+        return amount;
     }
 
     /**
@@ -97,7 +97,7 @@ public final class Multiplier {
     public void createMultiplier(UUID uuid, Integer multiplier, Integer minutes) {
         try (Connection c = getConnection()) {
             try {
-                c.prepareStatement("INSERT INTO " + PREFIX + "Multipliers VALUES(NULL, '" + uuid + "', " + multiplier + ", -1, " + minutes + ", 0, " + "'" + SERVER + "'" + ", false);").executeUpdate();
+                c.prepareStatement("INSERT INTO " + prefix + "Multipliers VALUES(NULL, '" + uuid + "', " + multiplier + ", -1, " + minutes + ", 0, " + "'" + server + "'" + ", false);").executeUpdate();
             } finally {
                 c.close();
             }
@@ -114,9 +114,9 @@ public final class Multiplier {
      * @return The multiplier time formated.
      */
     public String getMultiplierTimeFormated() {
-        Long endtime = getMultiplierTime(SERVER);
+        Long endtime = getMultiplierTime(server);
         String format;
-        Long time = -75600000L + getMultiplierTime(SERVER);
+        Long time = -75600000L + getMultiplierTime(server);
         if (endtime > 86400000) {
             format = "%1$td, %1$tH:%1$tM:%1$tS";
         } else if (endtime > 3600000) {
@@ -138,7 +138,7 @@ public final class Multiplier {
      * @param type The type of the multiplier.
      */
     public void useMultiplier(UUID uuid, Integer id, MultiplierType type) {
-        useMultiplier(uuid, id, SERVER, type);
+        useMultiplier(uuid, id, server, type);
     }
 
     /**
@@ -152,23 +152,23 @@ public final class Multiplier {
      * @return
      */
     public Set<Integer> getMultipliersFor(UUID uuid) {
-        return getMultipliersFor(uuid, SERVER);
+        return getMultipliersFor(uuid, server);
     }
 
     public Long getMultiplierTime(String server) {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + PREFIX + "Multipliers WHERE server = '" + server + "' AND enabled = true;").executeQuery();
+                res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + server + "' AND enabled = true;").executeQuery();
                 if (res.next()) {
                     Long start = System.currentTimeMillis();
                     Long end = res.getLong("endtime");
                     if ((end - start) > 0) {
                         return (end - start);
                     } else {
-                        c.prepareStatement("DELETE FROM " + PREFIX + "Multipliers WHERE server = '" + server + "' AND enabled = true;").executeUpdate();
-                        AMOUNT = 1;
-                        ENABLED = false;
+                        c.prepareStatement("DELETE FROM " + prefix + "Multipliers WHERE server = '" + server + "' AND enabled = true;").executeUpdate();
+                        amount = getAmount(server);
+                        enabled = false;
                     }
                 }
             } finally {
@@ -188,10 +188,9 @@ public final class Multiplier {
     public void useMultiplier(UUID uuid, Integer id, String server, final MultiplierType type) {
         try (Connection c = getConnection()) {
             ResultSet res = null;
-            Boolean enabled = isEnabled();
             try {
-                if (!enabled) {
-                    res = c.prepareStatement("SELECT * FROM " + PREFIX + "Multipliers WHERE id = " + id + " AND uuid = '" + uuid + "';").executeQuery();
+                if (!isEnabled()) {
+                    res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE id = " + id + " AND uuid = '" + uuid + "';").executeQuery();
                     if (res.next()) {
                         Long minutes = res.getLong("minutes");
                         Long endtime = System.currentTimeMillis() + (minutes * 60000);
@@ -204,8 +203,8 @@ public final class Multiplier {
                             default:
                                 break;
                         }
-                        c.prepareStatement("UPDATE " + PREFIX + "Multipliers SET endtime = " + endtime + ", enabled = true, server = '" + server + "' WHERE id = " + id + ";").executeUpdate();
-                        AMOUNT = res.getInt("multiplier");
+                        c.prepareStatement("UPDATE " + prefix + "Multipliers SET endtime = " + endtime + ", enabled = true, server = '" + server + "' WHERE id = " + id + ";").executeUpdate();
+                        amount = getAmount(server);
                     }
                 }
             } finally {
@@ -227,7 +226,7 @@ public final class Multiplier {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
-                String query = "SELECT * FROM " + PREFIX + "Multipliers WHERE uuid = '" + uuid + "' AND enabled = false";
+                String query = "SELECT * FROM " + prefix + "Multipliers WHERE uuid = '" + uuid + "' AND enabled = false";
                 if (server != null) {
                     query += " AND server = '" + server + "'";
                 }
@@ -254,7 +253,7 @@ public final class Multiplier {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + PREFIX + "Multipliers WHERE enabled = true AND server = '" + server + "';").executeQuery();
+                res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE enabled = true AND server = '" + server + "';").executeQuery();
                 if (res.next()) {
                     return core.getNick(UUID.fromString(res.getString("uuid")));
                 }
@@ -277,7 +276,7 @@ public final class Multiplier {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + PREFIX + "Multipliers WHERE enabled = true AND server = '" + server + "';").executeQuery();
+                res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE enabled = true AND server = '" + server + "';").executeQuery();
                 if (res.next()) {
                     return true;
                 }
@@ -300,7 +299,7 @@ public final class Multiplier {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + PREFIX + "Multipliers WHERE enabled = true AND server = '" + server + "';").executeQuery();
+                res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE enabled = true AND server = '" + server + "';").executeQuery();
                 if (res.next()) {
                     return res.getInt("multiplier");
                 }

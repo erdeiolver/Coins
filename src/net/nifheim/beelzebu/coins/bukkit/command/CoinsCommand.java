@@ -159,7 +159,7 @@ public class CoinsCommand extends BukkitCommand {
         if (args.length == 4 && args[3] != null && args[3].equalsIgnoreCase("true")) {
             int amount = CoinsAPI.getMultiplier().getAmount();
             if (amount > 1) {
-                multiplier = core.rep(core.getString("Multipliers.Format", lang).replaceAll("%multiplier%", String.valueOf(amount)).replaceAll("%enabler%", CoinsAPI.getMultiplier(config.getString("Multipliers.Server")).getEnabler()));
+                multiplier = core.rep(core.getString("Multipliers.Format", lang).replaceAll("%multiplier%", String.valueOf(amount)).replaceAll("%enabler%", CoinsAPI.getMultiplier().getEnabler()));
             }
             multiply = true;
         }
@@ -324,7 +324,7 @@ public class CoinsCommand extends BukkitCommand {
                     try {
                         int multiplier = Integer.parseInt(args[3]);
                         int minutes = Integer.parseInt(args[4]);
-                        CoinsAPI.getMultiplier(config.getString("Multipliers.Server")).createMultiplier(Bukkit.getPlayer(args[2]).getUniqueId(), multiplier, minutes);
+                        CoinsAPI.getMultiplier().createMultiplier(Bukkit.getPlayer(args[2]).getUniqueId(), multiplier, minutes);
                         sender.sendMessage(core.getString("Multipliers.Created", lang).replaceAll("%player%", Bukkit.getPlayer(args[2]).getName()));
                     } catch (NumberFormatException e) {
                         sender.sendMessage(core.rep(String.valueOf(e.getCause().getMessage())));
@@ -339,13 +339,13 @@ public class CoinsCommand extends BukkitCommand {
                         sender.sendMessage(core.getString("Multipliers.Already active", lang));
                     }
                 } else {
-                    CoinsAPI.getMultiplier(config.getString("Multipliers.Server", "default")).getMultipliersFor(((Player) sender).getUniqueId()).forEach((i) -> {
+                    CoinsAPI.getMultiplier().getMultipliersFor(((Player) sender).getUniqueId()).forEach((i) -> {
                         sender.sendMessage("" + i);
                     });
                 }
             }
             if (args.length == 2 && args[1].equalsIgnoreCase("get")) {
-                sender.sendMessage(CoinsAPI.getMultiplier(config.getString("Multipliers.Server", "default")).getMultiplierTimeFormated());
+                sender.sendMessage(CoinsAPI.getMultiplier().getMultiplierTimeFormated());
             }
             if (args.length == 1 && sender instanceof Player) {
                 core.getMethods().log("abriendo menú");
