@@ -546,7 +546,7 @@ public class MySQL implements Database {
             try {
                 res = c.prepareStatement("SELECT * FROM " + prefix + "Data WHERE nick = '" + nick + "';").executeQuery();
                 if (res.next()) {
-                    return UUID.fromString(res.getString("nick"));
+                    return UUID.fromString(res.getString("uuid"));
                 }
             } finally {
                 if (res != null) {
