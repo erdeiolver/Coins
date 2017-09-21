@@ -180,7 +180,7 @@ public class FileManager {
                 core.getConfig().reload();
                 core.getMethods().log("Configuration file updated to v5.");
             } else if (core.getConfig().getInt("version") == 5) {
-                index = lines.indexOf("MySQL:" + 1);
+                index = lines.indexOf("MySQL:") + 1;
                 lines.add(index, "  Use: true");
                 index = lines.indexOf("version: 5");
                 lines.set(index, "version: 6");
