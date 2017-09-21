@@ -220,8 +220,7 @@ public final class Multiplier {
         }
     }
 
-    @Deprecated
-    public Set<Integer> getMultipliersFor(UUID uuid, String server) {
+    private Set<Integer> getMultipliersFor(UUID uuid, String server) {
         Set<Integer> multipliers = new HashSet<>();
         try (Connection c = getConnection()) {
             ResultSet res = null;
@@ -248,8 +247,7 @@ public final class Multiplier {
         return multipliers;
     }
 
-    @Deprecated
-    public String getEnabler(String server) {
+    private String getEnabler(String server) {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
@@ -271,8 +269,7 @@ public final class Multiplier {
         return "";
     }
 
-    @Deprecated
-    public Boolean isEnabled(String server) {
+    private Boolean isEnabled(String server) {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
@@ -294,8 +291,7 @@ public final class Multiplier {
         return false;
     }
 
-    @Deprecated
-    public Integer getAmount(String server) {
+    private Integer getAmount(String server) {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
