@@ -521,7 +521,7 @@ public class MySQL implements Database {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + prefix + "DATA WHERE uuid = '" + uuid + "';").executeQuery();
+                res = c.prepareStatement("SELECT * FROM " + prefix + "Data WHERE uuid = '" + uuid + "';").executeQuery();
                 if (res.next()) {
                     return res.getString("nick");
                 }
@@ -544,7 +544,7 @@ public class MySQL implements Database {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + prefix + "DATA WHERE nick = '" + nick + "';").executeQuery();
+                res = c.prepareStatement("SELECT * FROM " + prefix + "Data WHERE nick = '" + nick + "';").executeQuery();
                 if (res.next()) {
                     return UUID.fromString(res.getString("nick"));
                 }
