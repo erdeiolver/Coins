@@ -71,6 +71,15 @@ public class Core {
         if (getConfig().getBoolean("Debug")) {
             mi.sendMessage(mi.getConsole(), (rep("&8[&cCoins&8] &cDebug: &7" + msg)));
         }
+        logToFile(msg);
+    }
+
+    public void log(Object msg) {
+        mi.log(msg);
+        logToFile(msg);
+    }
+
+    private void logToFile(Object msg) {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
         File log = new File(getDataFolder(), "/logs/latest.log");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(log, true))) {
@@ -83,10 +92,6 @@ public class Core {
         } catch (IOException ex) {
             Logger.getLogger(Core.class.getName()).log(Level.WARNING, "Can''t save the debug to the file", ex);
         }
-    }
-
-    public void log(Object msg) {
-        mi.log(msg);
     }
 
     public String getNick(UUID uuid) {
@@ -105,7 +110,7 @@ public class Core {
             return db == null ? db = new SQLite(this) : db;
         }
     }
-    
+
     public boolean isMySQL() {
         return mysql;
     }
