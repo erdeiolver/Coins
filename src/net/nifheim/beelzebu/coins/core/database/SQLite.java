@@ -347,11 +347,47 @@ public class SQLite implements Database {
 
     @Override
     public String getNick(UUID uuid) {
-        throw new UnsupportedOperationException("getNick is not finished yet.");
+        try (Connection c = getConnection()) {
+            ResultSet res = null;
+            try {
+                res = c.prepareStatement("SELECT * FROM Data WHERE uuid = '" + uuid + "';").executeQuery();
+                if (res.next()) {
+                    return res.getString("nick");
+                }
+            } finally {
+                if (res != null) {
+                    res.close();
+                }
+                c.close();
+            }
+        } catch (SQLException ex) {
+            core.log("Something was wrong getting the nick for the uuid '" + uuid + "'");
+            core.debug("The error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+        return null;
     }
 
     @Override
     public UUID getUUID(String nick) {
-        throw new UnsupportedOperationException("getUUID is not finished yet.");
+        try (Connection c = getConnection()) {
+            ResultSet res = null;
+            try {
+                res = c.prepareStatement("SELECT * FROM Data WHERE nick = '" + nick + "';").executeQuery();
+                if (res.next()) {
+                    return UUID.fromString(res.getString("uuid"));
+                }
+            } finally {
+                if (res != null) {
+                    res.close();
+                }
+                c.close();
+            }
+        } catch (SQLException ex) {
+            core.log("Something was wrong getting the uuid for the nick '" + nick + "'");
+            core.debug("The error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+        return null;
     }
 }
