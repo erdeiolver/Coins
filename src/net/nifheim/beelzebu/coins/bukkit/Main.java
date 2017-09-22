@@ -116,8 +116,15 @@ public class Main extends JavaPlugin {
             console.sendMessage(core.rep(""));
         }
         // Only send this in the onEnable
-        if (enable && getConfig().getBoolean("Debug", false)) {
-            core.getMethods().log("Debug mode is enabled.");
+        if (enable) {
+            if (getConfig().getBoolean("Debug", false)) {
+                core.log("Debug mode is enabled.");
+            }
+            if (core.isMySQL()) {
+                core.log("Enabled to use MySQL.");
+            } else {
+                core.log("Enabled to use SQLite.");
+            }
         }
     }
 
