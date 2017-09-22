@@ -222,6 +222,7 @@ public class FileManager {
                     filen++;
                 }
                 gzipFile(Files.newInputStream(latestLog.toPath()), logsFolder + "/" + sdf.format(latestLog.lastModified()) + "-" + filen + ".log.gz");
+                latestLog.delete();
             } catch (IOException ex) {
                 Logger.getLogger(FileManager.class.getName()).log(Level.WARNING, "An unexpected error has ocurred while trying to compress the latest log file. {0}", ex.getMessage());
             }
