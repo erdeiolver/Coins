@@ -40,6 +40,7 @@ public final class Multiplier {
     private final String enabler;
     private Boolean enabled = false;
     private Integer amount;
+
     private Connection getConnection() throws SQLException {
         return core.getDatabase().getConnection();
     }
@@ -102,7 +103,7 @@ public final class Multiplier {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cSomething was wrong when creating a multiplier for " + core.getNick(uuid));
+            core.log("&cSomething was wrong when creating a multiplier for " + core.getNick(uuid));
             core.debug("The error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
@@ -136,9 +137,10 @@ public final class Multiplier {
      * @param uuid Player that has a multiplier.
      * @param id The id of the multiplier.
      * @param type The type of the multiplier.
+     * @return <i>true</i> if the multiplier was enabled and <i>false</i> if not.
      */
-    public void useMultiplier(UUID uuid, Integer id, MultiplierType type) {
-        useMultiplier(uuid, id, server, type);
+    public boolean useMultiplier(UUID uuid, Integer id, MultiplierType type) {
+        return useMultiplier(uuid, id, server, type);
     }
 
     /**
@@ -178,19 +180,19 @@ public final class Multiplier {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cSomething was wrong when we're getting the multiplier time for " + server);
+            core.log("&cSomething was wrong when we're getting the multiplier time for " + server);
             core.debug("The error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
         return 0L;
     }
 
-    public void useMultiplier(UUID uuid, Integer id, String server, final MultiplierType type) {
+    private boolean useMultiplier(UUID uuid, Integer id, String server, final MultiplierType type) {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
                 if (!isEnabled()) {
-                    res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE id = " + id + " AND uuid = '" + uuid + "';").executeQuery();
+                    res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE id = " + id + " AND uuid = '" + uuid + "' AND SERVER = '" + server + "';").executeQuery();
                     if (res.next()) {
                         Long minutes = res.getLong("minutes");
                         Long endtime = System.currentTimeMillis() + (minutes * 60000);
@@ -203,8 +205,9 @@ public final class Multiplier {
                             default:
                                 break;
                         }
-                        c.prepareStatement("UPDATE " + prefix + "Multipliers SET endtime = " + endtime + ", enabled = true, server = '" + server + "' WHERE id = " + id + ";").executeUpdate();
+                        c.prepareStatement("UPDATE " + prefix + "Multipliers SET endtime = " + endtime + ", enabled = true WHERE id = " + id + ";").executeUpdate();
                         amount = getAmount(server);
+                        return true;
                     }
                 }
             } finally {
@@ -214,10 +217,11 @@ public final class Multiplier {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cSomething was wrong when creating a multiplier for " + core.getNick(uuid));
+            core.log("&cSomething was wrong when creating a multiplier for " + core.getNick(uuid));
             core.debug("The error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
+        return false;
     }
 
     private Set<Integer> getMultipliersFor(UUID uuid, String server) {
@@ -240,7 +244,7 @@ public final class Multiplier {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cSomething was wrong when getting the multipliers for " + core.getNick(uuid));
+            core.log("&cSomething was wrong when getting the multipliers for " + core.getNick(uuid));
             core.debug("The error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
@@ -262,7 +266,7 @@ public final class Multiplier {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cSomething was wrong where getting the enabler for " + server);
+            core.log("&cSomething was wrong where getting the enabler for " + server);
             core.debug("The error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
@@ -284,7 +288,7 @@ public final class Multiplier {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cSomething was wrong where getting if the server " + server + " has a multiplier enabled.");
+            core.log("&cSomething was wrong where getting if the server " + server + " has a multiplier enabled.");
             core.debug("The error code is: " + ex.getErrorCode());
             core.debug(ex);
         }
@@ -306,10 +310,30 @@ public final class Multiplier {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.getMethods().log("&cSomething was wrong where getting the multiplier amount for " + server);
+            core.log("&cSomething was wrong where getting the multiplier amount for " + server);
             core.debug("The error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
         return 1;
+    }
+
+    public MultiplierData getByID(int id) {
+        try (Connection c = getConnection()) {
+            ResultSet res = null;
+            try {
+                res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE id = " + id + ";").executeQuery();
+                return new MultiplierDataBuilder(res.getString("server"), core.getNick(UUID.fromString(res.getString("uuid"))), res.getInt("amount"), res.getBoolean("enabled")).create();
+            } finally {
+                if (res != null) {
+                    res.close();
+                }
+                c.close();
+            }
+        } catch (SQLException ex) {
+            core.log("&cSomething was wrong generating the data for the multiplier with the id: '" + id + "'");
+            core.debug("The error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+        return null;
     }
 }
