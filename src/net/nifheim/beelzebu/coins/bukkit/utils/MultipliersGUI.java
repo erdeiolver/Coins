@@ -23,6 +23,7 @@ import java.util.List;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.utils.gui.BaseGUI;
 import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.core.multiplier.MultiplierType;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -58,6 +59,7 @@ public class MultipliersGUI extends BaseGUI {
                 meta.setLore(lore);
                 item.setItemMeta(meta);
                 setItem(pos, item, player -> {
+                    CoinsAPI.getMultiplier().useMultiplier(j, MultiplierType.SERVER);
                     player.sendMessage("Has usado el multiplicador con id: " + j);
                     player.closeInventory();
                 });

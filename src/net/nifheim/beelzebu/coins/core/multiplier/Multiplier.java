@@ -132,19 +132,6 @@ public final class Multiplier {
     }
 
     /**
-     * Use the multiplier of a player in the server by the multiplier id.
-     *
-     * @param uuid Player that has a multiplier.
-     * @param id The id of the multiplier.
-     * @param type The type of the multiplier.
-     * @return <i>true</i> if the multiplier was enabled and <i>false</i> if
-     * not.
-     */
-    public boolean useMultiplier(UUID uuid, Integer id, MultiplierType type) {
-        return useMultiplier(uuid, id, server, type);
-    }
-
-    /**
      * Get the multipliers of a player in this server.
      * <p>
      * If the server is set to null it shows all the multipliers for this
@@ -188,12 +175,20 @@ public final class Multiplier {
         return 0L;
     }
 
-    private boolean useMultiplier(UUID uuid, Integer id, String server, final MultiplierType type) {
+    /**
+     * Use the multiplier of a player in the server by the multiplier id.
+     *
+     * @param id The id of the multiplier.
+     * @param type The type of the multiplier.
+     * @return <i>true</i> if the multiplier was enabled and <i>false</i> if
+     * not.
+     */
+    public boolean useMultiplier(final Integer id, final MultiplierType type) {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
                 if (!isEnabled()) {
-                    res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE id = " + id + " AND uuid = '" + uuid + "' AND SERVER = '" + server + "';").executeQuery();
+                    res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE id = " + id + ";").executeQuery();
                     if (res.next()) {
                         Long minutes = res.getLong("minutes");
                         Long endtime = System.currentTimeMillis() + (minutes * 60000);
@@ -218,7 +213,7 @@ public final class Multiplier {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.log("&cSomething was wrong when creating a multiplier for " + core.getNick(uuid));
+            core.log("&cSomething was wrong when using a multiplier with the id: '" + id + "'");
             core.debug("The error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }

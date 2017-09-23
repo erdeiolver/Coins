@@ -334,7 +334,7 @@ public class CoinsCommand extends BukkitCommand {
             if (args.length >= 2 && args[1].equalsIgnoreCase("use") && sender instanceof Player) {
                 if (args.length == 3) {
                     if (CoinsAPI.getMultiplier().getAmount() <= 1) {
-                        CoinsAPI.getMultiplier().useMultiplier(((Player) sender).getUniqueId(), Integer.parseInt(args[2]), MultiplierType.SERVER);
+                        CoinsAPI.getMultiplier().useMultiplier(Integer.parseInt(args[2]), MultiplierType.SERVER);
                     } else {
                         sender.sendMessage(core.getString("Multipliers.Already active", lang));
                     }
