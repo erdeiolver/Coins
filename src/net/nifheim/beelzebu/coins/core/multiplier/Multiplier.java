@@ -137,7 +137,8 @@ public final class Multiplier {
      * @param uuid Player that has a multiplier.
      * @param id The id of the multiplier.
      * @param type The type of the multiplier.
-     * @return <i>true</i> if the multiplier was enabled and <i>false</i> if not.
+     * @return <i>true</i> if the multiplier was enabled and <i>false</i> if
+     * not.
      */
     public boolean useMultiplier(UUID uuid, Integer id, MultiplierType type) {
         return useMultiplier(uuid, id, server, type);
@@ -322,7 +323,9 @@ public final class Multiplier {
             ResultSet res = null;
             try {
                 res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE id = " + id + ";").executeQuery();
-                return new MultiplierDataBuilder(res.getString("server"), core.getNick(UUID.fromString(res.getString("uuid"))), res.getInt("amount"), res.getBoolean("enabled")).create();
+                if (res.next()) {
+                    return new MultiplierDataBuilder(res.getString("server"), core.getNick(UUID.fromString(res.getString("uuid"))), res.getInt("amount"), res.getBoolean("enabled")).create();
+                }
             } finally {
                 if (res != null) {
                     res.close();
