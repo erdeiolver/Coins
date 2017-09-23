@@ -18,8 +18,9 @@
  */
 package net.nifheim.beelzebu.coins.bukkit.utils;
 
+import com.google.common.collect.Lists;
+import java.util.List;
 import net.nifheim.beelzebu.coins.CoinsAPI;
-import net.nifheim.beelzebu.coins.core.multiplier.MultiplierType;
 import net.nifheim.beelzebu.coins.bukkit.utils.gui.BaseGUI;
 import net.nifheim.beelzebu.coins.core.Core;
 import org.bukkit.Material;
@@ -51,10 +52,14 @@ public class MultipliersGUI extends BaseGUI {
                 ItemStack item = new ItemStack(Material.NETHER_STAR);
                 ItemMeta meta = item.getItemMeta();
                 meta.setDisplayName("" + j);
+                List<String> lore = Lists.newArrayList();
+                lore.add("Amount: " + CoinsAPI.getMultiplier().getByID(j).getAmount());
+                lore.add("Server: " + CoinsAPI.getMultiplier().getByID(j).getServer());
+                meta.setLore(lore);
                 item.setItemMeta(meta);
                 setItem(pos, item, player -> {
-                    CoinsAPI.getMultiplier().useMultiplier(player.getUniqueId(), j, MultiplierType.SERVER);
                     player.sendMessage("Has usado el multiplicador con id: " + j);
+                    player.closeInventory();
                 });
             }
         }
