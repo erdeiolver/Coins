@@ -18,6 +18,7 @@
  */
 package net.nifheim.beelzebu.coins.bukkit.listener;
 
+import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
 import org.bukkit.Bukkit;
@@ -47,5 +48,8 @@ public class PlayerJoinListener implements Listener {
             }, 30);
             first = false;
         }
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            CoinsAPI.createPlayer(e.getPlayer().getName(), e.getPlayer().getUniqueId());
+        });
     }
 }
