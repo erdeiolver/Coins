@@ -28,12 +28,14 @@ public class MultiplierData {
     private final String enabler;
     private final boolean enabled;
     private final int amount;
+    private final int minutes;
 
-    MultiplierData(String server, String enabler, boolean enabled, int amount) {
+    MultiplierData(String server, String enabler, boolean enabled, int amount, int minutes) {
         this.server = server;
         this.enabler = enabler;
         this.enabled = enabled;
         this.amount = amount;
+        this.minutes = minutes;
     }
     
     public String getServer() {
@@ -50,5 +52,9 @@ public class MultiplierData {
     
     public int getAmount() {
         return amount;
+    }
+    
+    public int getMinutes() {
+        return minutes;
     }
 }

@@ -319,7 +319,7 @@ public final class Multiplier {
             try {
                 res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE id = " + id + ";").executeQuery();
                 if (res.next()) {
-                    return new MultiplierDataBuilder(res.getString("server"), core.getNick(UUID.fromString(res.getString("uuid"))), res.getInt("multiplier"), res.getBoolean("enabled")).create();
+                    return new MultiplierDataBuilder(res.getString("server"), core.getNick(UUID.fromString(res.getString("uuid"))), res.getInt("multiplier"), res.getBoolean("enabled"), res.getInt("minutes")).create();
                 }
             } finally {
                 if (res != null) {
