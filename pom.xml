@@ -31,6 +31,10 @@
             <id>vault-repo</id>
             <url>http://nexus.hc.to/content/repositories/pub_releases</url>
         </repository>
+	<repository>
+	    <id>md_5-snapshots</id>
+	    <url>http://repo.md-5.net/content/repositories/snapshots/</url>
+	</repository>
     </repositories>
     <dependencies>
         <dependency>
@@ -65,7 +69,7 @@
         <dependency>
             <groupId>com.imaginarycode.minecraft</groupId>
             <artifactId>RedisBungee</artifactId>
-            <version>0.4</version>
+            <version>0.3.6-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
