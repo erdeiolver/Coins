@@ -43,7 +43,7 @@ public class Multipliers extends EZPlaceholderHook {
         }
         String[] server = coins.split("_");
         if (coins.startsWith("enabler_")) {
-            return CoinsAPI.getMultiplier(server[1]).getEnabler() != null ? core.getString("Multipliers.Placeholders.Enabler.Message", p.spigot().getLocale()).replaceAll("%enabler%", CoinsAPI.getMultiplier(server[1]).getEnabler()) : core.getString("Multipliers.Placeholders.Enabler.Anyone", p.spigot().getLocale());
+            return CoinsAPI.getMultiplier(server[1]).getEnabler() != null ? core.getString("Multipliers.Placeholders.Enabler.Anyone", p.spigot().getLocale()).replaceAll("%enabler%", CoinsAPI.getMultiplier(server[1]).getEnabler()) : core.getString("Multipliers.Placeholders.Enabler.Message", p.spigot().getLocale());
         }
         if (coins.startsWith("amount_")) {
             return String.valueOf(CoinsAPI.getMultiplier(server[1]).getAmount());

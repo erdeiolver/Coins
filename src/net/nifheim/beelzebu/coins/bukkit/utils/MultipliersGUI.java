@@ -54,12 +54,14 @@ public class MultipliersGUI extends BaseGUI {
                 ItemStack item = new ItemStack(Material.POTION);
                 ItemMeta meta = item.getItemMeta();
                 meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
-                meta.setDisplayName("" + j);
+                meta.setDisplayName(core.rep("&7Multiplicador &6x" + CoinsAPI.getMultiplier().getByID(j).getAmount()));
                 List<String> lore = Lists.newArrayList();
                 lore.add("");
-                lore.add("&7Cantidad: &c" + CoinsAPI.getMultiplier().getByID(j).getAmount());
-                lore.add("&7Servidor: &c" + CoinsAPI.getMultiplier().getByID(j).getServer());
-                lore.add("&7Minutos: &c" + CoinsAPI.getMultiplier().getByID(j).getMinutes());
+                lore.add(core.rep("&7Cantidad: &c" + CoinsAPI.getMultiplier().getByID(j).getAmount()));
+                lore.add(core.rep("&7Servidor: &c" + CoinsAPI.getMultiplier().getByID(j).getServer()));
+		lore.add(core.rep("&7Minutos: &c" + CoinsAPI.getMultiplier().getByID(j).getMinutes()));
+		lore.add("");
+		lore.add(core.rep("&7Id: &c#" + j));
                 meta.setLore(lore);
                 item.setItemMeta(meta);
                 setItem(pos, item, player -> {

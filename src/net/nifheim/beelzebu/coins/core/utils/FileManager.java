@@ -200,7 +200,7 @@ public class FileManager {
                 int index = lines.indexOf("  Multiplier:") - 1;
                 lines.add(index, "  Multiplier Create: '%prefix% &cPlease use &f/coins multiplier create <name> <amount> <minutes>'");
                 index = lines.indexOf("Multipliers:");
-                lines.addAll(index, Arrays.asList(
+                lines.addAll(index + 1, Arrays.asList(
                         "  Menu:",
                         "    Title: '&6Multipliers GUI'",
                         "  Placeholders:",
@@ -216,6 +216,14 @@ public class FileManager {
                 lines.set(index, "version: 6");
                 core.log("Updates messages.yml file to v6");
             }
+	    if (core.getMessages("").getInt("version") == 6) {
+		int index = lines.indexOf("version: 6");
+		lines.set(index, "version: 7");
+		index = lines.indexOf("Multipliers:");
+		lines.remove(index);
+		index = lines.indexOf("  Menu:");
+		lines.add(index, "Multipliers:");
+	    }
             FileUtils.writeLines(messagesFile, lines);
         } catch (IOException ex) {
             core.getMethods().log("An unexpected error occurred while updating the messages.yml file.");
@@ -227,7 +235,7 @@ public class FileManager {
                 int index = lines.indexOf("  Multiplier:") - 1;
                 lines.add(index, "  Multiplier Create: '%prefix% &cPor favor usa &f/coins multiplier create <nombre> <cantidad> <minutos>'");
                 index = lines.indexOf("Multipliers:");
-                lines.addAll(index, Arrays.asList(
+                lines.addAll(index + 1, Arrays.asList(
                         "  Menu:",
                         "    Title: '&6Menú de multiplicadores'",
                         "  Placeholders:",
@@ -243,6 +251,14 @@ public class FileManager {
                 lines.set(index, "version: 6");
                 core.log("Updated messages_es.yml file to v6");
             }
+	    if (core.getMessages("es").getInt("version") == 6) {
+		int index = lines.indexOf("version: 6");
+		lines.set(index, "version: 7");
+		index =lines.indexOf("Multipliers:");
+		lines.remove(index);
+		index =lines.indexOf("  Menu:");
+		lines.add(index, "Multipliers:");
+	    }
             FileUtils.writeLines(new File(core.getDataFolder(), "messages_es.yml"), lines);
         } catch (IOException ex) {
             core.getMethods().log("An unexpected error occurred while updating the messages_es.yml file.");
