@@ -18,15 +18,14 @@
  */
 package net.nifheim.beelzebu.coins.bungee;
 
+import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
-
 import net.nifheim.beelzebu.coins.bungee.listener.PluginMessageListener;
+import net.nifheim.beelzebu.coins.bungee.listener.PubSubMessageListener;
 import net.nifheim.beelzebu.coins.bungee.utils.Configuration;
-
 import net.nifheim.beelzebu.coins.core.Core;
-import net.nifheim.beelzebu.coins.core.executor.ExecutorManager;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 import net.nifheim.beelzebu.coins.core.utils.IMethods;
 
@@ -37,6 +36,7 @@ import net.nifheim.beelzebu.coins.core.utils.IMethods;
 public class Main extends Plugin {
 
     private static Main instance;
+    private final Core core = Core.getInstance();
     private IConfiguration config;
     private IMethods methods = new BungeeMethods();
 
@@ -49,19 +49,23 @@ public class Main extends Plugin {
         instance = this;
         methods = new BungeeMethods();
         config = new Configuration();
-        Core.getInstance().setup(methods);
-        ProxyServer.getInstance().getPluginManager().registerListener(this, new PluginMessageListener());
-        ProxyServer.getInstance().registerChannel("Coins");
+        core.setup(methods);
+        if (ProxyServer.getInstance().getPluginManager().getPlugin("RedisBungee") != null) {
+            ProxyServer.getInstance().getPluginManager().registerListener(this, new PubSubMessageListener());
+            RedisBungee.getApi().registerPubSubChannels("Coins", "Update");
+        } else {
+            ProxyServer.getInstance().getPluginManager().registerListener(this, new PluginMessageListener());
+            ProxyServer.getInstance().registerChannel("Coins");
+        }
+    }
+
+    @Override
+    public void onDisable() {
+        core.shutdown();
     }
 
     public void execute(String executorid, ProxiedPlayer p) {
-        ExecutorManager ex = new ExecutorManager();
-        if (ex.getExecutor(executorid) != null) {
-            /*
-            if (CoinsAPI.getCoins(p.getName()) >= ex.getExecutor(executorid).getCost()) {
-            }
-             */
-        }
+        // TODO: finish command executors for bungeecord and command cost
     }
 
     public IConfiguration getConfiguration() {

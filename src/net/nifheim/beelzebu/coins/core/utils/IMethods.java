@@ -50,4 +50,6 @@ public interface IMethods {
     File getDataFolder();
     
     InputStream getResource(String filename);
+    
+    String getVersion();
 }

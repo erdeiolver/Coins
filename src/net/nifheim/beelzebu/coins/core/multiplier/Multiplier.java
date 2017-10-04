@@ -313,13 +313,44 @@ public final class Multiplier {
         return 1;
     }
 
+    private static class Builder {
+        private final String server;
+        private final String enabler;
+        private int amount = 1;
+        private boolean enabled = false;
+        private int minutes = 0;
+
+        public Builder(String server, String enabler) {
+            this(server, enabler, 1);
+        }
+
+        public Builder(String server, String enabler, int amount) {
+            this(server, enabler, amount, false);
+        }
+
+        public Builder(String server, String enabler, int amount, boolean enabled) {
+            this(server, enabler, amount, false, 0);
+        }
+
+        public Builder(String server, String enabler, int amount, boolean enabled, int minutes) {
+            this.server = server;
+            this.enabler = enabler;
+            this.amount = amount;
+            this.enabled = enabled;
+            this.minutes = minutes;
+        }
+
+        public MultiplierData create() {
+            return new MultiplierData(server, enabler, enabled, amount, minutes);
+        }
+    }
     public MultiplierData getByID(int id) {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
                 res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE id = " + id + ";").executeQuery();
                 if (res.next()) {
-                    return new MultiplierDataBuilder(res.getString("server"), core.getNick(UUID.fromString(res.getString("uuid"))), res.getInt("multiplier"), res.getBoolean("enabled"), res.getInt("minutes")).create();
+                    return new Builder(res.getString("server"), core.getNick(UUID.fromString(res.getString("uuid"))), res.getInt("multiplier"), res.getBoolean("enabled"), res.getInt("minutes")).create();
                 }
             } finally {
                 if (res != null) {

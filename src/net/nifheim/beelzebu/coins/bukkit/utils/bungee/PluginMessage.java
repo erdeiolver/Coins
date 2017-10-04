@@ -27,7 +27,6 @@ import java.util.List;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.executor.Executor;
-import net.nifheim.beelzebu.coins.core.executor.ExecutorManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -66,7 +65,7 @@ public class PluginMessage implements PluginMessageListener {
                 }
             }
             Executor ex = new Executor(id, cost, commands);
-            if (!ExecutorManager.getExecutors().contains(ex)) {
+            if (Core.getInstance().getExecutorManager().getExecutor(id) == null) {
                 Core.getInstance().getExecutorManager().addExecutor(ex);
                 Core.getInstance().log("The executor " + ex.getID() + " was received from BungeeCord.");
                 Core.getInstance().debug("ID: " + ex.getID());
@@ -76,6 +75,8 @@ public class PluginMessage implements PluginMessageListener {
                     Core.getInstance().debug(command);
                 });
             }
+        } else if (subchannel.equals("Update")) {
+            
         }
     }
 

@@ -62,4 +62,6 @@ public interface Database {
     String getNick(UUID uuid);
     
     UUID getUUID(String nick);
+    
+    void shutdown();
 }

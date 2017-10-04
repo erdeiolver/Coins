@@ -20,7 +20,6 @@ package net.nifheim.beelzebu.coins.core.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -29,7 +28,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.CacheManager;
@@ -560,5 +558,10 @@ public class MySQL implements Database {
             core.debug(ex.getMessage());
         }
         return null;
+    }
+
+    @Override
+    public void shutdown() {
+        ds.close();
     }
 }

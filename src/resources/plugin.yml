@@ -1,5 +1,5 @@
 name: Coins
-softdepend: [PlaceholderAPI]
+softdepend: [PlaceholderAPI, Vault]
 main: net.nifheim.beelzebu.coins.bukkit.Main
 version: ${project.version}
 author: Beelzebu

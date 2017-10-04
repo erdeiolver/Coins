@@ -27,7 +27,6 @@ import java.text.SimpleDateFormat;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.md_5.bungee.api.ChatColor;
 import net.nifheim.beelzebu.coins.core.database.Database;
 import net.nifheim.beelzebu.coins.core.database.MySQL;
@@ -43,6 +42,15 @@ import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
  * @author Beelzebu
  */
 public class Core {
+    
+    /**
+     * TO-DO List:
+     * 
+     * - Add RedisBungee support.
+     * - Update the cache through BC.
+     * - Translate Multipliers GUI.
+     * - Add a DateFormat for the minutes in the Multipliers GUI.
+     */
 
     private static Core instance;
     private IMethods mi;
@@ -61,6 +69,44 @@ public class Core {
         fileUpdater.updateConfig();
         getDatabase();
         executorManager = new ExecutorManager();
+    }
+    
+    public void shutdown() {
+        getDatabase().shutdown();
+        motd(false);
+    }
+    
+    private void motd(boolean enable) {
+        // TODO: make a better startup message, this is ugly
+        if (mi.getVersion().contains("BETA")) {
+            mi.sendMessage(mi.getConsole(), rep(""));
+            mi.sendMessage(mi.getConsole(), rep("    &c+==========================+"));
+            mi.sendMessage(mi.getConsole(), rep("    &c|    &4Coins &fBy: &7Beelzebu&c    |"));
+            mi.sendMessage(mi.getConsole(), rep("    &c|--------------------------|"));
+            mi.sendMessage(mi.getConsole(), rep("    &c|       &4v:&f" + mi.getVersion() + "       &c|"));
+            mi.sendMessage(mi.getConsole(), rep("    &c+==========================+"));
+            mi.sendMessage(mi.getConsole(), rep(""));
+            mi.sendMessage(mi.getConsole(), rep("&cThis is a BETA, please report bugs!"));
+        } else {
+            mi.sendMessage(mi.getConsole(), rep(""));
+            mi.sendMessage(mi.getConsole(), rep("    &c+======================+"));
+            mi.sendMessage(mi.getConsole(), rep("    &c|   &4Coins &fBy: &7Beelzebu&c   |"));
+            mi.sendMessage(mi.getConsole(), rep("    &c|----------------------|"));
+            mi.sendMessage(mi.getConsole(), rep("    &c|       &4v:&f" + mi.getVersion() + "        &c|"));
+            mi.sendMessage(mi.getConsole(), rep("    &c+====================+"));
+            mi.sendMessage(mi.getConsole(), rep(""));
+        }
+        // Only send this in the onEnable
+        if (enable) {
+            if (getConfig().getBoolean("Debug", false)) {
+                log("Debug mode is enabled.");
+            }
+            if (isMySQL()) {
+                log("Enabled to use MySQL.");
+            } else {
+                log("Enabled to use SQLite.");
+            }
+        }
     }
 
     public IMethods getMethods() {
@@ -143,7 +189,7 @@ public class Core {
 
     public String getString(String path, String lang) {
         try {
-            return rep(getMessages(lang).getString(path));
+            return rep(getMessages(lang.split("_")[0]).getString(path));
         } catch (NullPointerException ex) {
             mi.log("The string " + path + " does not exists in the messages" + lang + ".yml file, please add this manually.");
             mi.log("If you belive that this is an error please contact to the developer.");

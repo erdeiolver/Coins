@@ -390,4 +390,9 @@ public class SQLite implements Database {
         }
         return null;
     }
+
+    @Override
+    public void shutdown() {
+        // nothing (?)
+    }
 }

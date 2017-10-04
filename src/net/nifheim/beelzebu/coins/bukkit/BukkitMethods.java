@@ -23,11 +23,11 @@ import java.io.InputStream;
 import net.nifheim.beelzebu.coins.bukkit.utils.Messages;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
+import net.nifheim.beelzebu.coins.core.utils.IMethods;
 import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
-import net.nifheim.beelzebu.coins.core.utils.IMethods;
 
 /**
  *
@@ -96,5 +96,10 @@ public class BukkitMethods implements IMethods {
     @Override
     public InputStream getResource(String file) {
         return plugin.getResource(file);
+    }
+
+    @Override
+    public String getVersion() {
+        return plugin.getDescription().getVersion();
     }
 }

@@ -16,34 +16,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins.core.executor;
+package net.nifheim.beelzebu.coins.bungee.listener;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import com.imaginarycode.minecraft.redisbungee.events.PubSubMessageEvent;
+import net.md_5.bungee.api.plugin.Listener;
+import org.bukkit.event.EventHandler;
 
 /**
  *
  * @author Beelzebu
  */
-public class ExecutorManager {
-
-    private final Set<Executor> executors = Collections.synchronizedSet(new HashSet<>());
-
-    public void addExecutor(Executor ex) {
-        executors.add(ex);
-    }
-
-    public Set<Executor> getExecutors() {
-        return executors;
-    }
-
-    public Executor getExecutor(String id) {
-        for (Executor ex : executors) {
-            if (ex.getID().equals(id)) {
-                return ex;
-            }
+public class PubSubMessageListener implements Listener {
+    
+    @EventHandler
+    public void onPubSubMessage(PubSubMessageEvent e) {
+        if (e.getChannel().equals("Coins")) {
+            
         }
-        return null;
     }
 }

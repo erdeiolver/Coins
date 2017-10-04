@@ -21,17 +21,15 @@ package net.nifheim.beelzebu.coins.bungee;
 import java.io.File;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
-
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
-
 import net.nifheim.beelzebu.coins.bungee.utils.Messages;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
-import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
 import net.nifheim.beelzebu.coins.core.utils.IMethods;
+import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
 
 /**
  *
@@ -100,5 +98,10 @@ public class BungeeMethods implements IMethods {
     @Override
     public InputStream getResource(String file) {
         return plugin.getResourceAsStream(file);
+    }
+
+    @Override
+    public String getVersion() {
+        return plugin.getDescription().getVersion();
     }
 }

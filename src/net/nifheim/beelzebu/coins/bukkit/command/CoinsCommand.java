@@ -19,15 +19,13 @@
 package net.nifheim.beelzebu.coins.bukkit.command;
 
 import java.util.List;
-
+import net.milkbowl.vault.permission.Permission;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.utils.MultipliersGUI;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.executor.Executor;
-import net.nifheim.beelzebu.coins.core.multiplier.MultiplierType;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 import net.nifheim.beelzebu.coins.core.utils.IMethods;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -57,37 +55,34 @@ public class CoinsCommand extends BukkitCommand {
     public boolean execute(CommandSender sender, String alias, String[] args) {
         im.runAsync(() -> {
             if (sender instanceof Player) {
-                lang = "_" + ((Player) sender).spigot().getLocale().split("_")[0];
+                lang = ((Player) sender).spigot().getLocale().split("_")[0];
             }
-            if (args.length < 1) {
+            if (args.length == 0) {
                 if (sender instanceof Player) {
-                    String coins = CoinsAPI.getCoinsString(sender.getName());
-                    sender.sendMessage(core.rep(core.getString("Coins.Own coins", "_" + ((Player) sender).spigot().getLocale().split("_")[0]).replaceAll("%coins%", coins)));
+                    sender.sendMessage(core.rep(core.getString("Coins.Own coins", lang).replaceAll("%coins%", CoinsAPI.getCoinsString(sender.getName()))));
                 } else if (sender instanceof ConsoleCommandSender) {
                     sender.sendMessage(core.rep(core.getString("Errors.Console", "")));
                 }
             } else if (args[0].equalsIgnoreCase("execute")) {
-                _execute(sender, args);
+                execute(sender, args);
             } else if ((args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("ayuda")) && args.length == 1) {
-                _help(sender, args);
+                help(sender, args);
             } else if ((args[0].equalsIgnoreCase("pay") || args[0].equalsIgnoreCase("p") || args[0].equalsIgnoreCase("pagar"))) {
-                _pay(sender, args);
+                pay(sender, args);
             } else if ((args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("dar"))) {
-                _give(sender, args);
+                give(sender, args);
             } else if ((args[0].equalsIgnoreCase("take") || args[0].equalsIgnoreCase("quitar"))) {
-                _take(sender, args);
+                take(sender, args);
             } else if ((args[0].equalsIgnoreCase("reset"))) {
-                _reset(sender, args);
+                reset(sender, args);
             } else if ((args[0].equalsIgnoreCase("set"))) {
-                _set(sender, args);
-            } else if (args[0].equalsIgnoreCase("multiplier")) {
-                _multiplier(sender, args);
+                set(sender, args);
+            } else if (args[0].equalsIgnoreCase("multiplier") || args[0].equalsIgnoreCase("multipliers")) {
+                multiplier(sender, args);
             } else if (args[0].equalsIgnoreCase("top") && args.length == 1) {
-                _top(sender, args);
-            } else if (args.length == 1) {
-                if (CoinsAPI.isindb(args[0])) {
-                    _target(sender, args);
-                }
+                top(sender, args);
+            } else if (args.length == 1 && CoinsAPI.isindb(args[0])) {
+                target(sender, args);
             } else {
                 sender.sendMessage(core.rep(core.getString("Errors.Unknow command", lang)));
             }
@@ -95,11 +90,11 @@ public class CoinsCommand extends BukkitCommand {
         return true;
     }
 
-    public boolean _help(CommandSender sender, String[] args) {
+    public boolean help(CommandSender sender, String[] args) {
         core.getMessages(lang).getStringList("Help.User").forEach((str) -> {
             sender.sendMessage(core.rep(str));
         });
-        if (sender.hasPermission("nifheim.admin")) {
+        if (sender.hasPermission("coins.admin")) {
             core.getMessages(lang).getStringList("Help.Admin").forEach((str) -> {
                 sender.sendMessage(core.rep(str));
             });
@@ -107,13 +102,12 @@ public class CoinsCommand extends BukkitCommand {
         return true;
     }
 
-    public boolean _target(CommandSender sender, String[] args) {
-        String coins = CoinsAPI.getCoinsString(args[0]);
-        sender.sendMessage(core.rep(core.getString("Coins.Get", lang).replaceAll("%coins%", coins).replaceAll("%target%", args[0])));
+    public boolean target(CommandSender sender, String[] args) {
+        sender.sendMessage(core.rep(core.getString("Coins.Get", lang).replaceAll("%coins%", CoinsAPI.getCoinsString(args[0])).replaceAll("%target%", args[0])));
         return true;
     }
 
-    public boolean _pay(CommandSender sender, String[] args) {
+    public boolean pay(CommandSender sender, String[] args) {
         if (args.length < 3 || args[1].equalsIgnoreCase("?")) {
             sender.sendMessage(core.rep(core.getString("Help.Pay Usage", lang)));
             return true;
@@ -129,7 +123,7 @@ public class CoinsCommand extends BukkitCommand {
                                 CoinsAPI.takeCoins(sender.getName(), coins);
                                 sender.sendMessage(core.rep(core.getString("Coins.Pay", lang)).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%target%", target.getName()));
                                 CoinsAPI.addCoins(args[1], coins, false);
-                                target.sendMessage(core.rep(core.getString("Coins.Pay target", lang)).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%from%", sender.getName()));
+                                target.sendMessage(core.getString("Coins.Pay target", target.spigot().getLocale()).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%from%", sender.getName()));
                             } else {
                                 sender.sendMessage(core.rep(core.getString("Errors.Unknow Player", lang)));
                             }
@@ -149,67 +143,55 @@ public class CoinsCommand extends BukkitCommand {
         return true;
     }
 
-    public boolean _give(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("nifheim.admin")) {
+    public boolean give(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("coins.admin")) {
             sender.sendMessage(core.rep(core.getString("Errors.No permissions", lang)));
             return true;
         }
+        if (!CoinsAPI.isindb(args[1])) {
+            sender.sendMessage(core.rep(core.getString("Errors.Unknow player", lang).replaceAll("%target%", args[1])));
+            return true;
+        }
+        Player target = Bukkit.getPlayer(core.getUUID(args[1]));
         String multiplier = "";
         boolean multiply = false;
-        if (args.length == 4 && args[3] != null && args[3].equalsIgnoreCase("true")) {
-            int amount = CoinsAPI.getMultiplier().getAmount();
-            if (amount > 1) {
-                multiplier = core.rep(core.getString("Multipliers.Format", lang).replaceAll("%multiplier%", String.valueOf(amount)).replaceAll("%enabler%", CoinsAPI.getMultiplier().getEnabler()));
-            }
-            multiply = true;
-        }
         if (args.length == 3 || args.length == 4) {
-            if (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("dar")) {
-                double coins = Double.parseDouble(args[2]);
-                if (args[1] == null) {
-                    if (CoinsAPI.isindb(args[1])) {
-                        CoinsAPI.addCoins(args[1], coins, false);
-                        sender.sendMessage(core.rep(core.getString("Coins.Give", lang).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%target%", args[1])));
-                    }
-                    sender.sendMessage(core.rep(core.getString("Errors.Unknow player", lang).replaceAll("%target%", args[1])));
-                } else {
-                    Player target = Bukkit.getPlayer(args[1]);
-                    if (multiply) {
-                        if (target.hasPermission("coins.multiplier.x4")
-                                || target.hasPermission("nifheim.vip.king")) {
-                            coins = coins * 4;
-                            CoinsAPI.addCoins(args[1], coins, multiply);
-                            target.sendMessage(core.rep(core.getString("Coins.Give target", lang).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%multiplier_format%", multiplier)));
-                        } else if (target.hasPermission("coins.multiplier.x3")
-                                || target.hasPermission("nifheim.vip.lord")
-                                || target.hasPermission("nifheim.vip.sir")) {
-                            coins = coins * 3;
-                            CoinsAPI.addCoins(args[1], coins, multiply);
-                            target.sendMessage(core.rep(core.getString("Coins.Give target", lang).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%multiplier_format%", multiplier)));
-                        } else if (target.hasPermission("coins.multiplier.x2")
-                                || target.hasPermission("nifheim.vip.earl")
-                                || target.hasPermission("nifheim.vip.marques")) {
-                            coins = coins * 2;
-                            CoinsAPI.addCoins(args[1], coins, multiply);
-                            target.sendMessage(core.rep(core.getString("Coins.Give target", lang).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%multiplier_format%", multiplier)));
-                        } else {
-                            CoinsAPI.addCoins(args[1], coins, multiply);
-                            target.sendMessage(core.rep(core.getString("Coins.Give target", lang).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%multiplier_format%", multiplier)));
+            double coins = Double.parseDouble(args[2]);
+            if (args.length == 4 && target != null && args[3] != null && args[3].equalsIgnoreCase("true")) {
+                int amount = CoinsAPI.getMultiplier().getAmount();
+                if (amount > 1) {
+                    multiplier = core.rep(core.getString("Multipliers.Format", target.spigot().getLocale()).replaceAll("%multiplier%", String.valueOf(amount)).replaceAll("%enabler%", CoinsAPI.getMultiplier().getEnabler()));
+                }
+                for (int i = 2; i < 100; i++) {
+                    try {
+                        Permission perm = Bukkit.getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class).getProvider();
+                        if (perm.has(target, "coins.multiplier.x" + i)) {
+                            coins *= i;
+                            break;
                         }
-                    } else {
-                        CoinsAPI.addCoins(args[1], coins, multiply);
-                        target.sendMessage(core.rep(core.getString("Coins.Give target", lang).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%multiplier_format%", multiplier)));
+                    } catch (Exception ex) {
+                        if (target.hasPermission("coins.multiplier.x" + i)) {
+                            coins *= i;
+                            break;
+                        }
                     }
                 }
+                coins *= amount;
+                multiply = true;
             }
+            CoinsAPI.addCoins(args[1], coins, multiply);
+            if (target != null) {
+                target.sendMessage(core.getString("Coins.Give target", target.spigot().getLocale()).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%multiplier_format%", multiplier));
+            }
+            sender.sendMessage(core.rep(core.getString("Coins.Give", lang).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%target%", args[1])));
         } else {
             sender.sendMessage(core.rep(core.getString("Errors.Unknow command", lang)));
         }
         return true;
     }
 
-    public boolean _take(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("nifheim.admin")) {
+    public boolean take(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("coins.admin")) {
             sender.sendMessage(core.rep(core.getString("Errors.No permissions", lang)));
             return true;
         }
@@ -235,7 +217,7 @@ public class CoinsCommand extends BukkitCommand {
                     if (CoinsAPI.getCoins(args[1]) >= coins) {
                         CoinsAPI.takeCoins(args[1], coins);
                         sender.sendMessage(core.rep(core.getString("Coins.Take", lang).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%target%", target.getName()).replaceAll("%newcoins%", String.valueOf(finalcoins))));
-                        target.sendMessage(core.rep(core.getString("Coins.Take target", lang).replaceAll("%coins%", String.valueOf(finalcoins))));
+                        target.sendMessage(core.getString("Coins.Take target", target.spigot().getLocale()).replaceAll("%coins%", String.valueOf(finalcoins)));
                     }
                 }
             }
@@ -243,8 +225,8 @@ public class CoinsCommand extends BukkitCommand {
         return true;
     }
 
-    public boolean _reset(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("nifheim.admin")) {
+    public boolean reset(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("coins.admin")) {
             sender.sendMessage(core.rep(core.getString("Errors.No permissions", lang)));
             return true;
         }
@@ -263,13 +245,13 @@ public class CoinsCommand extends BukkitCommand {
         } else if (target.isOnline()) {
             CoinsAPI.resetCoins(args[1]);
             sender.sendMessage(core.rep(core.getString("Coins.Reset", lang).replaceAll("%target%", target.getName())));
-            target.sendMessage(core.rep(core.getString("Coins.Reset target", lang)));
+            target.sendMessage(core.getString("Coins.Reset target", target.spigot().getLocale()));
         }
         return true;
     }
 
-    public boolean _set(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("nifheim.admin")) {
+    public boolean set(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("coins.admin")) {
             sender.sendMessage(core.rep(core.getString("Errors.No permissions", lang)));
             return true;
         }
@@ -287,14 +269,14 @@ public class CoinsCommand extends BukkitCommand {
                 } else if (target.isOnline()) {
                     CoinsAPI.setCoins(args[1], coins);
                     sender.sendMessage(core.rep(core.getString("Coins.Set", lang).replaceAll("%target%", target.getName()).replaceAll("%coins%", String.valueOf(coins))));
-                    target.sendMessage(core.rep(core.getString("Coins.Set target", lang).replaceAll("%coins%", args[2])));
+                    target.sendMessage(core.getString("Coins.Set target", target.spigot().getLocale()).replaceAll("%coins%", args[2]));
                 }
             }
         }
         return true;
     }
 
-    public boolean _top(CommandSender sender, String[] args) {
+    public boolean top(CommandSender sender, String[] args) {
         sender.sendMessage(core.rep(core.getString("Coins.Top.Header", lang)));
         List<String> top = CoinsAPI.getTop(10);
         int i = 0;
@@ -312,50 +294,45 @@ public class CoinsCommand extends BukkitCommand {
         return true;
     }
 
-    private boolean _multiplier(CommandSender sender, String[] args) {
-        // TODO: finish this
-        // TODO: messages
-        // 0(multiplier) 1(use|set|create) 2(id|player|amount) 3(multiplier)
-        if (sender.hasPermission("nifheim.admin")) {
-            core.getMethods().log("tienes permisos");
-            core.getMethods().log(args.length);
-            if (args.length >= 3 && args[1].equalsIgnoreCase("create")) {
-                if (CoinsAPI.isindb(args[2])) {
-                    try {
-                        int multiplier = Integer.parseInt(args[3]);
-                        int minutes = Integer.parseInt(args[4]);
-                        CoinsAPI.getMultiplier().createMultiplier(Bukkit.getPlayer(args[2]).getUniqueId(), multiplier, minutes);
-                        sender.sendMessage(core.getString("Multipliers.Created", lang).replaceAll("%player%", Bukkit.getPlayer(args[2]).getName()));
-                    } catch (NumberFormatException e) {
-                        sender.sendMessage(core.rep(String.valueOf(e.getCause().getMessage())));
-                    }
+    private boolean multiplier(CommandSender sender, String[] args) {
+        if (sender.hasPermission("coins.admin")) {
+            if (args.length >= 2) {
+                if (args[1].equalsIgnoreCase("help")) {
+                    sender.sendMessage(core.getString("Help.Multiplier", lang));
                 }
-            }
-            if (args.length >= 2 && args[1].equalsIgnoreCase("use") && sender instanceof Player) {
-                if (args.length == 3) {
-                    if (CoinsAPI.getMultiplier().getAmount() <= 1) {
-                        CoinsAPI.getMultiplier().useMultiplier(Integer.parseInt(args[2]), MultiplierType.SERVER);
+                if (args[1].equalsIgnoreCase("create")) {
+                    if (args.length == 5 && CoinsAPI.isindb(args[2])) {
+                        try {
+                            int multiplier = Integer.parseInt(args[3]);
+                            int minutes = Integer.parseInt(args[4]);
+                            CoinsAPI.getMultiplier().createMultiplier(Bukkit.getPlayer(args[2]).getUniqueId(), multiplier, minutes);
+                            sender.sendMessage(core.getString("Multipliers.Created", lang).replaceAll("%player%", Bukkit.getPlayer(args[2]).getName()));
+                        } catch (NumberFormatException e) {
+                            sender.sendMessage(core.rep(String.valueOf(e.getCause().getMessage())));
+                        }
                     } else {
-                        sender.sendMessage(core.getString("Multipliers.Already active", lang));
+                        sender.sendMessage(core.getString("Help.Multiplier Create", lang));
                     }
-                } else {
-                    CoinsAPI.getMultiplier().getMultipliersFor(((Player) sender).getUniqueId()).forEach((i) -> {
-                        sender.sendMessage("" + i);
-                    });
                 }
+                if (args[1].equalsIgnoreCase("get")) {
+                    sender.sendMessage(CoinsAPI.getMultiplier().getMultiplierTimeFormated());
+                }
+                return true;
             }
-            if (args.length == 2 && args[1].equalsIgnoreCase("get")) {
-                sender.sendMessage(CoinsAPI.getMultiplier().getMultiplierTimeFormated());
+        }
+        if (args.length == 1) {
+            if (sender instanceof Player) {
+                new MultipliersGUI((Player) sender, core.getString("Multipliers.Menu.Title", lang)).open((Player) sender);
+            } else {
+                sender.sendMessage(core.getString("Errors.Console", lang));
             }
-            if (args.length == 1 && sender instanceof Player) {
-                core.getMethods().log("abriendo menú");
-                new MultipliersGUI((Player) sender, "Menú de multiplicadores").open((Player) sender);
-            }
+        } else {
+            sender.sendMessage(core.getString("Help.Multiplier Usage", lang));
         }
         return true;
     }
 
-    private boolean _execute(CommandSender sender, String[] args) {
+    private boolean execute(CommandSender sender, String[] args) {
         if (sender instanceof Player) {
             Executor ex = core.getExecutorManager().getExecutor(args[1]);
             if (ex == null) {

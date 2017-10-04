@@ -19,6 +19,7 @@
 package net.nifheim.beelzebu.coins.bukkit.utils;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
@@ -30,18 +31,22 @@ import org.bukkit.configuration.file.YamlConfiguration;
  */
 public class Messages extends MessagesManager {
 
-    private final String _lang;
     private File langFile;
-    private final YamlConfiguration messages;
+    private YamlConfiguration messages;
+    private final HashMap<String, YamlConfiguration> messagesMap = new HashMap<>();
 
     public Messages(String lang) {
         super(lang);
-        _lang = lang;
-        langFile = new File(Core.getInstance().getDataFolder(), "messages" + _lang + ".yml");
+        langFile = new File(Core.getInstance().getDataFolder(), "messages_" + lang + ".yml");
         if (!langFile.exists()) {
             langFile = new File(Core.getInstance().getDataFolder(), "messages.yml");
         }
-        messages = YamlConfiguration.loadConfiguration(langFile);
+        if (!messagesMap.containsKey(lang)) {
+            messagesMap.put(lang, YamlConfiguration.loadConfiguration(langFile));
+            messages = YamlConfiguration.loadConfiguration(langFile);
+        } else {
+            messages = messagesMap.get(lang);
+        }
     }
 
     @Override
@@ -112,5 +117,10 @@ public class Messages extends MessagesManager {
     @Override
     public Object getConfigurationSection(String path) {
         return messages.getConfigurationSection(path);
+    }
+
+    @Override
+    public void reload() {
+        messages = YamlConfiguration.loadConfiguration(langFile);
     }
 }

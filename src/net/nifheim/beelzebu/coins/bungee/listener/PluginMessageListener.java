@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.PluginMessageEvent;
@@ -32,6 +33,7 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.nifheim.beelzebu.coins.bungee.utils.Configuration;
 import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 
 /**
  *
@@ -71,6 +73,17 @@ public class PluginMessageListener implements Listener {
             } else if (input.startsWith("execute ")) {
                 String[] msg = input.split(" ");
                 ProxyServer.getInstance().getPluginManager().dispatchCommand(ProxyServer.getInstance().getPlayer(msg[1]), input.substring((msg[0] + msg[1]).length() + 2));
+            }
+        } else if (channel.equals("Update")) {
+            String input = in.readUTF();
+            if (input.startsWith("updateCache")) {
+                String[] updatemsg = input.split(" ");
+                if (updatemsg.length == 2) {
+                    CacheManager.updateCoins(UUID.fromString(updatemsg[0]), Double.valueOf(updatemsg[1]));
+                    ProxyServer.getInstance().getServers().keySet().forEach(server -> {
+                        sendToBukkit("Update", Arrays.asList("updateCache " + updatemsg[0] + " " + updatemsg[1]), ProxyServer.getInstance().getServerInfo(server));
+                    });
+                }
             }
         }
     }

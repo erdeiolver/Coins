@@ -19,17 +19,14 @@
 package net.nifheim.beelzebu.coins.bukkit;
 
 import net.nifheim.beelzebu.coins.CoinsAPI;
-
 import net.nifheim.beelzebu.coins.bukkit.command.CommandManager;
 import net.nifheim.beelzebu.coins.bukkit.listener.*;
 import net.nifheim.beelzebu.coins.bukkit.utils.Configuration;
 import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
 import net.nifheim.beelzebu.coins.bukkit.utils.placeholders.*;
-
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.executor.Executor;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -44,7 +41,7 @@ public class Main extends JavaPlugin {
     private PlaceholderAPI placeholderAPI;
     private Multipliers multipliers;
     private Configuration configuration;
-    private Core core = Core.getInstance();
+    private final Core core = Core.getInstance();
 
     public static Main getInstance() {
         return instance;
@@ -56,7 +53,6 @@ public class Main extends JavaPlugin {
         configuration = new Configuration(this);
         core.setup(new BukkitMethods());
         commandManager = new CommandManager(this);
-        motd(true);
         loadManagers();
 
         Bukkit.getServer().getPluginManager().registerEvents(new CommandListener(), this);
@@ -79,8 +75,7 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         Bukkit.getScheduler().cancelTasks(this);
-
-        motd(false);
+        core.shutdown();
     }
 
     private void loadManagers() {
@@ -93,38 +88,6 @@ public class Main extends JavaPlugin {
             placeholderAPI.hook();
             multipliers = new Multipliers(this);
             multipliers.hook();
-        }
-    }
-
-    private void motd(Boolean enable) {
-        if (getDescription().getVersion().contains("BETA")) {
-            console.sendMessage(core.rep(""));
-            console.sendMessage(core.rep("    &c+==========================+"));
-            console.sendMessage(core.rep("    &c|    &4Coins &fBy: &7Beelzebu&c    |"));
-            console.sendMessage(core.rep("    &c|--------------------------|"));
-            console.sendMessage(core.rep("    &c|       &4v:&f" + getDescription().getVersion() + "       &c|"));
-            console.sendMessage(core.rep("    &c+==========================+"));
-            console.sendMessage(core.rep(""));
-            console.sendMessage(core.rep("&cThis is a BETA, please report bugs!"));
-        } else {
-            console.sendMessage(core.rep(""));
-            console.sendMessage(core.rep("    &c+======================+"));
-            console.sendMessage(core.rep("    &c|   &4Coins &fBy: &7Beelzebu&c   |"));
-            console.sendMessage(core.rep("    &c|----------------------|"));
-            console.sendMessage(core.rep("    &c|       &4v:&f" + getDescription().getVersion() + "        &c|"));
-            console.sendMessage(core.rep("    &c+====================+"));
-            console.sendMessage(core.rep(""));
-        }
-        // Only send this in the onEnable
-        if (enable) {
-            if (getConfig().getBoolean("Debug", false)) {
-                core.log("Debug mode is enabled.");
-            }
-            if (core.isMySQL()) {
-                core.log("Enabled to use MySQL.");
-            } else {
-                core.log("Enabled to use SQLite.");
-            }
         }
     }
 

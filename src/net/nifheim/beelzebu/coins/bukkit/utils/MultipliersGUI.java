@@ -27,6 +27,7 @@ import net.nifheim.beelzebu.coins.core.multiplier.MultiplierType;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -50,28 +51,38 @@ public class MultipliersGUI extends BaseGUI {
             int pos = -1;
             for (int j : CoinsAPI.getMultiplier().getMultipliersFor(p.getUniqueId())) {
                 pos++;
-                ItemStack item = new ItemStack(Material.NETHER_STAR);
+                ItemStack item = new ItemStack(Material.POTION);
                 ItemMeta meta = item.getItemMeta();
+                meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
                 meta.setDisplayName("" + j);
                 List<String> lore = Lists.newArrayList();
-                lore.add("Amount: " + CoinsAPI.getMultiplier().getByID(j).getAmount());
-                lore.add("Server: " + CoinsAPI.getMultiplier().getByID(j).getServer());
+                lore.add("");
+                lore.add("&7Cantidad: &c" + CoinsAPI.getMultiplier().getByID(j).getAmount());
+                lore.add("&7Servidor: &c" + CoinsAPI.getMultiplier().getByID(j).getServer());
+                lore.add("&7Minutos: &c" + CoinsAPI.getMultiplier().getByID(j).getMinutes());
                 meta.setLore(lore);
                 item.setItemMeta(meta);
                 setItem(pos, item, player -> {
-                    CoinsAPI.getMultiplier().useMultiplier(j, MultiplierType.SERVER);
-                    player.sendMessage("Has usado el multiplicador con id: " + j);
-                    player.closeInventory();
+                    if (CoinsAPI.getMultiplier().useMultiplier(j, MultiplierType.SERVER)) {
+                        player.playSound(player.getLocation(), Sound.valueOf(core.getConfig().getString("Multipliers.GUI.Use.Sound", "ENTITY_PLAYER_LEVELUP")), 10, 2);
+                        open(player);
+                    } else {
+                        player.closeInventory();
+                        player.playSound(player.getLocation(), Sound.valueOf(core.getConfig().getString("Multipliers.GUI.Use.Fail.Sound", "ENTITY_VILLAGER_NO")), 10, 1);
+                    }
                 });
             }
         }
-        short id = (short) 1;
+        ItemStack glass = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short)2);
+        ItemMeta meta = glass.getItemMeta();
+        meta.setDisplayName("");
+        glass.setItemMeta(meta);
         for (int i = 36; i < 45; i++) {
-            setItem(i, new ItemStack(Material.WOOD_STEP, 1, id));
+            setItem(i, glass);
         }
-        setItem(49, new ItemStack(Material.REDSTONE_BLOCK), p -> {
-            p.playSound(p.getLocation(), Sound.valueOf(core.getConfig().getString("Multipliers.GUI.Close.Sound", "CLICK")), 10, core.getConfig().getInt("Multipliers.GUI.Close.Pitch", 1));
-            p.closeInventory();
+        setItem(49, new ItemStack(Material.REDSTONE_BLOCK), player -> {
+            player.playSound(player.getLocation(), Sound.valueOf(core.getConfig().getString("Multipliers.GUI.Close.Sound", "CLICK")), 10, core.getConfig().getInt("Multipliers.GUI.Close.Pitch", 1));
+            player.closeInventory();
         });
     }
 }

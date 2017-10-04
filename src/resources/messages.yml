@@ -3,7 +3,7 @@
 # the official github repo https://github.com/Beelzebu/Coins/issuses/
 
 # The version of this file, don't edit!
-version: 5
+version: 6
 
 Help:
   User:
@@ -33,13 +33,12 @@ Help:
   Reset Usage: '%prefix% &cPlease use &f/coins reset <name>'
   Set Usage: '%prefix% &cPlease use &f/coins set <name> <coins>'
   Multiplier Usage: '%prefix% &cPlease use &f/coins multiplier'
+  Multiplier Create: '%prefix% &cPlease use &f/coins multiplier create <name> <amount> <minutes>'
   Multiplier:
   - '&8&m+-------------------------------------------------+'
   - '%prefix% Multiplier subcommands'
   - ' '
-  - ' &cset <amount> &f- &7Set a multiplier for the server.'
   - ' &ccreate <player> <amount> <minutes> &f- &7Create a multiplier.'
-  - ' &cuse <id> &f- &7Use your multiplier with the specified id.'
   - '&8&m+-------------------------------------------------+'
 Errors:
   No permissions: '%prefix% &cYou don''t have permissions.'
@@ -67,8 +66,13 @@ Coins:
   Reset: '%prefix% The coins of %target% has been reset.'
   Reset target: '%prefix% Your coins has been reset.'
 Multipliers:
+  Menu:
+    Title: '&6Multipliers GUI'
+  Placeholders:
+    Enabler:
+      Message: '&8➠ Multiplier enabled by &a%enabler%'
+      Anyone: '&8➠ No multiplier active :('
   Created: '%prefix% You sucessfull created a multiplier for %player%.'
-  Set: '%prefix% You sucessfull setted a multiplier for this server.'
   No Multipliers: '%prefix% You don''t have any multiplier.'
   Already active: '%prefix% There is an active multiplier already'
   Format: '&8(&bx%multiplier%&8) &aMultiplier enabled by &c%enabler%&a!'

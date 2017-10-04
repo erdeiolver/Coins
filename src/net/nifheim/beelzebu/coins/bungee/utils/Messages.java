@@ -101,4 +101,8 @@ public class Messages extends MessagesManager {
         throw new UnsupportedOperationException("getConfigurationSection is not finished yet.");
     }
 
+    @Override
+    public void reload() {
+        throw new UnsupportedOperationException("reload is not finished yet.");
+    }
 }

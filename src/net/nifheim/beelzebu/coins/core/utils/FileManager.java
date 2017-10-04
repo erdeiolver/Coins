@@ -19,7 +19,6 @@
 package net.nifheim.beelzebu.coins.core.utils;
 
 import com.google.common.base.Charsets;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,9 +31,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
-
 import net.nifheim.beelzebu.coins.core.Core;
-
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -197,7 +194,60 @@ public class FileManager {
     }
 
     public void updateMessages() {
-        // TODO: do this with a writer for add comments.
+        try {
+            List<String> lines = FileUtils.readLines(messagesFile, Charsets.UTF_8);
+            if (core.getMessages("").getInt("version") == 5) {
+                int index = lines.indexOf("  Multiplier:") - 1;
+                lines.add(index, "  Multiplier Create: '%prefix% &cPlease use &f/coins multiplier create <name> <amount> <minutes>'");
+                index = lines.indexOf("Multipliers:");
+                lines.addAll(index, Arrays.asList(
+                        "  Menu:",
+                        "    Title: '&6Multipliers GUI'",
+                        "  Placeholders:",
+                        "    Enabler:",
+                        "      Message: '&8➠ Multiplier enabled by &a%enabler%'",
+                        "      Anyone: '&8➠ No multiplier active :('"
+                ));
+                index = lines.indexOf("  Set: '" + core.getMessages("").getString("Multipliers.Set") + "'");
+                if (index != -1) {
+                    lines.remove(index);
+                }
+                index = lines.indexOf("version: 5");
+                lines.set(index, "version: 6");
+                core.log("Updates messages.yml file to v6");
+            }
+            FileUtils.writeLines(messagesFile, lines);
+        } catch (IOException ex) {
+            core.getMethods().log("An unexpected error occurred while updating the messages.yml file.");
+            core.debug(ex.getMessage());
+        }
+        try {
+            List<String> lines = FileUtils.readLines(new File(core.getDataFolder(), "messages_es.yml"), Charsets.UTF_8);
+            if (core.getMessages("es").getInt("version") == 5) {
+                int index = lines.indexOf("  Multiplier:") - 1;
+                lines.add(index, "  Multiplier Create: '%prefix% &cPor favor usa &f/coins multiplier create <nombre> <cantidad> <minutos>'");
+                index = lines.indexOf("Multipliers:");
+                lines.addAll(index, Arrays.asList(
+                        "  Menu:",
+                        "    Title: '&6Menú de multiplicadores'",
+                        "  Placeholders:",
+                        "    Enabler:",
+                        "      Message: '&8➠ Multiplicador activado por &a%enabler%'",
+                        "      Anyone: '&8➠ No hay multiplicadores activos :('"
+                ));
+                index = lines.indexOf("  Set: '" + core.getMessages("es").getString("Multipliers.Set") + "'");
+                if (index != -1) {
+                    lines.remove(index);
+                }
+                index = lines.indexOf("version: 5");
+                lines.set(index, "version: 6");
+                core.log("Updated messages_es.yml file to v6");
+            }
+            FileUtils.writeLines(new File(core.getDataFolder(), "messages_es.yml"), lines);
+        } catch (IOException ex) {
+            core.getMethods().log("An unexpected error occurred while updating the messages_es.yml file.");
+            core.debug(ex.getMessage());
+        }
     }
 
     public void copyFiles() {
