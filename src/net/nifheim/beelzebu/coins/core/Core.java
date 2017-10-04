@@ -67,6 +67,7 @@ public class Core {
         FileManager fileUpdater = new FileManager(this);
         fileUpdater.copyFiles();
         fileUpdater.updateConfig();
+	fileUpdater.updateMessages();
         getDatabase();
         executorManager = new ExecutorManager();
     }
