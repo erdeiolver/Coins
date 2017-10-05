@@ -24,7 +24,6 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-
 import net.nifheim.beelzebu.coins.core.Core;
 
 /**
@@ -37,7 +36,7 @@ public final class Multiplier {
     private final Core core = Core.getInstance();
     private final String prefix = core.isMySQL() ? core.getConfig().getString("MySQL.Prefix") : "";
     private String server = core.getConfig().getString("Multipliers.Server");
-    private final String enabler;
+    private String enabler = null;
     private Boolean enabled = false;
     private Integer amount;
 
@@ -139,10 +138,11 @@ public final class Multiplier {
      * </p>
      *
      * @param uuid The player to get the multipliers.
+     * @param all If is false, only return the multipliers by the server that the player is.
      * @return
      */
-    public Set<Integer> getMultipliersFor(UUID uuid) {
-        return getMultipliersFor(uuid, server);
+    public Set<Integer> getMultipliersFor(UUID uuid, boolean all) {
+        return getMultipliersFor(uuid, server, all);
     }
 
     public Long getMultiplierTime(String server) {
@@ -220,13 +220,13 @@ public final class Multiplier {
         return false;
     }
 
-    private Set<Integer> getMultipliersFor(UUID uuid, String server) {
+    private Set<Integer> getMultipliersFor(UUID uuid, String server, boolean all) {
         Set<Integer> multipliers = new HashSet<>();
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
                 String query = "SELECT * FROM " + prefix + "Multipliers WHERE uuid = '" + uuid + "' AND enabled = false";
-                if (server != null) {
+                if (server != null && all == false) {
                     query += " AND server = '" + server + "'";
                 }
                 res = c.prepareStatement(query + ";").executeQuery();
@@ -266,7 +266,7 @@ public final class Multiplier {
             core.debug("The error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
-        return "";
+        return null;
     }
 
     private Boolean isEnabled(String server) {

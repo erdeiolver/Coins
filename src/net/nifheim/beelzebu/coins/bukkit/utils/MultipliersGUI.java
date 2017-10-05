@@ -30,6 +30,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionEffectType;
 
 /**
  *
@@ -47,35 +49,36 @@ public class MultipliersGUI extends BaseGUI {
     }
 
     private void setItems() {
-        if (p != null && CoinsAPI.getMultiplier().getMultipliersFor(p.getUniqueId()).size() > 0) {
+        if (p != null && CoinsAPI.getMultiplier().getMultipliersFor(p.getUniqueId(), true).size() > 0) {
             int pos = -1;
-            for (int j : CoinsAPI.getMultiplier().getMultipliersFor(p.getUniqueId())) {
+            for (int j : CoinsAPI.getMultiplier().getMultipliersFor(p.getUniqueId(), true)) {
                 pos++;
                 ItemStack item = new ItemStack(Material.POTION);
-                ItemMeta meta = item.getItemMeta();
+                PotionMeta meta = (PotionMeta) item.getItemMeta();
+                meta.setMainEffect(PotionEffectType.FIRE_RESISTANCE);
                 meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
                 meta.setDisplayName(core.rep("&7Multiplicador &6x" + CoinsAPI.getMultiplier().getByID(j).getAmount()));
                 List<String> lore = Lists.newArrayList();
                 lore.add("");
                 lore.add(core.rep("&7Cantidad: &c" + CoinsAPI.getMultiplier().getByID(j).getAmount()));
                 lore.add(core.rep("&7Servidor: &c" + CoinsAPI.getMultiplier().getByID(j).getServer()));
-		lore.add(core.rep("&7Minutos: &c" + CoinsAPI.getMultiplier().getByID(j).getMinutes()));
-		lore.add("");
-		lore.add(core.rep("&7Id: &c#" + j));
+                lore.add(core.rep("&7Minutos: &c" + CoinsAPI.getMultiplier().getByID(j).getMinutes()));
+                lore.add("");
+                lore.add(core.rep("&7Id: &c#" + j));
                 meta.setLore(lore);
                 item.setItemMeta(meta);
                 setItem(pos, item, player -> {
                     if (CoinsAPI.getMultiplier().useMultiplier(j, MultiplierType.SERVER)) {
                         player.playSound(player.getLocation(), Sound.valueOf(core.getConfig().getString("Multipliers.GUI.Use.Sound", "ENTITY_PLAYER_LEVELUP")), 10, 2);
-                        open(player);
                     } else {
-                        player.closeInventory();
                         player.playSound(player.getLocation(), Sound.valueOf(core.getConfig().getString("Multipliers.GUI.Use.Fail.Sound", "ENTITY_VILLAGER_NO")), 10, 1);
                     }
+                    player.closeInventory();
+                    open(player);
                 });
             }
         }
-        ItemStack glass = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short)2);
+        ItemStack glass = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 2);
         ItemMeta meta = glass.getItemMeta();
         meta.setDisplayName("");
         glass.setItemMeta(meta);
