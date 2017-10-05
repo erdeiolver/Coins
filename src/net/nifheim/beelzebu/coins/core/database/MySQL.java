@@ -39,7 +39,7 @@ import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 public class MySQL implements Database {
 
     private final Core core;
-    private static HikariDataSource ds;
+    private HikariDataSource ds;
 
     private final String host;
     private final String port;
@@ -562,6 +562,5 @@ public class MySQL implements Database {
 
     @Override
     public void shutdown() {
-        ds.close();
     }
 }
