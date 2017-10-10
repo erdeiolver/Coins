@@ -23,6 +23,7 @@ import java.util.List;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.utils.gui.BaseGUI;
 import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
 import net.nifheim.beelzebu.coins.core.multiplier.MultiplierType;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -53,28 +54,28 @@ public class MultipliersGUI extends BaseGUI {
             int pos = -1;
             for (int j : CoinsAPI.getMultiplier().getMultipliersFor(p.getUniqueId(), true)) {
                 pos++;
+                MultiplierData multiplierData = CoinsAPI.getMultiplier().getDataByID(j);
                 ItemStack item = new ItemStack(Material.POTION);
                 PotionMeta meta = (PotionMeta) item.getItemMeta();
                 meta.setMainEffect(PotionEffectType.FIRE_RESISTANCE);
                 meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
-                meta.setDisplayName(core.rep("&7Multiplicador &6x" + CoinsAPI.getMultiplier().getByID(j).getAmount()));
+                meta.setDisplayName(core.rep("&7Multiplicador &6x" + multiplierData.getAmount()));
                 List<String> lore = Lists.newArrayList();
                 lore.add("");
-                lore.add(core.rep("&7Cantidad: &c" + CoinsAPI.getMultiplier().getByID(j).getAmount()));
-                lore.add(core.rep("&7Servidor: &c" + CoinsAPI.getMultiplier().getByID(j).getServer()));
-                lore.add(core.rep("&7Minutos: &c" + CoinsAPI.getMultiplier().getByID(j).getMinutes()));
+                lore.add(core.rep("&7Cantidad: &c" + multiplierData.getAmount()));
+                lore.add(core.rep("&7Servidor: &c" + multiplierData.getServer()));
+                lore.add(core.rep("&7Minutos: &c" + multiplierData.getMinutes()));
                 lore.add("");
                 lore.add(core.rep("&7Id: &c#" + j));
                 meta.setLore(lore);
                 item.setItemMeta(meta);
                 setItem(pos, item, player -> {
-                    if (CoinsAPI.getMultiplier().useMultiplier(j, MultiplierType.SERVER)) {
+                    if (CoinsAPI.getMultiplier(multiplierData.getServer()).useMultiplier(j, MultiplierType.SERVER)) {
                         player.playSound(player.getLocation(), Sound.valueOf(core.getConfig().getString("Multipliers.GUI.Use.Sound", "ENTITY_PLAYER_LEVELUP")), 10, 2);
                     } else {
                         player.playSound(player.getLocation(), Sound.valueOf(core.getConfig().getString("Multipliers.GUI.Use.Fail.Sound", "ENTITY_VILLAGER_NO")), 10, 1);
                     }
                     player.closeInventory();
-                    open(player);
                 });
             }
         }

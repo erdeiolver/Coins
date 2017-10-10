@@ -18,7 +18,15 @@
  */
 package net.nifheim.beelzebu.coins.bungee.utils;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import net.md_5.bungee.config.ConfigurationProvider;
+import net.md_5.bungee.config.YamlConfiguration;
+import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
 
 /**
@@ -27,82 +35,105 @@ import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
  */
 public class Messages extends MessagesManager {
 
+    private File langFile;
+    private net.md_5.bungee.config.Configuration messages;
+    private final HashMap<String, net.md_5.bungee.config.Configuration> messagesMap = new HashMap<>();
+
     public Messages(String lang) {
         super(lang);
+        langFile = new File(Core.getInstance().getDataFolder(), "messages_" + lang + ".yml");
+        if (!langFile.exists()) {
+            langFile = new File(Core.getInstance().getDataFolder(), "messages.yml");
+        }
+        if (!messagesMap.containsKey(lang)) {
+            messagesMap.put(lang, load(langFile));
+            reload();
+        } else {
+            messages = messagesMap.get(lang);
+        }
     }
 
     @Override
     public Object get(String path) {
-        throw new UnsupportedOperationException("get is not finished yet.");
+        return messages.get(path);
     }
 
     @Override
     public String getString(String path) {
-        throw new UnsupportedOperationException("getString is not finished yet.");
+        return messages.getString(path);
     }
 
     @Override
     public List<String> getStringList(String path) {
-        throw new UnsupportedOperationException("getStringList is not finished yet.");
+        return messages.getStringList(path);
     }
 
     @Override
     public Boolean getBoolean(String path) {
-        throw new UnsupportedOperationException("getBoolean is not finished yet.");
+        return messages.getBoolean(path);
     }
 
     @Override
     public Integer getInt(String path) {
-        throw new UnsupportedOperationException("getInt is not finished yet.");
+        return messages.getInt(path);
     }
 
     @Override
     public Double getDouble(String path) {
-        throw new UnsupportedOperationException("getDouble is not finished yet.");
+        return messages.getDouble(path);
     }
 
     @Override
     public Object get(String path, Object def) {
-        throw new UnsupportedOperationException("get is not finished yet.");
+        return (messages.get(path) == null ? def : messages.get(path));
     }
 
     @Override
     public String getString(String path, String def) {
-        throw new UnsupportedOperationException("getString is not finished yet.");
+        return (messages.get(path) == null ? def : messages.getString(path));
     }
 
     @Override
     public List<String> getStringList(String path, List<String> def) {
-        throw new UnsupportedOperationException("getStringList is not finished yet.");
+        return (messages.get(path) == null ? def : messages.getStringList(path));
     }
 
     @Override
     public Boolean getBoolean(String path, boolean def) {
-        throw new UnsupportedOperationException("getBoolean is not finished yet.");
+        return (messages.get(path) == null ? def : messages.getBoolean(path));
     }
 
     @Override
     public Integer getInt(String path, int def) {
-        throw new UnsupportedOperationException("getInt is not finished yet.");
+        return (messages.get(path) == null ? def : messages.getInt(path));
     }
 
     @Override
     public Double getDouble(String path, double def) {
-        throw new UnsupportedOperationException("getDouble is not finished yet.");
+        return (messages.get(path) == null ? def : messages.getDouble(path));
     }
 
     @Override
     public void set(String path, Object value) {
-        throw new UnsupportedOperationException("set is not finished yet.");
+        messages.set(path, value);
     }
 
     @Override
     public Object getConfigurationSection(String path) {
-        throw new UnsupportedOperationException("getConfigurationSection is not finished yet.");
+        return messages.getSection(path);
     }
 
     @Override
-    public void reload() {
-        throw new UnsupportedOperationException("reload is not finished yet.");
+    public final void reload() {
+        load(langFile);
+    }
+
+    private net.md_5.bungee.config.Configuration load(File file) {
+        try {
+            messages = ConfigurationProvider.getProvider(YamlConfiguration.class).load(file);
+        } catch (IOException ex) {
+            Logger.getLogger(Configuration.class.getName()).log(Level.WARNING, "An unexpected error has ocurred reloading the messages file. {0}", ex.getMessage());
+        }
+        return messages;
     }
 }

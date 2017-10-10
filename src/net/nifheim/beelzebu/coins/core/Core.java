@@ -28,6 +28,8 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.md_5.bungee.api.ChatColor;
+import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
+import net.nifheim.beelzebu.coins.bungee.BungeeMethods;
 import net.nifheim.beelzebu.coins.core.database.Database;
 import net.nifheim.beelzebu.coins.core.database.MySQL;
 import net.nifheim.beelzebu.coins.core.database.SQLite;
@@ -46,8 +48,8 @@ public class Core {
     /**
      * TO-DO List:
      * 
-     * - Add RedisBungee support.
-     * - Update the cache through BC.
+     * - Add RedisBungee support. (Done)
+     * - Update the cache through BC. (Done)
      * - Translate Multipliers GUI.
      * - Add a DateFormat for the minutes in the Multipliers GUI.
      */
@@ -70,6 +72,7 @@ public class Core {
 	fileUpdater.updateMessages();
         getDatabase();
         executorManager = new ExecutorManager();
+        motd(true);
     }
     
     public void shutdown() {
@@ -141,6 +144,10 @@ public class Core {
         }
     }
 
+    public Boolean isOnline(UUID uuid) {
+        return mi.isOnline(uuid);
+    }
+    
     public String getNick(UUID uuid) {
         return getDatabase().getNick(uuid);
     }
@@ -201,5 +208,16 @@ public class Core {
 
     public ExecutorManager getExecutorManager() {
         return executorManager;
+    }
+    
+    public boolean isBungee() {
+        return mi instanceof BungeeMethods;
+    }
+    
+    public void updateCache(UUID player, Double coins) {
+        if (!isBungee()) {
+            PluginMessage pm = new PluginMessage(net.nifheim.beelzebu.coins.bukkit.Main.getInstance());
+            pm.sendToBungeeCord("Update", "updateCache " + player + " " + coins);
+        }
     }
 }

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.UUID;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
+import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 
 /**
  *
@@ -40,16 +41,22 @@ public class CoinsAPI {
      * @return
      */
     public static Double getCoins(String player) {
+        if (CacheManager.getCoins(core.getUUID(player)) > -1) {
+            return CacheManager.getCoins(core.getUUID(player));
+        }
         return core.getDatabase().getCoins(player);
     }
-    
+
     /**
-     * Get the coins of a Player by his name.
+     * Get the coins of a Player by his UUID.
      *
      * @param player Player to get the coins.
      * @return
      */
     public static Double getCoins(UUID player) {
+        if (CacheManager.getCoins(player) > -1) {
+            return CacheManager.getCoins(player);
+        }
         return core.getDatabase().getCoins(player);
     }
 
@@ -69,12 +76,13 @@ public class CoinsAPI {
     }
 
     /**
-     * Add coins to a Online Player.
+     * Add coins to a player by his name.
      *
      * @param p The player to add the coins.
      * @param coins The coins to add.
      * @deprecated This should not be used.
-     * @see {@link CoinsAPI#addCoins(java.lang.String, java.lang.Double, java.lang.Boolean)}
+     * @see
+     * {@link CoinsAPI#addCoins(java.lang.String, java.lang.Double, java.lang.Boolean)}
      */
     @Deprecated
     public static void addCoins(String p, Double coins) {
@@ -82,23 +90,66 @@ public class CoinsAPI {
     }
 
     /**
-     * Add coins to a Online Player.
+     * Add coins to a player by his UUID.
+     *
+     * @param p The player to add the coins.
+     * @param coins The coins to add.
+     * @deprecated This should not be used.
+     * @see
+     * {@link CoinsAPI#addCoins(java.util.UUID, java.lang.Double, java.lang.Boolean)}
+     */
+    @Deprecated
+    public static void addCoins(UUID p, Double coins) {
+        addCoins(p, coins, false);
+    }
+
+    /**
+     * Add coins to a player by his name, selecting if the multipliers should be
+     * used to calculate the coins.
      *
      * @param p The player to add the coins.
      * @param coins The coins to add.
      * @param multiply Multiply coins if there are any active multipliers
      */
     public static void addCoins(String p, Double coins, Boolean multiply) {
-        core.getDatabase().addCoins(p, coins, multiply);
+        if (multiply) {
+            coins *= getMultiplier().getAmount();
+        }
+        core.getDatabase().addCoins(p, coins);
     }
 
     /**
-     * Take coins of a Online Player.
+     * Add coins to a player by his UUID, selecting if the multipliers should be
+     * used to calculate the coins.
+     *
+     * @param p The player to add the coins.
+     * @param coins The coins to add.
+     * @param multiply Multiply coins if there are any active multipliers
+     */
+    public static void addCoins(UUID p, Double coins, Boolean multiply) {
+        if (multiply) {
+            coins *= getMultiplier().getAmount();
+        }
+        core.getDatabase().addCoins(p, coins);
+    }
+
+    /**
+     * Take coins of a player by his name.
      *
      * @param p
      * @param coins
      */
     public static void takeCoins(String p, Double coins) {
+        core.getDatabase().takeCoins(p, coins);
+    }
+
+    /**
+     * Take coins of a player by his UUID.
+     *
+     * @param p
+     * @param coins
+     */
+    public static void takeCoins(UUID p, Double coins) {
         core.getDatabase().takeCoins(p, coins);
     }
 
@@ -164,16 +215,28 @@ public class CoinsAPI {
     }
 
     /**
-     * Get and modify information about multipliers for a specified server.
+     * Get and modify information about multipliers for the specified server.
      *
      * @param server The server to modify and get info about multiplier.
-     * @return
+     * @return The active multiplier for the specified server.
      */
     public static Multiplier getMultiplier(String server) {
-        return new Multiplier(server);
+        if (CacheManager.getMultiplier(server) != null) {
+            return CacheManager.getMultiplier(server);
+        } else {
+            CacheManager.addMultiplier(server, new Multiplier(server));
+            return new Multiplier(server);
+        }
     }
 
+    /**
+     * Get and modify information about the multiplier for the server specified
+     * in the plugin's config.
+     *
+     * @return The active multiplier for this server.
+     */
     public static Multiplier getMultiplier() {
-        return new Multiplier();
+        String server = core.getConfig().getString("Multipliers.Server");
+        return getMultiplier(server);
     }
 }

@@ -20,6 +20,7 @@ package net.nifheim.beelzebu.coins.bukkit;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.UUID;
 import net.nifheim.beelzebu.coins.bukkit.utils.Messages;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
@@ -101,5 +102,10 @@ public class BukkitMethods implements IMethods {
     @Override
     public String getVersion() {
         return plugin.getDescription().getVersion();
+    }
+
+    @Override
+    public Boolean isOnline(UUID uuid) {
+        return Bukkit.getPlayer(uuid).isOnline();
     }
 }

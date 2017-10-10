@@ -30,8 +30,8 @@ import java.util.UUID;
 public interface Database {
 
     Double getCoins(String player);
-
-    void addCoins(String player, Double coins, Boolean multiply);
+    
+    void addCoins(String player, Double coins);
 
     void takeCoins(String player, Double coins);
 
@@ -43,7 +43,7 @@ public interface Database {
 
     Double getCoins(UUID player);
 
-    void addCoins(UUID player, Double coins, Boolean multiply);
+    void addCoins(UUID player, Double coins);
 
     void takeCoins(UUID player, Double coins);
 

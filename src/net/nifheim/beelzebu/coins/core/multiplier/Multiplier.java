@@ -35,27 +35,30 @@ public final class Multiplier {
 
     private final Core core = Core.getInstance();
     private final String prefix = core.isMySQL() ? core.getConfig().getString("MySQL.Prefix") : "";
-    private String server = core.getConfig().getString("Multipliers.Server");
+    private final String server;
     private String enabler = null;
     private Boolean enabled = false;
     private Integer amount;
+    private Integer id;
 
     private Connection getConnection() throws SQLException {
         return core.getDatabase().getConnection();
     }
 
-    public Multiplier() {
-        enabler = getEnabler(server);
-        enabled = isEnabled(server);
-        amount = getAmount(server);
-        getMultiplierTime(server);
-    }
+//    public Multiplier() {
+//        enabler = getEnabler(server);
+//        enabled = isEnabled(server);
+//        amount = getAmount(server);
+//        id = getID(server);
+//        getMultiplierTime(server);
+//    }
 
     public Multiplier(String sv) {
         server = sv;
         enabler = getEnabler(server);
         enabled = isEnabled(server);
         amount = getAmount(server);
+        id = getID(server);
         getMultiplierTime(server);
     }
 
@@ -85,6 +88,10 @@ public final class Multiplier {
      */
     public Integer getAmount() {
         return amount;
+    }
+    
+    public Integer getID() {
+        return id;
     }
 
     /**
@@ -195,8 +202,6 @@ public final class Multiplier {
                         switch (type) {
                             case GLOBAL:
                             case PERSONAL:
-                                server = type.toString();
-                                break;
                             case SERVER:
                             default:
                                 break;
@@ -312,6 +317,26 @@ public final class Multiplier {
         }
         return 1;
     }
+    
+    private Integer getID(String server) {
+        try (Connection c = getConnection()) {
+            ResultSet res = null;
+            try {
+                res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + server + "' AND enabled = true;").executeQuery();
+                if (res.next()) {
+                    return res.getInt("id");
+                }
+            } finally {
+                if (res != null) {
+                    res.close();
+                }
+                c.close();
+            }
+        } catch (SQLException ex) {
+            
+        }
+        return -1;
+    }
 
     private static class Builder {
         private final String server;
@@ -344,7 +369,7 @@ public final class Multiplier {
             return new MultiplierData(server, enabler, enabled, amount, minutes);
         }
     }
-    public MultiplierData getByID(int id) {
+    public MultiplierData getDataByID(int id) {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {

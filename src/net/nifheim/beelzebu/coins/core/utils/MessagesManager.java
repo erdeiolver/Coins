@@ -20,7 +20,7 @@ package net.nifheim.beelzebu.coins.core.utils;
 
 /**
  *
- * @author jaime
+ * @author Beelzebu
  */
 public abstract class MessagesManager implements IConfiguration {
     

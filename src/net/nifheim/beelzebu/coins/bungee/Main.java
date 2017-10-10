@@ -39,6 +39,7 @@ public class Main extends Plugin {
     private final Core core = Core.getInstance();
     private IConfiguration config;
     private IMethods methods = new BungeeMethods();
+    private static Boolean useRedis = false;
 
     public static Main getInstance() {
         return instance;
@@ -53,10 +54,11 @@ public class Main extends Plugin {
         if (ProxyServer.getInstance().getPluginManager().getPlugin("RedisBungee") != null) {
             ProxyServer.getInstance().getPluginManager().registerListener(this, new PubSubMessageListener());
             RedisBungee.getApi().registerPubSubChannels("Coins", "Update");
-        } else {
-            ProxyServer.getInstance().getPluginManager().registerListener(this, new PluginMessageListener());
-            ProxyServer.getInstance().registerChannel("Coins");
+            useRedis = true;
+            core.log("Using RedisBungee for plugin messaging.");
         }
+        ProxyServer.getInstance().getPluginManager().registerListener(this, new PluginMessageListener());
+        ProxyServer.getInstance().registerChannel("Coins");
     }
 
     @Override
@@ -70,5 +72,9 @@ public class Main extends Plugin {
 
     public IConfiguration getConfiguration() {
         return config;
+    }
+
+    public static Boolean useRedis() {
+        return useRedis;
     }
 }

@@ -20,6 +20,7 @@ package net.nifheim.beelzebu.coins.core.utils;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.UUID;
 
 /**
  *
@@ -52,4 +53,6 @@ public interface IMethods {
     InputStream getResource(String filename);
     
     String getVersion();
+    
+    Boolean isOnline(UUID uuid);
 }

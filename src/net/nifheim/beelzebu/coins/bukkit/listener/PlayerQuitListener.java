@@ -33,7 +33,7 @@ public class PlayerQuitListener implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         Core.getInstance().getMethods().runAsync(() -> {
-            CacheManager.remove(e.getPlayer().getUniqueId());
+            CacheManager.removePlayer(e.getPlayer().getUniqueId());
         });
     }
 }

@@ -19,19 +19,31 @@
 package net.nifheim.beelzebu.coins.bungee.listener;
 
 import com.imaginarycode.minecraft.redisbungee.events.PubSubMessageEvent;
+import java.util.Arrays;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Listener;
-import org.bukkit.event.EventHandler;
+import net.md_5.bungee.event.EventHandler;
 
 /**
  *
  * @author Beelzebu
  */
-public class PubSubMessageListener implements Listener {
-    
+public class PubSubMessageListener extends CoinsBungeeListener implements Listener {
+
     @EventHandler
     public void onPubSubMessage(PubSubMessageEvent e) {
-        if (e.getChannel().equals("Coins")) {
-            
+        if (e.getChannel().equalsIgnoreCase("Coins")) {
+            if (e.getMessage().equalsIgnoreCase("getExecutors")) {
+                core.debug("Sending executors");
+                ProxyServer.getInstance().getServers().values().forEach((server) -> {
+                    sendExecutors(server);
+                    core.debug("Sending to " + server.getName());
+                });
+            }
+        } else if (e.getChannel().equalsIgnoreCase("Update")) {
+            ProxyServer.getInstance().getServers().keySet().forEach(server -> {
+                sendToBukkit("Update", Arrays.asList(e.getMessage()), ProxyServer.getInstance().getServerInfo(server));
+            });
         }
     }
 }

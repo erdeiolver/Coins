@@ -24,9 +24,11 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.executor.Executor;
+import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -38,6 +40,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 public class PluginMessage implements PluginMessageListener {
 
     private final Main plugin;
+    private final Core core = Core.getInstance();
     private final PluginMessage pm;
 
     public PluginMessage(Main main) {
@@ -65,18 +68,24 @@ public class PluginMessage implements PluginMessageListener {
                 }
             }
             Executor ex = new Executor(id, cost, commands);
-            if (Core.getInstance().getExecutorManager().getExecutor(id) == null) {
-                Core.getInstance().getExecutorManager().addExecutor(ex);
-                Core.getInstance().log("The executor " + ex.getID() + " was received from BungeeCord.");
-                Core.getInstance().debug("ID: " + ex.getID());
-                Core.getInstance().debug("Cost: " + ex.getCost());
-                Core.getInstance().debug("Commands: ");
+            if (core.getExecutorManager().getExecutor(id) == null) {
+                core.getExecutorManager().addExecutor(ex);
+                core.log("The executor " + ex.getID() + " was received from BungeeCord.");
+                core.debug("ID: " + ex.getID());
+                core.debug("Cost: " + ex.getCost());
+                core.debug("Commands: ");
                 ex.getCommands().forEach((command) -> {
-                    Core.getInstance().debug(command);
+                    core.debug(command);
                 });
+            } else {
+                core.debug("An executor with the id: " + ex.getID() + " was received from BungeeCord but a local Executor with that id already exists.");
             }
         } else if (subchannel.equals("Update")) {
-            
+            String data = in.readUTF();
+            if (data.split(" ").length == 2) {
+                UUID puuid = UUID.fromString(data.split(" ")[0]);
+                CacheManager.updateCoins(puuid, Double.valueOf(data.split(" ")[1]));
+            }
         }
     }
 

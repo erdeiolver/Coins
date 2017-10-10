@@ -25,7 +25,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 
@@ -120,9 +119,6 @@ public class SQLite implements Database {
 
     @Override
     public Double getCoins(String player) {
-        if (CacheManager.getCoins(getUUID(player)) > -1) {
-            return CacheManager.getCoins(getUUID(player));
-        }
         try {
             ResultSet res = getConnection().prepareStatement("SELECT * FROM Data WHERE nick = '" + player + "';").executeQuery();
             if (res.next() && res.getString("uuid") != null) {
@@ -143,12 +139,9 @@ public class SQLite implements Database {
     }
 
     @Override
-    public void addCoins(String player, Double coins, Boolean multiply) {
+    public void addCoins(String player, Double coins) {
         try {
             if (isindb(player) && getCoins(player) >= 0) {
-                if (multiply) {
-                    coins = coins * CoinsAPI.getMultiplier().getAmount();
-                }
                 double oldCoins = getCoins(player);
                 getConnection().prepareStatement("UPDATE Data SET balance = " + (oldCoins + coins) + " WHERE nick = '" + player + "';").executeUpdate();
                 CacheManager.updateCoins(getUUID(player), oldCoins + coins);
@@ -223,9 +216,6 @@ public class SQLite implements Database {
 
     @Override
     public Double getCoins(UUID player) {
-        if (CacheManager.getCoins(player) > -1) {
-            return CacheManager.getCoins(player);
-        }
         try {
             ResultSet res = getConnection().prepareStatement("SELECT * FROM Data WHERE uuid = '" + player + "';").executeQuery();
             if (res.next() && res.getString("uuid") != null) {
@@ -246,12 +236,9 @@ public class SQLite implements Database {
     }
 
     @Override
-    public void addCoins(UUID player, Double coins, Boolean multiply) {
+    public void addCoins(UUID player, Double coins) {
         try {
             if (isindb(player) && getCoins(player) >= 0) {
-                if (multiply) {
-                    coins = coins * CoinsAPI.getMultiplier().getAmount();
-                }
                 double oldCoins = getCoins(player);
                 getConnection().prepareStatement("UPDATE Data SET balance = " + (oldCoins + coins) + " WHERE uuid = '" + player + "';").executeUpdate();
                 CacheManager.updateCoins(player, oldCoins + coins);
@@ -267,10 +254,7 @@ public class SQLite implements Database {
     public void takeCoins(UUID player, Double coins) {
         try {
             double beforeCoins = getCoins(player);
-            if (beforeCoins - coins < 0) {
-                getConnection().prepareStatement("UPDATE Data SET balance = 0 WHERE uuid = '" + player + "';").executeUpdate();
-                CacheManager.updateCoins(player, 0D);
-            } else if (beforeCoins == coins) {
+            if (beforeCoins - coins < 0 || beforeCoins == coins) {
                 getConnection().prepareStatement("UPDATE Data SET balance = 0 WHERE uuid = '" + player + "';").executeUpdate();
                 CacheManager.updateCoins(player, 0D);
             } else if (beforeCoins > coins) {

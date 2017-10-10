@@ -18,8 +18,10 @@
  */
 package net.nifheim.beelzebu.coins.bungee;
 
+import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 import java.io.File;
 import java.io.InputStream;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -36,65 +38,65 @@ import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
  * @author Beelzebu
  */
 public class BungeeMethods implements IMethods {
-    
+
     private final Main plugin = Main.getInstance();
     private final CommandSender console = ProxyServer.getInstance().getConsole();
-    
+
     @Override
     public Object getPlugin() {
         return plugin;
     }
-    
+
     @Override
     public IConfiguration getConfig() {
         return plugin.getConfiguration();
     }
-    
+
     @Override
     public MessagesManager getMessages(String lang) {
         return new Messages(lang);
     }
-    
+
     @Override
     public void runAsync(Runnable rn) {
         ProxyServer.getInstance().getScheduler().runAsync((Plugin) getPlugin(), rn);
     }
-    
+
     @Override
     public void runAsync(Runnable rn, Long timer) {
         ProxyServer.getInstance().getScheduler().schedule((Plugin) getPlugin(), rn, timer, TimeUnit.MINUTES);
     }
-    
+
     @Override
     public void runSync(Runnable rn) {
         rn.run();
     }
-    
+
     @Override
     public void executeCommand(String cmd) {
         ProxyServer.getInstance().getPluginManager().dispatchCommand(console, cmd);
     }
-    
+
     @Override
     public void log(Object log) {
         console.sendMessage(Core.getInstance().rep("&8[&cCoins&8] &7" + log));
     }
-    
+
     @Override
     public Object getConsole() {
         return console;
     }
-    
+
     @Override
     public void sendMessage(Object commandsender, String msg) {
         ((CommandSender) commandsender).sendMessage(TextComponent.fromLegacyText(msg));
     }
-    
+
     @Override
     public File getDataFolder() {
         return plugin.getDataFolder();
     }
-    
+
     @Override
     public InputStream getResource(String file) {
         return plugin.getResourceAsStream(file);
@@ -103,5 +105,13 @@ public class BungeeMethods implements IMethods {
     @Override
     public String getVersion() {
         return plugin.getDescription().getVersion();
+    }
+
+    @Override
+    public Boolean isOnline(UUID uuid) {
+        if (plugin.useRedis()) {
+            return RedisBungee.getApi().isPlayerOnline(uuid);
+        }
+        return ProxyServer.getInstance().getPlayer(uuid).isConnected();
     }
 }

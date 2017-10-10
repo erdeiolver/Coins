@@ -301,11 +301,11 @@ public class CoinsCommand extends BukkitCommand {
                     sender.sendMessage(core.getString("Help.Multiplier", lang));
                 }
                 if (args[1].equalsIgnoreCase("create")) {
-                    if (args.length == 5 && CoinsAPI.isindb(args[2])) {
+                    if (args.length >= 5 && CoinsAPI.isindb(args[2])) {
                         try {
                             int multiplier = Integer.parseInt(args[3]);
                             int minutes = Integer.parseInt(args[4]);
-                            CoinsAPI.getMultiplier().createMultiplier(Bukkit.getPlayer(args[2]).getUniqueId(), multiplier, minutes);
+                            CoinsAPI.getMultiplier(args[5] != null ? args[0] : core.getConfig().getString("Multipliers.Server")).createMultiplier(Bukkit.getPlayer(args[2]).getUniqueId(), multiplier, minutes);
                             sender.sendMessage(core.getString("Multipliers.Created", lang).replaceAll("%player%", Bukkit.getPlayer(args[2]).getName()));
                         } catch (NumberFormatException e) {
                             sender.sendMessage(core.rep(String.valueOf(e.getCause().getMessage())));
@@ -316,6 +316,9 @@ public class CoinsCommand extends BukkitCommand {
                 }
                 if (args[1].equalsIgnoreCase("get")) {
                     sender.sendMessage(CoinsAPI.getMultiplier().getMultiplierTimeFormated());
+                }
+                if (args[1].equalsIgnoreCase("set")) {
+                    // TODO: add a way to fake multipliers data.
                 }
                 return true;
             }
