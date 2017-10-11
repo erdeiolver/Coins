@@ -59,12 +59,12 @@ public class PluginMessageListener extends CoinsBungeeListener implements Listen
             String input = in.readUTF();
             if (input.startsWith("updateCache")) {
                 String[] updatemsg = input.split(" ");
-                if (updatemsg.length == 2) {
+                if (updatemsg.length == 3) {
                     if (Main.useRedis()) {
-                        RedisBungee.getApi().sendChannelMessage("Update", updatemsg[0] + " " + updatemsg[1]);
+                        RedisBungee.getApi().sendChannelMessage("Update", updatemsg[1] + " " + updatemsg[2]);
                     } else {
                         ProxyServer.getInstance().getServers().keySet().forEach(server -> {
-                            sendToBukkit("Update", Arrays.asList(updatemsg[0] + " " + updatemsg[1]), ProxyServer.getInstance().getServerInfo(server));
+                            sendToBukkit("Update", Arrays.asList(updatemsg[1] + " " + updatemsg[2]), ProxyServer.getInstance().getServerInfo(server));
                         });
                     }
                 }

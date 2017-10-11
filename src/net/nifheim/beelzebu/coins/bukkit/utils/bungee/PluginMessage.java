@@ -39,16 +39,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
  */
 public class PluginMessage implements PluginMessageListener {
 
-    private final Main plugin;
     private final Core core = Core.getInstance();
-    private final PluginMessage pm;
-
-    public PluginMessage(Main main) {
-        plugin = main;
-        pm = this;
-        Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "Coins");
-        Bukkit.getServer().getMessenger().registerIncomingPluginChannel(plugin, "Coins", pm);
-    }
 
     @Override
     public synchronized void onPluginMessageReceived(String channel, Player player, byte[] message) {
@@ -95,7 +86,7 @@ public class PluginMessage implements PluginMessageListener {
         out.writeUTF(message);
         Player p = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
         if (p != null) {
-            p.sendPluginMessage(plugin, "Coins", out.toByteArray());
+            p.sendPluginMessage(Main.getInstance(), "Coins", out.toByteArray());
         }
     }
 }

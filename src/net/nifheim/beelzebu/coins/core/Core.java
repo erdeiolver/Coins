@@ -216,7 +216,7 @@ public class Core {
     
     public void updateCache(UUID player, Double coins) {
         if (!isBungee()) {
-            PluginMessage pm = new PluginMessage(net.nifheim.beelzebu.coins.bukkit.Main.getInstance());
+            PluginMessage pm = new PluginMessage();
             pm.sendToBungeeCord("Update", "updateCache " + player + " " + coins);
         }
     }

@@ -63,7 +63,9 @@ public class Main extends JavaPlugin {
         getConfig().getConfigurationSection("Command executor").getKeys(false).forEach((id) -> {
             core.getExecutorManager().addExecutor(new Executor(id, getConfig().getDouble("Command executor." + id + ".Cost", 0), getConfig().getStringList("Command executor." + id + ".Command")));
         });
-        PluginMessage pmsg = new PluginMessage(this);
+        PluginMessage pmsg = new PluginMessage();
+        Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this, "Coins");
+        Bukkit.getServer().getMessenger().registerIncomingPluginChannel(this, "Coins", pmsg);
         Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
             pmsg.sendToBungeeCord("Coins", "getExecutors");
             Bukkit.getOnlinePlayers().forEach((p) -> {
