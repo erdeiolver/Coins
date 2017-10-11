@@ -199,7 +199,7 @@ public class Core {
         try {
             return rep(getMessages(lang.split("_")[0]).getString(path));
         } catch (NullPointerException ex) {
-            mi.log("The string " + path + " does not exists in the messages" + lang + ".yml file, please add this manually.");
+            mi.log("The string " + path + " does not exists in the messages_" + lang.split("_")[0] + ".yml file, please add this manually.");
             mi.log("If you belive that this is an error please contact to the developer.");
             debug(ex);
             return rep(getMessages("").getString(path));

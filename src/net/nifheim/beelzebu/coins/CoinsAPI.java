@@ -67,11 +67,10 @@ public class CoinsAPI {
      * @return
      */
     public static String getCoinsString(String p) {
-        if (p != null) {
-            double coins = getCoins(p);
-            return (DF.format(coins));
+        if (isindb(p)) {
+            return (DF.format(getCoins(p)));
         } else {
-            return "Player can't be null";
+            return "This player doesn't in the database";
         }
     }
 

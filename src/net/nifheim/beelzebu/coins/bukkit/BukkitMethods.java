@@ -106,6 +106,6 @@ public class BukkitMethods implements IMethods {
 
     @Override
     public Boolean isOnline(UUID uuid) {
-        return Bukkit.getPlayer(uuid).isOnline();
+        return Bukkit.getPlayer(uuid) != null && Bukkit.getPlayer(uuid).isOnline();
     }
 }

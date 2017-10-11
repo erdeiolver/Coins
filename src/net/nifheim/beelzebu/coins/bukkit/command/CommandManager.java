@@ -48,9 +48,7 @@ public class CommandManager {
 
     public void registerCommand() {
         try {
-            core.getConfig().getStringList("General.Command.Aliases").forEach((str) -> {
-                commandAliases.add(str);
-            });
+            commandAliases.addAll(core.getConfig().getStringList("General.Command.Aliases"));
 
             final Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
             bukkitCommandMap.setAccessible(true);
