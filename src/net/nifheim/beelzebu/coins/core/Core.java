@@ -75,25 +75,13 @@ public class Core {
     }
 
     private void motd(boolean enable) {
-        // TODO: make a better startup message, this is ugly
-        if (mi.getVersion().contains("BETA")) {
-            mi.sendMessage(mi.getConsole(), rep(""));
-            mi.sendMessage(mi.getConsole(), rep("    &c+==========================+"));
-            mi.sendMessage(mi.getConsole(), rep("    &c|    &4Coins &fBy: &7Beelzebu&c    |"));
-            mi.sendMessage(mi.getConsole(), rep("    &c|--------------------------|"));
-            mi.sendMessage(mi.getConsole(), rep("    &c|       &4v:&f" + mi.getVersion() + "       &c|"));
-            mi.sendMessage(mi.getConsole(), rep("    &c+==========================+"));
-            mi.sendMessage(mi.getConsole(), rep(""));
-            mi.sendMessage(mi.getConsole(), rep("&cThis is a BETA, please report bugs!"));
-        } else {
-            mi.sendMessage(mi.getConsole(), rep(""));
-            mi.sendMessage(mi.getConsole(), rep("    &c+======================+"));
-            mi.sendMessage(mi.getConsole(), rep("    &c|   &4Coins &fBy: &7Beelzebu&c   |"));
-            mi.sendMessage(mi.getConsole(), rep("    &c|----------------------|"));
-            mi.sendMessage(mi.getConsole(), rep("    &c|       &4v:&f" + mi.getVersion() + "        &c|"));
-            mi.sendMessage(mi.getConsole(), rep("    &c+====================+"));
-            mi.sendMessage(mi.getConsole(), rep(""));
-        }
+        mi.sendMessage(mi.getConsole(), rep(""));
+        mi.sendMessage(mi.getConsole(), rep("&6-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"));
+        mi.sendMessage(mi.getConsole(), rep("           &4Coins &fBy:  &7Beelzebu"));
+        mi.sendMessage(mi.getConsole(), rep(""));
+        mi.sendMessage(mi.getConsole(), rep("                 &4v: &f" + mi.getVersion()));
+        mi.sendMessage(mi.getConsole(), rep("&6-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"));
+        mi.sendMessage(mi.getConsole(), rep(""));
         // Only send this in the onEnable
         if (enable) {
             if (getConfig().getBoolean("Debug", false)) {

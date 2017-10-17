@@ -197,8 +197,8 @@ public class FileManager {
             } else {
                 core.getMethods().log("The config file is up to date.");
             }
-            //FileUtils.writeLines(configFile, lines);
-            //core.getConfig().reload();
+            FileUtils.writeLines(configFile, lines);
+            core.getConfig().reload();
         } catch (IOException ex) {
             core.getMethods().log("An unexpected error occurred while updating the config file.");
             core.debug(ex.getMessage());
