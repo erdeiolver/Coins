@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.nifheim.beelzebu</groupId>
     <artifactId>Coins</artifactId>
-    <version>1.9.3-BETA</version>
+    <version>1.9.4-BETA</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

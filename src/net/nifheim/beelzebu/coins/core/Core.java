@@ -143,11 +143,11 @@ public class Core {
     }
 
     public String getNick(UUID uuid) {
-        return getDatabase().getNick(uuid);
+        return mi.getName(uuid) != null ? mi.getName(uuid) : getDatabase().getNick(uuid);
     }
 
     public UUID getUUID(String player) {
-        return getDatabase().getUUID(player);
+        return mi.getUUID(player) != null ? mi.getUUID(player) : getDatabase().getUUID(player);
     }
 
     public Database getDatabase() {
@@ -156,7 +156,7 @@ public class Core {
             return db == null ? db = new MySQL(this) : db;
         } else {
             return db == null ? db = new SQLite(this) : db;
-        }           
+        }
     }
 
     public boolean isMySQL() {
@@ -165,7 +165,7 @@ public class Core {
 
     public String rep(String msg) {
         return msg
-                .replaceAll("%prefix%", 
+                .replaceAll("%prefix%",
                         getConfig().
                                 getString("Prefix"))
                 .replaceAll("&", "§");

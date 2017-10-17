@@ -196,7 +196,7 @@ public class MySQL implements Database {
                         core.debug("An entry in the database was created for: " + player);
                     } else {
                         c.prepareStatement("UPDATE " + prefix + "Data SET uuid = '" + uuid.toString() + "', lastlogin = " + System.currentTimeMillis() + " WHERE nick = '" + player + "';").execute();
-                        core.debug("The uuid of: " + getNick(uuid) + " was updated in the database.");
+                        core.debug("The uuid of: " + core.getNick(uuid) + " was updated in the database.");
                     }
                 }
             } finally {
@@ -221,11 +221,11 @@ public class MySQL implements Database {
                 res = c.prepareStatement("SELECT * FROM " + prefix + "Data WHERE nick = '" + player + "';").executeQuery();
                 if (res.next() && res.getString("uuid") != null) {
                     double coins = res.getDouble("balance");
-                    CacheManager.updateCoins(getUUID(player), coins);
+                    CacheManager.updateCoins(core.getUUID(player), coins);
                     return coins;
                 } else {
-                    CacheManager.updateCoins(getUUID(player), 0D);
-                    createPlayer(player, getUUID(player));
+                    CacheManager.updateCoins(core.getUUID(player), 0D);
+                    createPlayer(player, core.getUUID(player));
                     return 0D;
                 }
             } finally {
@@ -249,8 +249,8 @@ public class MySQL implements Database {
                 if (isindb(player) && getCoins(player) >= 0) {
                     double oldCoins = getCoins(player);
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE nick = '" + player + "';").executeUpdate();
-                    CacheManager.updateCoins(getUUID(player), oldCoins + coins);
-                    core.updateCache(getUUID(player), coins);
+                    CacheManager.updateCoins(core.getUUID(player), oldCoins + coins);
+                    core.updateCache(core.getUUID(player), coins);
                 }
             } finally {
                 c.close();
@@ -268,12 +268,12 @@ public class MySQL implements Database {
                 double beforeCoins = getCoins(player);
                 if (beforeCoins - coins < 0 || beforeCoins == coins) {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = 0 WHERE nick = '" + player + "';").executeUpdate();
-                    CacheManager.updateCoins(getUUID(player), 0D);
-                    core.updateCache(getUUID(player), coins);
+                    CacheManager.updateCoins(core.getUUID(player), 0D);
+                    core.updateCache(core.getUUID(player), coins);
                 } else if (beforeCoins > coins) {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE nick = '" + player + "';").executeUpdate();
-                    CacheManager.updateCoins(getUUID(player), (beforeCoins - coins));
-                    core.updateCache(getUUID(player), coins);
+                    CacheManager.updateCoins(core.getUUID(player), (beforeCoins - coins));
+                    core.updateCache(core.getUUID(player), coins);
                 }
 
             } finally {
@@ -291,8 +291,8 @@ public class MySQL implements Database {
             try {
                 if (isindb(player) && getCoins(player) >= 0) {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + core.getConfig().getDouble("General.Starting Coins") + " WHERE nick = '" + player + "';").executeUpdate();
-                    CacheManager.updateCoins(getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
-                    core.updateCache(getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
+                    CacheManager.updateCoins(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
+                    core.updateCache(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
                 }
             } finally {
                 c.close();
@@ -309,8 +309,8 @@ public class MySQL implements Database {
             try {
                 if (isindb(player) && getCoins(player) >= 0) {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + coins + " WHERE nick = '" + player + "';").executeUpdate();
-                    CacheManager.updateCoins(getUUID(player), coins);
-                    core.updateCache(getUUID(player), coins);
+                    CacheManager.updateCoins(core.getUUID(player), coins);
+                    core.updateCache(core.getUUID(player), coins);
                 }
             } finally {
                 c.close();
@@ -356,7 +356,7 @@ public class MySQL implements Database {
                     return coins;
                 } else {
                     CacheManager.updateCoins(player, 0D);
-                    createPlayer(getNick(player), player);
+                    createPlayer(core.getNick(player), player);
                     return 0D;
                 }
             } finally {
@@ -366,7 +366,7 @@ public class MySQL implements Database {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.log("&cAn internal error has occurred creating the data for player: " + getNick(player));
+            core.log("&cAn internal error has occurred creating the data for player: " + core.getNick(player));
             core.debug("&cThe error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
@@ -387,7 +387,7 @@ public class MySQL implements Database {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.log("&cAn internal error has occurred adding coins to the player: " + getNick(player));
+            core.log("&cAn internal error has occurred adding coins to the player: " + core.getNick(player));
             core.debug("&cThe error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
@@ -412,7 +412,7 @@ public class MySQL implements Database {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.log("&cAn internal error has occurred taking coins to the player: " + getNick(player));
+            core.log("&cAn internal error has occurred taking coins to the player: " + core.getNick(player));
             core.debug("&cThe error code is: " + ex.getErrorCode());
         }
     }
@@ -430,7 +430,7 @@ public class MySQL implements Database {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.log("&cAn internal error has occurred reseting the coins of player: " + getNick(player));
+            core.log("&cAn internal error has occurred reseting the coins of player: " + core.getNick(player));
             core.debug("&cThe error code is: " + ex.getErrorCode());
         }
     }
@@ -448,7 +448,7 @@ public class MySQL implements Database {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.log("&cAn internal error has occurred setting the coins of player: " + getNick(player));
+            core.log("&cAn internal error has occurred setting the coins of player: " + core.getNick(player));
             core.debug("&cThe error code is: " + ex.getErrorCode());
         }
     }

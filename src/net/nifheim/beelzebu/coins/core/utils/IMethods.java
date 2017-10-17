@@ -55,4 +55,22 @@ public interface IMethods {
     String getVersion();
     
     Boolean isOnline(UUID uuid);
+    
+    /**
+     * Get the UUID of a online player by his name.
+     * 
+     * @param name The name of the online player to get the uuid.
+     * @return The uuid of the online player.
+     * @throws NullPointerException if the player with that name is offline.
+     */
+    UUID getUUID(String name) throws NullPointerException;
+        
+    /**
+     * Get the name of a online player by his UUID.
+     * 
+     * @param uuid The UUID of the online player to get the name.
+     * @return The uuid of the online player.
+     * @throws NullPointerException if the player with that uuid is offline.
+     */
+    String getName(UUID uuid) throws NullPointerException;
 }

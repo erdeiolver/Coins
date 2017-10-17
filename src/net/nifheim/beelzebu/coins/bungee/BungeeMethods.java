@@ -114,4 +114,20 @@ public class BungeeMethods implements IMethods {
         }
         return ProxyServer.getInstance().getPlayer(uuid).isConnected();
     }
+
+    @Override
+    public UUID getUUID(String name) {
+        if (plugin.useRedis()) {
+            return RedisBungee.getApi().getUuidFromName(name);
+        }
+        return ProxyServer.getInstance().getPlayer(name).getUniqueId();
+    }
+
+    @Override
+    public String getName(UUID uuid) {
+        if (plugin.useRedis()) {
+            return RedisBungee.getApi().getNameFromUuid(uuid);
+        }
+        return ProxyServer.getInstance().getPlayer(uuid).getName();
+    }
 }
