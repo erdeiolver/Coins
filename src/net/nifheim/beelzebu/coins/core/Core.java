@@ -24,6 +24,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,21 +45,13 @@ import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
  * @author Beelzebu
  */
 public class Core {
-    
-    /**
-     * TO-DO List:
-     * 
-     * - Add RedisBungee support. (Done)
-     * - Update the cache through BC. (Done)
-     * - Translate Multipliers GUI.
-     * - Add a DateFormat for the minutes in the Multipliers GUI.
-     */
 
     private static Core instance;
     private IMethods mi;
     private Database db;
     private ExecutorManager executorManager;
     private static boolean mysql = false;
+    private HashMap<String, MessagesManager> messagesMap;
 
     public static Core getInstance() {
         return instance == null ? instance = new Core() : instance;
@@ -66,20 +59,21 @@ public class Core {
 
     public void setup(IMethods methodinterface) {
         mi = methodinterface;
+        messagesMap = new HashMap<>();
         FileManager fileUpdater = new FileManager(this);
         fileUpdater.copyFiles();
         fileUpdater.updateConfig();
-	fileUpdater.updateMessages();
+        fileUpdater.updateMessages();
         getDatabase();
         executorManager = new ExecutorManager();
         motd(true);
     }
-    
+
     public void shutdown() {
         getDatabase().shutdown();
         motd(false);
     }
-    
+
     private void motd(boolean enable) {
         // TODO: make a better startup message, this is ugly
         if (mi.getVersion().contains("BETA")) {
@@ -147,7 +141,7 @@ public class Core {
     public Boolean isOnline(UUID uuid) {
         return mi.isOnline(uuid);
     }
-    
+
     public String getNick(UUID uuid) {
         return getDatabase().getNick(uuid);
     }
@@ -162,7 +156,7 @@ public class Core {
             return db == null ? db = new MySQL(this) : db;
         } else {
             return db == null ? db = new SQLite(this) : db;
-        }
+        }           
     }
 
     public boolean isMySQL() {
@@ -171,7 +165,9 @@ public class Core {
 
     public String rep(String msg) {
         return msg
-                .replaceAll("%prefix%", getConfig().getString("Prefix"))
+                .replaceAll("%prefix%", 
+                        getConfig().
+                                getString("Prefix"))
                 .replaceAll("&", "§");
     }
 
@@ -192,12 +188,20 @@ public class Core {
     }
 
     public MessagesManager getMessages(String lang) {
-        return mi.getMessages(lang);
+        if (lang == null || lang.equals("")) {
+            lang = "default";
+        }
+        lang = lang.split("_")[0];
+        if (!messagesMap.containsKey(lang)) {
+            messagesMap.put(lang, mi.getMessages(lang));
+            return mi.getMessages(lang);
+        }
+        return messagesMap.get(lang);
     }
 
     public String getString(String path, String lang) {
         try {
-            return rep(getMessages(lang.split("_")[0]).getString(path));
+            return rep(getMessages(lang).getString(path));
         } catch (NullPointerException ex) {
             mi.log("The string " + path + " does not exists in the messages_" + lang.split("_")[0] + ".yml file, please add this manually.");
             mi.log("If you belive that this is an error please contact to the developer.");
@@ -209,11 +213,11 @@ public class Core {
     public ExecutorManager getExecutorManager() {
         return executorManager;
     }
-    
+
     public boolean isBungee() {
         return mi instanceof BungeeMethods;
     }
-    
+
     public void updateCache(UUID player, Double coins) {
         if (!isBungee()) {
             PluginMessage pm = new PluginMessage();

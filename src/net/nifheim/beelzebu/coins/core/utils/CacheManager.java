@@ -18,10 +18,9 @@
  */
 package net.nifheim.beelzebu.coins.core.utils;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
 
@@ -31,8 +30,8 @@ import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
  */
 public class CacheManager {
 
-    private static final Map<UUID, Double> playersData = Collections.synchronizedMap(new HashMap<>());
-    private static final Map<String, Multiplier> multipliersData = Collections.synchronizedMap(new HashMap<>());
+    private static final Map<UUID, Double> playersData = new ConcurrentHashMap<>();
+    private static final Map<String, Multiplier> multipliersData = new ConcurrentHashMap<>();
 
     public static Double getCoins(UUID uuid) {
         if (playersData.containsKey(uuid)) {
@@ -59,7 +58,7 @@ public class CacheManager {
         multipliersData.put(server, multiplier);
     }
 
-    public static Multiplier getMultiplier(String server) {
+    public static synchronized Multiplier getMultiplier(String server) {
         if (multipliersData.containsKey(server)) {
             return multipliersData.get(server);
         }

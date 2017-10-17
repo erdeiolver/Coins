@@ -3,7 +3,7 @@
 # the official github repo https://github.com/Beelzebu/Coins/issues/
 
 # The version of the config, don't touch!
-version: 6
+version: 7
 
 # This is the prefix used in all the messages.
 Prefix: '&c&lCoins &6&l>&7'
@@ -83,6 +83,12 @@ Multipliers:
       # If you're using 1.9+ use https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html
       Sound: 'UI_BUTTON_CLICK'
       Pitch: '1'
+    Use:
+      Sound: 'ENTITY_PLAYER_LEVELUP'
+      Pitch: '2'
+      Fail:
+        Sound: 'ENTITY_VILLAGER_NO'
+        Pitch: '1'
   # This is the server identifier, is used only if you have MySQL enabled, when a player enables a multiplier in
   # this server, this is also enabled in all the other servers that has this identifier.
   Server: 'default'

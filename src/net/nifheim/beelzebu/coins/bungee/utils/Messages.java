@@ -20,7 +20,6 @@ package net.nifheim.beelzebu.coins.bungee.utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,7 +36,6 @@ public class Messages extends MessagesManager {
 
     private File langFile;
     private net.md_5.bungee.config.Configuration messages;
-    private final HashMap<String, net.md_5.bungee.config.Configuration> messagesMap = new HashMap<>();
 
     public Messages(String lang) {
         super(lang);
@@ -45,12 +43,8 @@ public class Messages extends MessagesManager {
         if (!langFile.exists()) {
             langFile = new File(Core.getInstance().getDataFolder(), "messages.yml");
         }
-        if (!messagesMap.containsKey(lang)) {
-            messagesMap.put(lang, load(langFile));
-            reload();
-        } else {
-            messages = messagesMap.get(lang);
-        }
+        load(langFile);
+        reload();
     }
 
     @Override

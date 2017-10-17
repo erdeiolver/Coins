@@ -223,7 +223,7 @@ public class CoinsAPI {
         if (CacheManager.getMultiplier(server) != null) {
             return CacheManager.getMultiplier(server);
         } else {
-            CacheManager.addMultiplier(server, new Multiplier(server));
+            //CacheManager.addMultiplier(server, new Multiplier(server));
             return new Multiplier(server);
         }
     }

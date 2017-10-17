@@ -3,7 +3,7 @@
 # the official github repo https://github.com/Beelzebu/Coins/issuses/
 
 # The version of this file, don't edit!
-version: 6
+version: 7
 
 Help:
   User:
@@ -68,6 +68,25 @@ Coins:
 Multipliers:
   Menu:
     Title: '&6Menú de multiplicadores'
+    Confirm:
+      Title: '&8¿Estás seguro?'
+      Accept: '&a¡SI!'
+      Decline: '&cNo'
+    Multipliers:
+      Name: '&6Multiplicador &cx%amount%'
+      Lore:
+      - ''
+      - '&7Cantidad: &c%amount%'
+      - '&7Servidor: &c%server%'
+      - '&7Minutos: &c%minutes%'
+      - ''
+      - '&7ID: &c#%id%'
+    No Multipliers:
+      Name: '&cNo tienes ningún multiplicador :('
+      Lore:
+      - ''
+      - '&7Puedes comprar multiplicadores en nuestra tienda'
+      - '&6&nstore.servername.net'"
   Placeholders:
     Enabler:
       Message: '&8➠ Multiplicador activado por &a%enabler%'

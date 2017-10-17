@@ -19,10 +19,8 @@
 package net.nifheim.beelzebu.coins.bukkit.utils.placeholders;
 
 import me.clip.placeholderapi.external.EZPlaceholderHook;
-
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
-
 import org.bukkit.entity.Player;
 
 /**

@@ -52,7 +52,6 @@ public final class Multiplier {
 //        id = getID(server);
 //        getMultiplierTime(server);
 //    }
-
     public Multiplier(String sv) {
         server = sv;
         enabler = getEnabler(server);
@@ -89,7 +88,7 @@ public final class Multiplier {
     public Integer getAmount() {
         return amount;
     }
-    
+
     public Integer getID() {
         return id;
     }
@@ -145,7 +144,8 @@ public final class Multiplier {
      * </p>
      *
      * @param uuid The player to get the multipliers.
-     * @param all If is false, only return the multipliers by the server that the player is.
+     * @param all If is false, only return the multipliers by the server that
+     * the player is.
      * @return
      */
     public Set<Integer> getMultipliersFor(UUID uuid, boolean all) {
@@ -194,21 +194,19 @@ public final class Multiplier {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
+                res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE id = " + id + ";").executeQuery();
                 if (!isEnabled()) {
-                    res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE id = " + id + ";").executeQuery();
                     if (res.next()) {
                         Long minutes = res.getLong("minutes");
                         Long endtime = System.currentTimeMillis() + (minutes * 60000);
-                        switch (type) {
-                            case GLOBAL:
-                            case PERSONAL:
-                            case SERVER:
-                            default:
-                                break;
-                        }
                         c.prepareStatement("UPDATE " + prefix + "Multipliers SET endtime = " + endtime + ", enabled = true WHERE id = " + id + ";").executeUpdate();
                         amount = getAmount(server);
                         return true;
+                    }
+                } else {
+                    if (res.next()) {
+                        c.prepareStatement("UPDATE " + prefix + "Multipliers SET queue = true WHERE id = " + id + ";").executeUpdate();
+                        return false;
                     }
                 }
             } finally {
@@ -317,7 +315,7 @@ public final class Multiplier {
         }
         return 1;
     }
-    
+
     private Integer getID(String server) {
         try (Connection c = getConnection()) {
             ResultSet res = null;
@@ -333,49 +331,55 @@ public final class Multiplier {
                 c.close();
             }
         } catch (SQLException ex) {
-            
+
         }
         return -1;
     }
 
     private static class Builder {
+
         private final String server;
         private final String enabler;
         private int amount = 1;
         private boolean enabled = false;
         private int minutes = 0;
+        private final int id;
+        private final boolean queue;
 
-        public Builder(String server, String enabler) {
-            this(server, enabler, 1);
+        public Builder(String server, String enabler, int id, boolean queue) {
+            this(server, enabler, id, 1, queue);
         }
 
-        public Builder(String server, String enabler, int amount) {
-            this(server, enabler, amount, false);
+        public Builder(String server, String enabler, int id, int amount, boolean queue) {
+            this(server, enabler, id, amount, false, queue);
         }
 
-        public Builder(String server, String enabler, int amount, boolean enabled) {
-            this(server, enabler, amount, false, 0);
+        public Builder(String server, String enabler, int id, int amount, boolean enabled, boolean queue) {
+            this(server, enabler, id, amount, enabled, 0, queue);
         }
 
-        public Builder(String server, String enabler, int amount, boolean enabled, int minutes) {
+        public Builder(String server, String enabler, int id, int amount, boolean enabled, int minutes, boolean queue) {
             this.server = server;
             this.enabler = enabler;
+            this.id = id;
             this.amount = amount;
             this.enabled = enabled;
             this.minutes = minutes;
+            this.queue = queue;
         }
 
         public MultiplierData create() {
-            return new MultiplierData(server, enabler, enabled, amount, minutes);
+            return new MultiplierData(server, enabler, enabled, amount, minutes, id, queue);
         }
     }
+
     public MultiplierData getDataByID(int id) {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
                 res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE id = " + id + ";").executeQuery();
                 if (res.next()) {
-                    return new Builder(res.getString("server"), core.getNick(UUID.fromString(res.getString("uuid"))), res.getInt("multiplier"), res.getBoolean("enabled"), res.getInt("minutes")).create();
+                    return new Builder(res.getString("server"), core.getNick(UUID.fromString(res.getString("uuid"))), id, res.getInt("multiplier"), res.getBoolean("enabled"), res.getInt("minutes"), res.getBoolean("queue")).create();
                 }
             } finally {
                 if (res != null) {

@@ -175,6 +175,9 @@ public class CoinsCommand extends BukkitCommand {
                     }
                 }
                 coins *= amount;
+            }
+            if (core.isOnline(core.getUUID(args[1]))) {
+                Player target = Bukkit.getPlayer(core.getUUID(args[1]));
                 target.sendMessage(core.getString("Coins.Give target", target.spigot().getLocale()).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%multiplier_format%", multiplier));
             }
             CoinsAPI.addCoins(args[1], coins, multiply);
@@ -293,14 +296,16 @@ public class CoinsCommand extends BukkitCommand {
         if (sender.hasPermission("coins.admin")) {
             if (args.length >= 2) {
                 if (args[1].equalsIgnoreCase("help")) {
-                    sender.sendMessage(core.getString("Help.Multiplier", lang));
+                    core.getMessages(lang).getStringList("Help.Multiplier").forEach(line -> {
+                        sender.sendMessage(core.rep(line));
+                    });
                 }
                 if (args[1].equalsIgnoreCase("create")) {
                     if (args.length >= 5 && CoinsAPI.isindb(args[2])) {
                         try {
                             int multiplier = Integer.parseInt(args[3]);
                             int minutes = Integer.parseInt(args[4]);
-                            CoinsAPI.getMultiplier(args[5] != null ? args[0] : core.getConfig().getString("Multipliers.Server")).createMultiplier(Bukkit.getPlayer(args[2]).getUniqueId(), multiplier, minutes);
+                            CoinsAPI.getMultiplier(args[5] != null ? args[5] : core.getConfig().getString("Multipliers.Server")).createMultiplier(Bukkit.getPlayer(args[2]).getUniqueId(), multiplier, minutes);
                             sender.sendMessage(core.getString("Multipliers.Created", lang).replaceAll("%player%", Bukkit.getPlayer(args[2]).getName()));
                         } catch (NumberFormatException e) {
                             sender.sendMessage(core.rep(String.valueOf(e.getCause().getMessage())));

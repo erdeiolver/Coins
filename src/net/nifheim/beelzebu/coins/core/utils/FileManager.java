@@ -132,7 +132,8 @@ public class FileManager {
                                 "  Purge:",
                                 "    Enabled: true # If this is true the old accouns would be purged at server startup.",
                                 "    Days: 60 # The time in days before deleting an account.",
-                                ""));
+                                ""
+                        ));
                         index = lines.indexOf("    Aliases:");
                         for (String alias : core.getConfig().getStringList("Command.Aliases")) {
                             lines.add(index++, "  - '" + alias + "'");
@@ -173,20 +174,31 @@ public class FileManager {
                                 "      Pitch: '1'"));
                     }
                 }
-                FileUtils.writeLines(configFile, lines);
-                core.getConfig().reload();
                 core.getMethods().log("Configuration file updated to v5.");
             } else if (core.getConfig().getInt("version") == 5) {
                 index = lines.indexOf("MySQL:") + 1;
                 lines.add(index, "  Use: true");
                 index = lines.indexOf("version: 5");
                 lines.set(index, "version: 6");
-                FileUtils.writeLines(configFile, lines);
-                core.getConfig().reload();
                 core.getMethods().log("Configuration file updated to v6.");
+            } else if (core.getConfig().getInt("version") == 6) {
+                index = lines.indexOf("    Close:") + 5;
+                lines.addAll(index, Arrays.asList(
+                        "    Use:",
+                        "      Sound: 'ENTITY_PLAYER_LEVELUP'",
+                        "      Pitch: '2'",
+                        "      Fail:",
+                        "        Sound: 'ENTITY_VILLAGER_NO'",
+                        "        Pitch: '1'"
+                ));
+                index = lines.indexOf("version: 6");
+                lines.set(index, "version: 7");
+                core.log("Configuration file updated to v7");
             } else {
                 core.getMethods().log("The config file is up to date.");
             }
+            //FileUtils.writeLines(configFile, lines);
+            //core.getConfig().reload();
         } catch (IOException ex) {
             core.getMethods().log("An unexpected error occurred while updating the config file.");
             core.debug(ex.getMessage());
@@ -214,23 +226,52 @@ public class FileManager {
                 }
                 index = lines.indexOf("version: 5");
                 lines.set(index, "version: 6");
-                core.log("Updates messages.yml file to v6");
+                core.log("Updated messages.yml file to v6");
             }
-	    if (core.getMessages("").getInt("version") == 6) {
-		int index = lines.indexOf("version: 6");
-		lines.set(index, "version: 7");
-		index = lines.indexOf("Multipliers:");
-		lines.remove(index);
-		index = lines.indexOf("  Menu:");
-		lines.add(index, "Multipliers:");
-	    }
+            if (core.getMessages("").getInt("version") == 6) {
+                int index = lines.indexOf("version: 6");
+                lines.set(index, "version: 7");
+                index = lines.indexOf("Multipliers:");
+                lines.remove(index);
+                index = lines.indexOf("  Menu:");
+                lines.add(index, "Multipliers:");
+                core.log("Updated messages.yml file to v7");
+            }
+            if (core.getMessages("").getInt("version") == 7) {
+                int index = lines.indexOf("version: 7");
+                lines.set(index, "version: 8");
+                index = lines.indexOf("  Menu:") + 2;
+                lines.addAll(index, Arrays.asList(
+                        "    Confirm:",
+                        "      Title: '&8Are you sure?'",
+                        "      Accept: '&a¡YES!'",
+                        "      Decline: '&cNope'",
+                        "    Multipliers:",
+                        "      Name: '&6Multiplier &cx%amount%'",
+                        "      Lore:",
+                        "      - ''",
+                        "      - '&7Amount: &c%amount%'",
+                        "      - '&7Server: &c%server%'",
+                        "      - '&7Minutes: &c%minutes%'",
+                        "      - ''",
+                        "      - '&7ID: &c#%id%'",
+                        "    No Multipliers:",
+                        "      Name: '&cYou don''t have any multiplier :('",
+                        "      Lore:",
+                        "      - ''",
+                        "      - '&7You can buy multipliers in our store'",
+                        "      - '&6&nstore.servername.net'"
+                ));
+                core.log("Updated messages.yml file to v8");
+            }
             FileUtils.writeLines(messagesFile, lines);
         } catch (IOException ex) {
             core.getMethods().log("An unexpected error occurred while updating the messages.yml file.");
             core.debug(ex.getMessage());
         }
         try {
-            List<String> lines = FileUtils.readLines(new File(core.getDataFolder(), "messages_es.yml"), Charsets.UTF_8);
+            File messagesFile = new File(core.getDataFolder(), "messages_es.yml");
+            List<String> lines = FileUtils.readLines(messagesFile, Charsets.UTF_8);
             if (core.getMessages("es").getInt("version") == 5) {
                 int index = lines.indexOf("  Multiplier:") - 1;
                 lines.add(index, "  Multiplier Create: '%prefix% &cPor favor usa &f/coins multiplier create <nombre> <cantidad> <minutos>'");
@@ -251,15 +292,45 @@ public class FileManager {
                 lines.set(index, "version: 6");
                 core.log("Updated messages_es.yml file to v6");
             }
-	    if (core.getMessages("es").getInt("version") == 6) {
-		int index = lines.indexOf("version: 6");
-		lines.set(index, "version: 7");
-		index =lines.indexOf("Multipliers:");
-		lines.remove(index);
-		index =lines.indexOf("  Menu:");
-		lines.add(index, "Multipliers:");
-	    }
-            FileUtils.writeLines(new File(core.getDataFolder(), "messages_es.yml"), lines);
+            if (core.getMessages("es").getInt("version") == 6) {
+                int index = lines.indexOf("version: 6");
+                lines.set(index, "version: 7");
+                index = lines.indexOf("Multipliers:");
+                lines.remove(index);
+                index = lines.indexOf("  Menu:");
+                lines.add(index, "Multipliers:");
+                core.log("Updated messages_es.yml file to v7");
+            }
+            if (core.getMessages("es").getInt("version") == 7) {
+                int index = lines.indexOf("version: 7");
+                lines.set(index, "version: 8");
+                index = lines.indexOf("  Menu:") + 2;
+                lines.addAll(index, Arrays.asList(
+                        "    Confirm:",
+                        "      Title: '&8¿Estás seguro?'",
+                        "      Yes:",
+                        "        Name: '&a¡SI!'",
+                        "      No:",
+                        "        Name: '&cNo'",
+                        "    Multipliers:",
+                        "      Name: '&6Multiplicador &cx%amount%'",
+                        "      Lore:",
+                        "      - ''",
+                        "      - '&7Cantidad: &c%amount%'",
+                        "      - '&7Servidor: &c%server%'",
+                        "      - '&7Minutos: &c%minutes%'",
+                        "      - ''",
+                        "      - '&7ID: &c#%id%'",
+                        "    No Multipliers:",
+                        "      Name: '&cNo tienes ningún multiplicador :('",
+                        "      Lore:",
+                        "      - ''",
+                        "      - '&7Puedes comprar multiplicadores en nuestra tienda'",
+                        "      - '&6&nstore.servername.net'"
+                ));
+                core.log("Updated messages_es.yml file to v8");
+            }
+            FileUtils.writeLines(messagesFile, lines);
         } catch (IOException ex) {
             core.getMethods().log("An unexpected error occurred while updating the messages_es.yml file.");
             core.debug(ex.getMessage());
@@ -289,8 +360,10 @@ public class FileManager {
                 }
                 gzipFile(Files.newInputStream(latestLog.toPath()), logsFolder + "/" + sdf.format(latestLog.lastModified()) + "-" + filen + ".log.gz");
                 latestLog.delete();
+
             } catch (IOException ex) {
-                Logger.getLogger(FileManager.class.getName()).log(Level.WARNING, "An unexpected error has ocurred while trying to compress the latest log file. {0}", ex.getMessage());
+                Logger.getLogger(FileManager.class
+                        .getName()).log(Level.WARNING, "An unexpected error has ocurred while trying to compress the latest log file. {0}", ex.getMessage());
             }
         }
     }

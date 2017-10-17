@@ -18,13 +18,12 @@
  */
 package net.nifheim.beelzebu.coins.bukkit.utils;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.utils.gui.BaseGUI;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
-import net.nifheim.beelzebu.coins.core.multiplier.MultiplierType;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -50,7 +49,10 @@ public class MultipliersGUI extends BaseGUI {
     }
 
     private void setItems() {
-        if (p != null && CoinsAPI.getMultiplier().getMultipliersFor(p.getUniqueId(), true).size() > 0) {
+        if (p == null) {
+            return;
+        }
+        if (CoinsAPI.getMultiplier().getMultipliersFor(p.getUniqueId(), true).size() > 0) {
             int pos = -1;
             for (int j : CoinsAPI.getMultiplier().getMultipliersFor(p.getUniqueId(), true)) {
                 pos++;
@@ -59,25 +61,29 @@ public class MultipliersGUI extends BaseGUI {
                 PotionMeta meta = (PotionMeta) item.getItemMeta();
                 meta.setMainEffect(PotionEffectType.FIRE_RESISTANCE);
                 meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
-                meta.setDisplayName(core.rep("&7Multiplicador &6x" + multiplierData.getAmount()));
-                List<String> lore = Lists.newArrayList();
-                lore.add("");
-                lore.add(core.rep("&7Cantidad: &c" + multiplierData.getAmount()));
-                lore.add(core.rep("&7Servidor: &c" + multiplierData.getServer()));
-                lore.add(core.rep("&7Minutos: &c" + multiplierData.getMinutes()));
-                lore.add("");
-                lore.add(core.rep("&7Id: &c#" + j));
+                meta.setDisplayName(rep(core.getString("Multipliers.Menu.Multipliers.Name", p.spigot().getLocale()), multiplierData));
+                List<String> lore = new ArrayList<>();
+                core.getMessages(p.spigot().getLocale()).getStringList("Multipliers.Menu.Multipliers.Lore").forEach(line -> {
+                    lore.add(rep(line, multiplierData));
+                });
                 meta.setLore(lore);
                 item.setItemMeta(meta);
                 setItem(pos, item, player -> {
-                    if (CoinsAPI.getMultiplier(multiplierData.getServer()).useMultiplier(j, MultiplierType.SERVER)) {
-                        player.playSound(player.getLocation(), Sound.valueOf(core.getConfig().getString("Multipliers.GUI.Use.Sound", "ENTITY_PLAYER_LEVELUP")), 10, 2);
-                    } else {
-                        player.playSound(player.getLocation(), Sound.valueOf(core.getConfig().getString("Multipliers.GUI.Use.Fail.Sound", "ENTITY_VILLAGER_NO")), 10, 1);
-                    }
-                    player.closeInventory();
+                    new ConfirmGUI(player, core.getString("Multipliers.Menu.Confirm.Title", player.spigot().getLocale()), multiplierData).open(player);
                 });
             }
+        } else {
+            ItemStack item = new ItemStack(Material.POTION);
+            PotionMeta meta = (PotionMeta) item.getItemMeta();
+            meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+            meta.setDisplayName(core.getString("Multipliers.Menu.No Multipliers.Name", p.spigot().getLocale()));
+            List<String> lore = new ArrayList<>();
+            core.getMessages(p.spigot().getLocale()).getStringList("Multipliers.Menu.No Multipliers.Lore").forEach(line -> {
+                lore.add(core.rep(line));
+            });
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+            setItem(22, item);
         }
         ItemStack glass = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 2);
         ItemMeta meta = glass.getItemMeta();
@@ -90,5 +96,15 @@ public class MultipliersGUI extends BaseGUI {
             player.playSound(player.getLocation(), Sound.valueOf(core.getConfig().getString("Multipliers.GUI.Close.Sound", "CLICK")), 10, core.getConfig().getInt("Multipliers.GUI.Close.Pitch", 1));
             player.closeInventory();
         });
+    }
+
+    private String rep(String str, MultiplierData data) {
+        return core.rep(
+                str
+                        .replaceAll("%amount%", String.valueOf(data.getAmount()))
+                        .replaceAll("%server%", data.getServer())
+                        .replaceAll("%minutes%", String.valueOf(data.getMinutes()))
+                        .replaceAll("%id%", String.valueOf(data.getID()))
+        );
     }
 }

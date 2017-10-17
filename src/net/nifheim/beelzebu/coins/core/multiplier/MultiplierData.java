@@ -29,13 +29,17 @@ public class MultiplierData {
     private final boolean enabled;
     private final int amount;
     private final int minutes;
+    private final int id;
+    private final boolean queue;
 
-    MultiplierData(String server, String enabler, boolean enabled, int amount, int minutes) {
+    MultiplierData(String server, String enabler, boolean enabled, int amount, int minutes, int id, boolean queue) {
         this.server = server;
         this.enabler = enabler;
         this.enabled = enabled;
         this.amount = amount;
         this.minutes = minutes;
+        this.id = id;
+        this.queue = queue;
     }
     
     public String getServer() {
@@ -56,5 +60,13 @@ public class MultiplierData {
     
     public int getMinutes() {
         return minutes;
+    }
+    
+    public int getID() {
+        return id;
+    }
+    
+    public boolean isQueue() {
+        return queue;
     }
 }

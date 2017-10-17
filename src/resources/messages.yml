@@ -3,7 +3,7 @@
 # the official github repo https://github.com/Beelzebu/Coins/issuses/
 
 # The version of this file, don't edit!
-version: 6
+version: 7
 
 Help:
   User:
@@ -68,11 +68,30 @@ Coins:
 Multipliers:
   Menu:
     Title: '&6Multipliers GUI'
+    Confirm:
+      Title: '&8Are you sure?'
+      Accept: '&a¡YES!'
+      Decline: '&cNope'
+    Multipliers:
+      Name: '&6Multiplier &cx%amount%'
+      Lore:
+      - ''
+      - '&7Amount: &c%amount%'
+      - '&7Server: &c%server%'
+      - '&7Minutes: &c%minutes%'
+      - ''
+      - '&7ID: &c#%id%'
+    No Multipliers:
+      Name: '&cYou don''t have any multiplier :('
+      Lore:
+      - ''
+      - '&7You can buy multipliers in our store'
+      - '&6&nstore.servername.net'
   Placeholders:
     Enabler:
       Message: '&8➠ Multiplier enabled by &a%enabler%'
       Anyone: '&8➠ No multiplier active :('
   Created: '%prefix% You sucessfull created a multiplier for %player%.'
   No Multipliers: '%prefix% You don''t have any multiplier.'
-  Already active: '%prefix% There is an active multiplier already'
+  Already active: '%prefix% There is an active multiplier already, your multiplier was queued and will be enabled when the active multiplier finish.'
   Format: '&8(&bx%multiplier%&8) &aMultiplier enabled by &c%enabler%&a!'

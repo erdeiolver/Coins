@@ -104,10 +104,10 @@ public class MySQL implements Database {
         hc.setUsername(user);
         hc.setPassword(passwd);
         hc.setMaxLifetime(180000L);
-        hc.setMinimumIdle(2);
+        hc.setMinimumIdle(4);
         hc.setIdleTimeout(30000);
         hc.setConnectionTimeout(30000);
-        hc.setMaximumPoolSize(8);
+        hc.setMaximumPoolSize(10);
         hc.validate();
         ds = new HikariDataSource(hc);
 
