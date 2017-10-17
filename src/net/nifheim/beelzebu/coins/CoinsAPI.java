@@ -70,7 +70,7 @@ public class CoinsAPI {
         if (isindb(p)) {
             return (DF.format(getCoins(p)));
         } else {
-            return "This player doesn't in the database";
+            return "This player isn't in the database";
         }
     }
 
