@@ -153,7 +153,7 @@ public class CoinsAPI {
     }
 
     /**
-     * Reset the coins of a Online Player.
+     * Reset the coins of a player by his name.
      *
      * @param p
      */
@@ -162,12 +162,31 @@ public class CoinsAPI {
     }
 
     /**
-     * Set the coins of a Online Player.
+     * Reset the coins of a player by his UUID.
+     *
+     * @param p
+     */
+    public static void resetCoins(UUID p) {
+        core.getDatabase().resetCoins(p);
+    }
+
+    /**
+     * Set the coins of a player by his name.
      *
      * @param p
      * @param coins
      */
     public static void setCoins(String p, Double coins) {
+        core.getDatabase().setCoins(p, coins);
+    }
+
+    /**
+     * Set the coins of a player by his name.
+     *
+     * @param p
+     * @param coins
+     */
+    public static void setCoins(UUID p, Double coins) {
         core.getDatabase().setCoins(p, coins);
     }
 
@@ -235,7 +254,6 @@ public class CoinsAPI {
      * @return The active multiplier for this server.
      */
     public static Multiplier getMultiplier() {
-        String server = core.getConfig().getString("Multipliers.Server");
-        return getMultiplier(server);
+        return getMultiplier(core.getConfig().getString("Multipliers.Server"));
     }
 }
