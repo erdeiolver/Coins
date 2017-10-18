@@ -31,7 +31,7 @@ import org.bukkit.inventory.ItemStack;
  * @author Beelzebu
  */
 public abstract class BaseGUI {
-    
+
     private final Inventory inv;
     private final Map<Integer, GUIAction> actions;
     private static final Map<UUID, BaseGUI> inventoriesByUUID = new HashMap<>();
@@ -66,6 +66,7 @@ public abstract class BaseGUI {
     }
 
     public void open(Player p) {
+        p.closeInventory();
         p.openInventory(inv);
         openInventories.put(p.getUniqueId(), getUUID());
     }

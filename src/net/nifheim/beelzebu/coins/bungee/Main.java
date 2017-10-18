@@ -74,7 +74,7 @@ public class Main extends Plugin {
         return config;
     }
 
-    public static Boolean useRedis() {
+    public Boolean useRedis() {
         return useRedis;
     }
 }

@@ -25,34 +25,34 @@ import java.util.List;
  * @author Beelzebu
  */
 public interface IConfiguration {
-    
+
     Object get(String path);
-    
+
     String getString(String path);
-    
+
     List<String> getStringList(String path);
-    
+
     Boolean getBoolean(String path);
-    
+
     Integer getInt(String path);
-    
+
     Double getDouble(String path);
-    
+
     Object get(String path, Object def);
-    
+
     String getString(String path, String def);
-    
+
     List<String> getStringList(String path, List<String> def);
-    
+
     Boolean getBoolean(String path, boolean def);
-    
+
     Integer getInt(String path, int def);
-    
+
     Double getDouble(String path, double def);
-    
+
     void set(String path, Object value);
-    
+
     Object getConfigurationSection(String path);
-    
+
     void reload();
 }

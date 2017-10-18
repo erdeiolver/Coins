@@ -27,47 +27,47 @@ import java.util.UUID;
  * @author Beelzebu
  */
 public interface IMethods {
-    
+
     Object getPlugin();
-    
+
     IConfiguration getConfig();
-    
+
     MessagesManager getMessages(String lang);
-    
+
     void runAsync(Runnable rn);
-    
+
     void runAsync(Runnable rn, Long timer);
 
     void runSync(Runnable rn);
 
     void executeCommand(String cmd);
-    
+
     void log(Object log);
-    
+
     Object getConsole();
-    
+
     void sendMessage(Object CommandSender, String msg);
-    
+
     File getDataFolder();
-    
+
     InputStream getResource(String filename);
-    
+
     String getVersion();
-    
+
     Boolean isOnline(UUID uuid);
-    
+
     /**
      * Get the UUID of a online player by his name.
-     * 
+     *
      * @param name The name of the online player to get the uuid.
      * @return The uuid of the online player.
      * @throws NullPointerException if the player with that name is offline.
      */
     UUID getUUID(String name) throws NullPointerException;
-        
+
     /**
      * Get the name of a online player by his UUID.
-     * 
+     *
      * @param uuid The UUID of the online player to get the name.
      * @return The uuid of the online player.
      * @throws NullPointerException if the player with that uuid is offline.

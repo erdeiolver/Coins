@@ -120,7 +120,7 @@ public class BungeeMethods implements IMethods {
         if (plugin.useRedis()) {
             return RedisBungee.getApi().getUuidFromName(name);
         }
-        return ProxyServer.getInstance().getPlayer(name).getUniqueId();
+        return ProxyServer.getInstance().getPlayer(name) != null ? ProxyServer.getInstance().getPlayer(name).getUniqueId() : null;
     }
 
     @Override
@@ -128,6 +128,6 @@ public class BungeeMethods implements IMethods {
         if (plugin.useRedis()) {
             return RedisBungee.getApi().getNameFromUuid(uuid);
         }
-        return ProxyServer.getInstance().getPlayer(uuid).getName();
+        return ProxyServer.getInstance().getPlayer(uuid) != null ? ProxyServer.getInstance().getPlayer(uuid).getName() : null;
     }
 }

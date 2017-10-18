@@ -24,6 +24,7 @@ import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.utils.MultipliersGUI;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.executor.Executor;
+import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 import net.nifheim.beelzebu.coins.core.utils.IMethods;
 import org.bukkit.Bukkit;
@@ -305,7 +306,11 @@ public class CoinsCommand extends BukkitCommand {
                         try {
                             int multiplier = Integer.parseInt(args[3]);
                             int minutes = Integer.parseInt(args[4]);
-                            CoinsAPI.getMultiplier(args[5] != null ? args[5] : core.getConfig().getString("Multipliers.Server")).createMultiplier(Bukkit.getPlayer(args[2]).getUniqueId(), multiplier, minutes);
+                            Multiplier multipliers = CoinsAPI.getMultiplier();
+                            if (args.length == 6 && args[5] != null && !args[5].equals("")) {
+                                multipliers = CoinsAPI.getMultiplier(args[5]);
+                            }
+                            multipliers.createMultiplier(Bukkit.getPlayer(args[2]).getUniqueId(), multiplier, minutes);
                             sender.sendMessage(core.getString("Multipliers.Created", lang).replaceAll("%player%", Bukkit.getPlayer(args[2]).getName()));
                         } catch (NumberFormatException e) {
                             sender.sendMessage(core.rep(String.valueOf(e.getCause().getMessage())));

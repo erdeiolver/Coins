@@ -78,7 +78,7 @@ public class BukkitMethods implements IMethods {
     public void log(Object log) {
         console.sendMessage(Core.getInstance().rep("&8[&cCoins&8] &7" + log));
     }
-    
+
     @Override
     public Object getConsole() {
         return Bukkit.getConsoleSender();
@@ -88,12 +88,12 @@ public class BukkitMethods implements IMethods {
     public void sendMessage(Object commandsender, String msg) {
         ((CommandSender) commandsender).sendMessage(msg);
     }
-    
+
     @Override
     public File getDataFolder() {
         return plugin.getDataFolder();
     }
-    
+
     @Override
     public InputStream getResource(String file) {
         return plugin.getResource(file);
@@ -111,11 +111,11 @@ public class BukkitMethods implements IMethods {
 
     @Override
     public UUID getUUID(String name) {
-        return Bukkit.getPlayer(name).getUniqueId();
+        return Bukkit.getPlayer(name) != null ? Bukkit.getPlayer(name).getUniqueId() : null;
     }
 
     @Override
     public String getName(UUID uuid) {
-        return Bukkit.getPlayer(uuid).getName();
+        return Bukkit.getPlayer(uuid) != null ? Bukkit.getPlayer(uuid).getName() : null;
     }
 }

@@ -30,7 +30,7 @@ import java.util.UUID;
 public interface Database {
 
     Double getCoins(String player);
-    
+
     void addCoins(String player, Double coins);
 
     void takeCoins(String player, Double coins);
@@ -38,7 +38,7 @@ public interface Database {
     void resetCoins(String player);
 
     void setCoins(String player, Double coins);
-    
+
     boolean isindb(String player);
 
     Double getCoins(UUID player);
@@ -50,18 +50,18 @@ public interface Database {
     void resetCoins(UUID player);
 
     void setCoins(UUID player, Double coins);
-    
+
     boolean isindb(UUID player);
-    
+
     List<String> getTop(int top);
-    
+
     void createPlayer(String player, UUID uuid);
-    
+
     Connection getConnection() throws SQLException;
-    
+
     String getNick(UUID uuid);
-    
+
     UUID getUUID(String nick);
-    
+
     void shutdown();
 }

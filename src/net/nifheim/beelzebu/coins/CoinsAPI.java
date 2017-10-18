@@ -239,12 +239,7 @@ public class CoinsAPI {
      * @return The active multiplier for the specified server.
      */
     public static Multiplier getMultiplier(String server) {
-        if (CacheManager.getMultiplier(server) != null) {
-            return CacheManager.getMultiplier(server);
-        } else {
-            //CacheManager.addMultiplier(server, new Multiplier(server));
-            return new Multiplier(server);
-        }
+        return new Multiplier(server);
     }
 
     /**
@@ -254,6 +249,6 @@ public class CoinsAPI {
      * @return The active multiplier for this server.
      */
     public static Multiplier getMultiplier() {
-        return getMultiplier(core.getConfig().getString("Multipliers.Server"));
+        return new Multiplier(core.getConfig().getString("Multipliers.Server"));
     }
 }

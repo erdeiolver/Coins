@@ -23,7 +23,7 @@ package net.nifheim.beelzebu.coins.core.multiplier;
  * @author Beelzebu
  */
 public class MultiplierData {
-    
+
     private final String server;
     private final String enabler;
     private final boolean enabled;
@@ -41,31 +41,31 @@ public class MultiplierData {
         this.id = id;
         this.queue = queue;
     }
-    
+
     public String getServer() {
         return server;
     }
-    
+
     public String getEnabler() {
         return enabler;
     }
-    
+
     public boolean isEnabled() {
         return enabled;
     }
-    
+
     public int getAmount() {
         return amount;
     }
-    
+
     public int getMinutes() {
         return minutes;
     }
-    
+
     public int getID() {
         return id;
     }
-    
+
     public boolean isQueue() {
         return queue;
     }

@@ -3,7 +3,7 @@
 # the official github repo https://github.com/Beelzebu/Coins/issues/
 
 # The version of the config, don't touch!
-version: 7
+version: 8
 
 # This is the prefix used in all the messages.
 Prefix: '&c&lCoins &6&l>&7'
@@ -40,6 +40,8 @@ General:
   Purge:
     Enabled: true # If this is true the old accouns would be purged at server startup.
     Days: 60 # The time in days before deleting an account.
+    Logs:
+      Days: 10 # The days to keep plugin logs.
 
 # Here you can define a cost to use a specific command.
 Command Cost:

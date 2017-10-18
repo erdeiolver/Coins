@@ -194,6 +194,15 @@ public class FileManager {
                 index = lines.indexOf("version: 6");
                 lines.set(index, "version: 7");
                 core.log("Configuration file updated to v7");
+            } else if (core.getConfig().getInt("version") == 7) {
+                index = lines.indexOf("  Purge:") + 3;
+                lines.addAll(index, Arrays.asList(
+                        "    Logs:",
+                        "      Days: 10 # The days to keep plugin logs."
+                ));
+                index = lines.indexOf("version: 7");
+                lines.set(index, "version: 8");
+                core.log("Configuration file updated to v8");
             } else {
                 core.getMethods().log("The config file is up to date.");
             }
@@ -360,10 +369,18 @@ public class FileManager {
                 }
                 gzipFile(Files.newInputStream(latestLog.toPath()), logsFolder + "/" + sdf.format(latestLog.lastModified()) + "-" + filen + ".log.gz");
                 latestLog.delete();
-
             } catch (IOException ex) {
                 Logger.getLogger(FileManager.class
                         .getName()).log(Level.WARNING, "An unexpected error has ocurred while trying to compress the latest log file. {0}", ex.getMessage());
+            }
+        }
+        File[] fList = logsFolder.listFiles();
+        // Auto purge for old logs
+        for (File file : fList) {
+            if (file.isFile() && file.getName().contains(".gz")) {
+                if ((System.currentTimeMillis() - file.lastModified()) >= core.getConfig().getInt("General.Purge.Logs.Days") * 86400000L) {
+                    file.delete();
+                }
             }
         }
     }

@@ -27,7 +27,7 @@ import java.util.UUID;
 import net.nifheim.beelzebu.coins.core.Core;
 
 /**
- * Handle Coin's Multipliers
+ * Handle Coins multipliers.
  *
  * @author Beelzebu
  */
@@ -45,13 +45,6 @@ public final class Multiplier {
         return core.getDatabase().getConnection();
     }
 
-//    public Multiplier() {
-//        enabler = getEnabler(server);
-//        enabled = isEnabled(server);
-//        amount = getAmount(server);
-//        id = getID(server);
-//        getMultiplierTime(server);
-//    }
     public Multiplier(String sv) {
         server = sv;
         enabler = getEnabler(server);

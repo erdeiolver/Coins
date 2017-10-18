@@ -27,7 +27,6 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
-import net.nifheim.beelzebu.coins.bungee.Main;
 
 /**
  *
@@ -46,7 +45,7 @@ public class PluginMessageListener extends CoinsBungeeListener implements Listen
             ServerInfo server = ProxyServer.getInstance().getPlayer(e.getReceiver().toString()).getServer().getInfo();
             String input = in.readUTF();
             if (input.startsWith("getExecutors")) {
-                if (Main.useRedis()) {
+                if (plugin.useRedis()) {
                     RedisBungee.getApi().sendChannelMessage("Coins", "getExecutors");
                 } else {
                     sendExecutors(server);
@@ -60,7 +59,7 @@ public class PluginMessageListener extends CoinsBungeeListener implements Listen
             if (input.startsWith("updateCache")) {
                 String[] updatemsg = input.split(" ");
                 if (updatemsg.length == 3) {
-                    if (Main.useRedis()) {
+                    if (plugin.useRedis()) {
                         RedisBungee.getApi().sendChannelMessage("Update", updatemsg[1] + " " + updatemsg[2]);
                     } else {
                         ProxyServer.getInstance().getServers().keySet().forEach(server -> {
