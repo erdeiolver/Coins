@@ -339,6 +339,10 @@ public class FileManager {
                 ));
                 core.log("Updated messages_es.yml file to v8");
             }
+            int i = lines.indexOf("      - '&6&nstore.servername.net'\"");
+            if (i != -1) {
+                lines.set(i, "      - '&6&nstore.servername.net'");
+            }
             FileUtils.writeLines(messagesFile, lines);
         } catch (IOException ex) {
             core.getMethods().log("An unexpected error occurred while updating the messages_es.yml file.");
