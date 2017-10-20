@@ -25,6 +25,7 @@ Help:
   - ' &c/coins take <name> <amount> &f- &7Take coins from a user.'
   - ' &c/coins set <name> <amount> &f- &7Set coins of a user.'
   - ' &c/coins reset <name> &f- &7Reset the coins of a user.'
+  - ' &c/coins reload &f- &7Reload the config and messages.'
   - ' &c/coins multiplier &f- &7Shows multiplier subcommands.'
   - ' &8&m+-------------------------------------------------+'
   Pay Usage: '%prefix% &cPlease use &f/coins pay <name> <coins>'

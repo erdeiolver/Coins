@@ -208,4 +208,10 @@ public class Core {
             pm.sendToBungeeCord("Update", "updateCache " + player + " " + coins);
         }
     }
+    
+    public void reloadMessages() {
+        messagesMap.keySet().forEach((lang) -> {
+            messagesMap.get(lang).reload();
+        });
+    }
 }

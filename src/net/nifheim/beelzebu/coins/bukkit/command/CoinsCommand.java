@@ -21,12 +21,12 @@ package net.nifheim.beelzebu.coins.bukkit.command;
 import java.util.List;
 import net.milkbowl.vault.permission.Permission;
 import net.nifheim.beelzebu.coins.CoinsAPI;
+import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.bukkit.utils.MultipliersGUI;
+import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.executor.Executor;
 import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
-import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
-import net.nifheim.beelzebu.coins.core.utils.IMethods;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
@@ -39,8 +39,7 @@ import org.bukkit.entity.Player;
 public class CoinsCommand extends BukkitCommand {
 
     private final Core core = Core.getInstance();
-    private final IConfiguration config = core.getConfig();
-    private final IMethods im = core.getMethods();
+    private final Main plugin = Main.getInstance();
     private String lang = "";
 
     public CoinsCommand(String command, String desc, String usage, String permission, List<String> aliases) {
@@ -53,7 +52,7 @@ public class CoinsCommand extends BukkitCommand {
 
     @Override
     public boolean execute(CommandSender sender, String alias, String[] args) {
-        im.runAsync(() -> {
+        core.getMethods().runAsync(() -> {
             if (sender instanceof Player) {
                 lang = ((Player) sender).spigot().getLocale().split("_")[0];
             }
@@ -81,6 +80,8 @@ public class CoinsCommand extends BukkitCommand {
                 multiplier(sender, args);
             } else if (args[0].equalsIgnoreCase("top") && args.length == 1) {
                 top(sender, args);
+            } else if (args[0].equalsIgnoreCase("reload")) {
+                reload(sender, args);
             } else if (args.length == 1 && CoinsAPI.isindb(args[0])) {
                 target(sender, args);
             } else {
@@ -373,6 +374,21 @@ public class CoinsCommand extends BukkitCommand {
             }
         } else {
             sender.sendMessage(core.getString("Errors.Console", lang));
+        }
+        return true;
+    }
+
+    private boolean reload(CommandSender sender, String[] args) {
+        if (sender.hasPermission("coins.admin")) {
+            core.getConfig().reload();
+            core.reloadMessages();
+            core.getExecutorManager().clear();
+            plugin.getConfig().getConfigurationSection("Command executor").getKeys(false).forEach((id) -> {
+                core.getExecutorManager().addExecutor(new Executor(id, plugin.getConfig().getDouble("Command executor." + id + ".Cost", 0), plugin.getConfig().getStringList("Command executor." + id + ".Command")));
+            });
+            PluginMessage pm = new PluginMessage();
+            pm.sendToBungeeCord("Coins", "getExecutors");
+            sender.sendMessage(core.rep("%prefix% Reloaded config and all loaded messages files. If you want reload the command, you need to restart the server."));
         }
         return true;
     }

@@ -25,6 +25,7 @@ Help:
   - ' &c/coins quitar <nombre> <cantidad> &f- &7Quita coins a un usuario.'
   - ' &c/coins set <nombre> <cantidad> &f- &7Establece las coins de un usuario.'
   - ' &c/coins reset <nombre> &f- &7Establece las coins de el usuario en 0.'
+  - ' &c/coins reload &f- &7Recarga la configuración y los mensajes.'
   - ' &c/coins multiplier &f- &7Muestra los subcomandos de multiplicadores.'
   - ' &8&m+-------------------------------------------------+'
   Pay Usage: '%prefix% &cPor favor usa &f/coins pay <nombre> <coins>'

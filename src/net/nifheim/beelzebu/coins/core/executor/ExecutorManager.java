@@ -30,20 +30,24 @@ public class ExecutorManager {
 
     private final Set<Executor> executors = Collections.synchronizedSet(new HashSet<>());
 
-    public void addExecutor(Executor ex) {
+    public synchronized void addExecutor(Executor ex) {
         executors.add(ex);
     }
 
-    public Set<Executor> getExecutors() {
+    public synchronized Set<Executor> getExecutors() {
         return executors;
     }
 
-    public Executor getExecutor(String id) {
+    public synchronized Executor getExecutor(String id) {
         for (Executor ex : executors) {
             if (ex.getID().equals(id)) {
                 return ex;
             }
         }
         return null;
+    }
+    
+    public synchronized void clear() {
+        executors.clear();
     }
 }
