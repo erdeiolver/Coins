@@ -16,41 +16,23 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins.core.executor;
+package net.nifheim.beelzebu.coins.bukkit.utils;
 
-import java.util.List;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 
 /**
  *
  * @author Beelzebu
  */
-public class Executor {
+public class LocationSerializer {
 
-    private final String ID;
-    private final String displayName;
-    private final double cost;
-    private final List<String> commands;
-
-    public Executor(String i, String d, double c, List<String> cmds) {
-        ID = i;
-        displayName = d;
-        cost = c;
-        commands = cmds;
+    public static String locationToString(Location loc) {
+        return loc.getWorld().getName() + ";" + loc.getX() + ";" + loc.getY() + ";" + loc.getZ();
     }
 
-    public String getID() {
-        return ID;
-    }
-    
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public Double getCost() {
-        return cost;
-    }
-
-    public List<String> getCommands() {
-        return commands;
+    public static Location locationFromString(String string) {
+        String[] s = string.split(";");
+        return new Location(Bukkit.getWorld(s[0]), Double.valueOf(s[1]), Double.valueOf(s[2]), Double.valueOf(s[3]));
     }
 }

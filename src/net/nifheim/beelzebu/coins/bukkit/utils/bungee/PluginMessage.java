@@ -50,6 +50,7 @@ public class PluginMessage implements PluginMessageListener {
         String subchannel = in.readUTF();
         if (subchannel.equals("Coins")) {
             String id = in.readUTF();
+            String displayname = in.readUTF();
             double cost = Double.valueOf(in.readUTF());
             int cmds = Integer.valueOf(in.readUTF());
             List<String> commands = new ArrayList<>();
@@ -58,11 +59,12 @@ public class PluginMessage implements PluginMessageListener {
                     commands.add(in.readUTF());
                 }
             }
-            Executor ex = new Executor(id, cost, commands);
+            Executor ex = new Executor(id, displayname, cost, commands);
             if (core.getExecutorManager().getExecutor(id) == null) {
                 core.getExecutorManager().addExecutor(ex);
                 core.log("The executor " + ex.getID() + " was received from BungeeCord.");
                 core.debug("ID: " + ex.getID());
+                core.debug("Displayname: " + ex.getDisplayName());
                 core.debug("Cost: " + ex.getCost());
                 core.debug("Commands: ");
                 ex.getCommands().forEach((command) -> {

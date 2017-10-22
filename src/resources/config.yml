@@ -3,7 +3,7 @@
 # the official github repo https://github.com/Beelzebu/Coins/issues/
 
 # The version of the config, don't touch!
-version: 8
+version: 9
 
 # This is the prefix used in all the messages.
 Prefix: '&c&lCoins &6&l>&7'
@@ -42,6 +42,11 @@ General:
     Days: 60 # The time in days before deleting an account.
     Logs:
       Days: 10 # The days to keep plugin logs.
+  Executor Sign:
+    '1': '&c&lCoins'
+    '2': '%executor_displayname%'
+    '3': '%ececutor_cost%'
+    '4': ''
 
 # Here you can define a cost to use a specific command.
 Command Cost:
@@ -61,7 +66,7 @@ Command executor:
   '2':
     # You can create executors without cost.
     Command: 
-    - 'broadcast %player% Is awesome!'
+    - 'broadcast: %player% Is awesome!'
   list:
     # You can also create a list of commands to run when the executor is called.
     Command:
@@ -72,11 +77,19 @@ Command executor:
     # The "message:" command send the message after the ":" to the player.
     # The "broadcast:" command broadcast a message to the server.
     Command:
-    - 'message:You win 100 $'
-    - 'broadcast:%player% winned 100 $'
+    - 'message: You win 100 $'
+    - 'broadcast: %player% winned 100 $'
     - 'eco give %player% 100'
     Cost: 10
-    
+  # This example executor is to be used with signs, for signs you can add the 'Displayname'
+  # to be used in the sign, if isn't present the id is used for the displayname, in this case
+  # if we don't put the Displayname this would be: sign1
+  sign1:
+    Displayname: '&lNormal Key'
+    Command:
+    - 'crate givekey %player% 1 normal'
+    - 'message:Here are your key!'
+    Cost: 2
 Multipliers:
   # Here you can configure some aspects of the GUI of multipliers
   GUI:

@@ -26,8 +26,8 @@ import java.util.Collections;
 import java.util.List;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.nifheim.beelzebu.coins.bungee.Main;
-import net.nifheim.beelzebu.coins.bungee.utils.Configuration;
 import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 
 /**
  *
@@ -37,16 +37,17 @@ public abstract class CoinsBungeeListener {
 
     final Main plugin = Main.getInstance();
     final Core core = Core.getInstance();
-    final Configuration config = (Configuration) core.getConfig();
+    final IConfiguration config = core.getConfig();
     final List<String> message = Collections.synchronizedList(new ArrayList<>());
 
     public void sendExecutors(ServerInfo server) {
-        ((net.md_5.bungee.config.Configuration) config.getConfigurationSection("Command executor")).getKeys().forEach((id) -> {
+        ((net.md_5.bungee.config.Configuration) config.getConfigurationSection("Command executor")).getKeys().forEach((String id) -> {
             synchronized (message) {
                 message.clear();
                 List<String> commands = config.getStringList("Command executor." + id + ".Command");
                 List<String> messages = Arrays.asList(
                         id,
+                        config.getString("Command executor." + id + ".Displayname", id),
                         String.valueOf(config.getDouble("Command executor." + id + ".Cost")),
                         String.valueOf(commands.size())
                 );

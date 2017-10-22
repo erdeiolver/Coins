@@ -1,9 +1,10 @@
 # Coins messages file.
-# If you need support or find a bug open a issuse in
-# the official github repo https://github.com/Beelzebu/Coins/issuses/
+# Si necesitas soporte o encuentras un error por favor abre un ticket en el
+# repositorio oficial de github https://github.com/Beelzebu/Coins/issuses/
 
-# The version of this file, don't edit!
-version: 7
+# La versión de este archivo, es usado para actualizarlo automáticamente, no lo cambies
+# a menos que sepas lo que haces.
+version: 9
 
 Help:
   User:

@@ -74,142 +74,42 @@ public class FileManager {
         try {
             List<String> lines = FileUtils.readLines(configFile, Charsets.UTF_8);
             int index;
-            if (core.getConfig().getInt("version") < 5) {
-                index = lines.indexOf("version: " + core.getConfig().getInt("version"));
-                if (index != -1) {
-                    lines.set(index, "version: 5");
-                    lines.addAll(index + 1, Arrays.asList(
-                            "",
-                            "# This is the prefix used in all the messages.",
-                            "Prefix: '&c&lCoins &6&l>&7'"));
-                }
-                lines.remove("  Use: " + core.getConfig().getBoolean("MySQL.Use"));
-                index = lines.indexOf("#  Connection Interval: 5");
-                if (index != -1) {
-                    lines.set(index, "  Connection Interval: 5");
-                }
-                index = lines.indexOf("  Connection Interval: " + core.getConfig().getInt("MySQL.Connection Interval"));
-                if (index != -1) {
-                    if (!lines.containsAll(Arrays.asList(
-                            "# Plugin general configurations.",
-                            "General:",
-                            "  # Here you can define the starting coins of a player when is registred in the",
-                            "  # database or his coins are reset with \"/coins reset\"",
-                            "  Starting Coins: 0"))) {
-                        lines.addAll(index + 1, Arrays.asList(
-                                "",
-                                "# Plugin general configurations.",
-                                "General:",
-                                "  # Here you can define the starting coins of a player when is registred in the",
-                                "  # database or his coins are reset with \"/coins reset\"",
-                                "  Starting Coins: 0",
-                                "  # Here you can configure the base command of the plugin.",
-                                "  Command:",
-                                "    Name: '" + core.getConfig().getString("Command.Name") + "'",
-                                "    Description: '" + core.getConfig().getString("Command.Description") + "'",
-                                "    Usage: '" + core.getConfig().getString("Command.Usage") + "'",
-                                "    Permission: '" + core.getConfig().getString("Command.Permission") + "'",
-                                "    Aliases:",
-                                "  # Here you can configure the autopurge of inactive accounts.",
-                                "  Purge:",
-                                "    Enabled: true # If this is true the old accouns would be purged at server startup.",
-                                "    Days: 60 # The time in days before deleting an account.",
-                                ""));
-                        index = lines.indexOf("    Aliases:");
-                        for (String alias : core.getConfig().getStringList("Command.Aliases")) {
-                            lines.add(index++, "  - '" + alias + "'");
-                        }
-                    } else if (core.getConfig().getString("General.Command.Name") == null) {
-                        index = lines.indexOf("  Starting Coins: 0");
-                        lines.addAll(index + 1, Arrays.asList("  # Here you can configure the base command of the plugin.",
-                                "  Command:",
-                                "    Name: '" + core.getConfig().getString("Command.Name") + "'",
-                                "    Description: '" + core.getConfig().getString("Command.Description") + "'",
-                                "    Usage: '" + core.getConfig().getString("Command.Usage") + "'",
-                                "    Permission: '" + core.getConfig().getString("Command.Permission") + "'",
-                                "    Aliases:",
-                                "  # Here you can configure the autopurge of inactive accounts.",
-                                "  Purge:",
-                                "    Enabled: true # If this is true the old accouns would be purged at server startup.",
-                                "    Days: 60 # The time in days before deleting an account.",
-                                ""
-                        ));
-                        index = lines.indexOf("    Aliases:");
-                        for (String alias : core.getConfig().getStringList("Command.Aliases")) {
-                            lines.add(index++, "  - '" + alias + "'");
-                        }
-                    }
-                }
-                if (core.getConfig().getConfigurationSection("Command") != null) {
-                    lines.removeAll(Arrays.asList(
-                            "# Here you can configure the base command of the plugin.",
-                            "Command:",
-                            "  Name: '" + core.getConfig().getString("Command.Name") + "'",
-                            "  Description: '" + core.getConfig().getString("Command.Description") + "'",
-                            "  Usage: '" + core.getConfig().getString("Command.Usage") + "'",
-                            "  Permission: '" + core.getConfig().getString("Command.Permission") + "'",
-                            "  Aliases:"));
-                    core.getConfig().getStringList("Command.Aliases").forEach((alias) -> {
-                        lines.removeAll(Arrays.asList(
-                                "  - '" + alias + "'"));
-                    });
-                }
-                if (core.getConfig().getInt("Multipliers.Amount") >= 0) {
-                    index = lines.indexOf("  Amount: " + core.getConfig().getInt("Multipliers.Amount"));
-                    if (index != -1) {
-                        lines.remove("  # You should't touch this number, this can be set with /coins multiplier set");
-                        lines.set(index, "");
-                    }
-                }
-                if (core.getConfig().getConfigurationSection("Multipliers") != null) {
-                    index = lines.indexOf("Multipliers:");
-                    if (index != -1) {
-                        lines.addAll(index + 1, Arrays.asList(
-                                "  # Here you can configure some aspects of the GUI of multipliers",
-                                "  GUI:",
-                                "    Close:",
-                                "      # If you're using 1.8 please check ,http://docs.codelanx.com/Bukkit/1.8/org/bukkit/Sound.html",
-                                "      # If you're using 1.9+ use https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html",
-                                "      Sound: 'UI_BUTTON_CLICK'",
-                                "      Pitch: '1'"));
-                    }
-                }
-                core.getMethods().log("Configuration file updated to v5.");
-            } else if (core.getConfig().getInt("version") == 5) {
-                index = lines.indexOf("MySQL:") + 1;
-                lines.add(index, "  Use: true");
-                index = lines.indexOf("version: 5");
-                lines.set(index, "version: 6");
-                core.getMethods().log("Configuration file updated to v6.");
-            } else if (core.getConfig().getInt("version") == 6) {
-                index = lines.indexOf("    Close:") + 5;
-                lines.addAll(index, Arrays.asList(
-                        "    Use:",
-                        "      Sound: 'ENTITY_PLAYER_LEVELUP'",
-                        "      Pitch: '2'",
-                        "      Fail:",
-                        "        Sound: 'ENTITY_VILLAGER_NO'",
-                        "        Pitch: '1'"
-                ));
-                index = lines.indexOf("version: 6");
-                lines.set(index, "version: 7");
-                core.log("Configuration file updated to v7");
-            } else if (core.getConfig().getInt("version") == 7) {
-                index = lines.indexOf("  Purge:") + 3;
-                lines.addAll(index, Arrays.asList(
-                        "    Logs:",
-                        "      Days: 10 # The days to keep plugin logs."
-                ));
-                index = lines.indexOf("version: 7");
-                lines.set(index, "version: 8");
-                core.log("Configuration file updated to v8");
+            if (core.getConfig().getInt("version") == 9) {
+                core.log("The config file is up to date.");
             } else {
-                core.getMethods().log("The config file is up to date.");
+                switch (core.getConfig().getInt("version")) {
+                    case 7:
+                        index = lines.indexOf("  Purge:") + 3;
+                        lines.addAll(index, Arrays.asList(
+                                "    Logs:",
+                                "      Days: 10 # The days to keep plugin logs."
+                        ));
+                        index = lines.indexOf("version: 7");
+                        lines.set(index, "version: 8");
+                        core.log("Configuration file updated to v8");
+                        break;
+                    case 8:
+                        index = lines.indexOf("  Purge:") + 5;
+                        lines.addAll(index, Arrays.asList(
+                                "  Executor Sign:",
+                                "    1: '&c&lCoins'",
+                                "    2: '%executor_displayname%'",
+                                "    3: '%ececutor_cost%'",
+                                "    4: ''"
+                        ));
+                        index = lines.indexOf("version: 8");
+                        lines.set(index, "version: 9");
+                        core.log("Configuration file updated to v9");
+                        break;
+                    default:
+                        core.log("The config file is up to date.");
+                        break;
+                }
             }
             FileUtils.writeLines(configFile, lines);
             core.getConfig().reload();
         } catch (IOException ex) {
-            core.getMethods().log("An unexpected error occurred while updating the config file.");
+            core.log("An unexpected error occurred while updating the config file.");
             core.debug(ex.getMessage());
         }
     }
@@ -217,8 +117,9 @@ public class FileManager {
     public void updateMessages() {
         try {
             List<String> lines = FileUtils.readLines(messagesFile, Charsets.UTF_8);
+            int index;
             if (core.getMessages("").getInt("version") == 5) {
-                int index = lines.indexOf("  Multiplier:") - 1;
+                index = lines.indexOf("  Multiplier:") - 1;
                 lines.add(index, "  Multiplier Create: '%prefix% &cPlease use &f/coins multiplier create <name> <amount> <minutes>'");
                 index = lines.indexOf("Multipliers:");
                 lines.addAll(index + 1, Arrays.asList(
@@ -238,7 +139,7 @@ public class FileManager {
                 core.log("Updated messages.yml file to v6");
             }
             if (core.getMessages("").getInt("version") == 6) {
-                int index = lines.indexOf("version: 6");
+                index = lines.indexOf("version: 6");
                 lines.set(index, "version: 7");
                 index = lines.indexOf("Multipliers:");
                 lines.remove(index);
@@ -247,7 +148,7 @@ public class FileManager {
                 core.log("Updated messages.yml file to v7");
             }
             if (core.getMessages("").getInt("version") == 7) {
-                int index = lines.indexOf("version: 7");
+                index = lines.indexOf("version: 7");
                 lines.set(index, "version: 8");
                 index = lines.indexOf("  Menu:") + 2;
                 lines.addAll(index, Arrays.asList(
@@ -273,16 +174,37 @@ public class FileManager {
                 ));
                 core.log("Updated messages.yml file to v8");
             }
+            if (core.getMessages("").getInt("version") == 8) {
+                index = lines.indexOf("version: 8");
+                lines.set(index, "version: 9");
+                lines.removeAll(Arrays.asList(
+                        "# Coins messages file.",
+                        "# If you need support or find a bug open a issuse in",
+                        "# the official github repo https://github.com/Beelzebu/Coins/issuses/",
+                        "",
+                        "# The version of this file, don't edit!"
+                ));
+                lines.addAll(0, Arrays.asList(
+                        "# Coins messages file.",
+                        "# If you need support or find a bug open a issuse in",
+                        "# the official github repo https://github.com/Beelzebu/Coins/issuses/",
+                        "",
+                        "# The version of this file, is used to auto update this file, don't change it",
+                        "# unless you know what you do."
+                ));
+                core.log("Updated messages.yml file to v9");
+            }
             FileUtils.writeLines(messagesFile, lines);
         } catch (IOException ex) {
-            core.getMethods().log("An unexpected error occurred while updating the messages.yml file.");
+            core.log("An unexpected error occurred while updating the messages.yml file.");
             core.debug(ex.getMessage());
         }
         try {
-            File messagesFile = new File(core.getDataFolder(), "messages_es.yml");
-            List<String> lines = FileUtils.readLines(messagesFile, Charsets.UTF_8);
+            File messages_esFile = new File(core.getDataFolder(), "messages_es.yml");
+            List<String> lines = FileUtils.readLines(messages_esFile, Charsets.UTF_8);
+            int index;
             if (core.getMessages("es").getInt("version") == 5) {
-                int index = lines.indexOf("  Multiplier:") - 1;
+                index = lines.indexOf("  Multiplier:") - 1;
                 lines.add(index, "  Multiplier Create: '%prefix% &cPor favor usa &f/coins multiplier create <nombre> <cantidad> <minutos>'");
                 index = lines.indexOf("Multipliers:");
                 lines.addAll(index + 1, Arrays.asList(
@@ -302,7 +224,7 @@ public class FileManager {
                 core.log("Updated messages_es.yml file to v6");
             }
             if (core.getMessages("es").getInt("version") == 6) {
-                int index = lines.indexOf("version: 6");
+                index = lines.indexOf("version: 6");
                 lines.set(index, "version: 7");
                 index = lines.indexOf("Multipliers:");
                 lines.remove(index);
@@ -311,16 +233,14 @@ public class FileManager {
                 core.log("Updated messages_es.yml file to v7");
             }
             if (core.getMessages("es").getInt("version") == 7) {
-                int index = lines.indexOf("version: 7");
+                index = lines.indexOf("version: 7");
                 lines.set(index, "version: 8");
                 index = lines.indexOf("  Menu:") + 2;
                 lines.addAll(index, Arrays.asList(
                         "    Confirm:",
                         "      Title: '&8¿Estás seguro?'",
-                        "      Yes:",
-                        "        Name: '&a¡SI!'",
-                        "      No:",
-                        "        Name: '&cNo'",
+                        "      Accept: '&a¡SI!'",
+                        "      Decline: '&cNo'",
                         "    Multipliers:",
                         "      Name: '&6Multiplicador &cx%amount%'",
                         "      Lore:",
@@ -339,13 +259,33 @@ public class FileManager {
                 ));
                 core.log("Updated messages_es.yml file to v8");
             }
-            int i = lines.indexOf("      - '&6&nstore.servername.net'\"");
-            if (i != -1) {
-                lines.set(i, "      - '&6&nstore.servername.net'");
+            index = lines.indexOf("      - '&6&nstore.servername.net'\"");
+            if (index != -1) {
+                lines.set(index, "      - '&6&nstore.servername.net'");
             }
-            FileUtils.writeLines(messagesFile, lines);
+            if (core.getMessages("es").getInt("version") == 8) {
+                index = lines.indexOf("version: 8");
+                lines.set(index, "version: 9");
+                lines.removeAll(Arrays.asList(
+                        "# Coins messages file.",
+                        "# If you need support or find a bug open a issuse in",
+                        "# the official github repo https://github.com/Beelzebu/Coins/issuses/",
+                        "",
+                        "# The version of this file, don't edit!"
+                ));
+                lines.addAll(0, Arrays.asList(
+                        "# Coins messages file.",
+                        "# Si necesitas soporte o encuentras un error por favor abre un ticket en el",
+                        "# repositorio oficial de github https://github.com/Beelzebu/Coins/issuses/",
+                        "",
+                        "# La versión de este archivo, es usado para actualizarlo automáticamente, no lo cambies",
+                        "# a menos que sepas lo que haces."
+                ));
+                core.log("Updated messages_es.yml file to v9");
+            }
+            FileUtils.writeLines(messages_esFile, lines);
         } catch (IOException ex) {
-            core.getMethods().log("An unexpected error occurred while updating the messages_es.yml file.");
+            core.log("An unexpected error occurred while updating the messages_es.yml file.");
             core.debug(ex.getMessage());
         }
     }

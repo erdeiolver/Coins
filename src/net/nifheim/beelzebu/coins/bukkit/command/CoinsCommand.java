@@ -82,7 +82,9 @@ public class CoinsCommand extends BukkitCommand {
                 top(sender, args);
             } else if (args[0].equalsIgnoreCase("reload")) {
                 reload(sender, args);
-            } else if (args.length == 1 && CoinsAPI.isindb(args[0])) {
+            } else if (args[0].equalsIgnoreCase("about")) {
+                about(sender, args);
+            }else if (args.length == 1 && CoinsAPI.isindb(args[0])) {
                 target(sender, args);
             } else {
                 sender.sendMessage(core.getString("Errors.Unknow command", lang));
@@ -346,7 +348,6 @@ public class CoinsCommand extends BukkitCommand {
             Executor ex = core.getExecutorManager().getExecutor(args[1]);
             if (ex == null) {
                 sender.sendMessage(core.getString("Errors.No Execute", lang));
-                return true;
             } else {
                 if (ex.getCost() > 0) {
                     if (CoinsAPI.getCoins(sender.getName()) >= ex.getCost()) {
@@ -361,10 +362,10 @@ public class CoinsCommand extends BukkitCommand {
                         String command;
                         for (String str : ex.getCommands()) {
                             command = core.rep(str).replaceAll("%player%", sender.getName());
-                            if (command.startsWith("message: ")) {
-                                sender.sendMessage(command.replaceFirst("message: ", ""));
-                            } else if (command.startsWith("broadcast: ")) {
-                                Bukkit.getServer().broadcastMessage(command.replaceFirst("broadcast: ", ""));
+                            if (command.startsWith("message:")) {
+                                sender.sendMessage(core.rep(command.replaceFirst("message:", "")));
+                            } else if (command.startsWith("broadcast:")) {
+                                Bukkit.getServer().broadcastMessage(core.rep(command.replaceFirst("broadcast:", "")));
                             } else {
                                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
                             }
@@ -384,11 +385,23 @@ public class CoinsCommand extends BukkitCommand {
             core.reloadMessages();
             core.getExecutorManager().clear();
             plugin.getConfig().getConfigurationSection("Command executor").getKeys(false).forEach((id) -> {
-                core.getExecutorManager().addExecutor(new Executor(id, plugin.getConfig().getDouble("Command executor." + id + ".Cost", 0), plugin.getConfig().getStringList("Command executor." + id + ".Command")));
+                core.getExecutorManager().addExecutor(new Executor(id, core.getConfig().getString("Command executor." + id + ".Displayname", id), core.getConfig().getDouble("Command executor." + id + ".Cost", 0), core.getConfig().getStringList("Command executor." + id + ".Command")));
             });
             PluginMessage pm = new PluginMessage();
             pm.sendToBungeeCord("Coins", "getExecutors");
             sender.sendMessage(core.rep("%prefix% Reloaded config and all loaded messages files. If you want reload the command, you need to restart the server."));
+        }
+        return true;
+    }
+    
+    private boolean about(CommandSender sender, String[] args) {
+        if (sender.hasPermission("coins.admin") || sender.getName().equals("Beelzebu")) {
+            sender.sendMessage(core.rep("%prefix% Server setup:"));
+            sender.sendMessage("");
+            sender.sendMessage(core.rep(" &cVersion:&7 " + core.getMethods().getVersion()));
+            sender.sendMessage(core.rep(" &cExecutors:&7 " + core.getExecutorManager().getExecutors().size()));
+            sender.sendMessage(core.rep(" &cMySQL:&7 " + core.isMySQL()));
+            sender.sendMessage("");
         }
         return true;
     }

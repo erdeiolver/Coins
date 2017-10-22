@@ -2,8 +2,9 @@
 # If you need support or find a bug open a issuse in
 # the official github repo https://github.com/Beelzebu/Coins/issuses/
 
-# The version of this file, don't edit!
-version: 7
+# The version of this file, is used to auto update this file, don't change it
+# unless you know what you do.
+version: 9
 
 Help:
   User:
