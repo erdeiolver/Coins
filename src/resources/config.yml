@@ -3,13 +3,21 @@
 # the official github repo https://github.com/Beelzebu/Coins/issues/
 
 # The version of the config, don't touch!
-version: 9
+version: 10
 
 # This is the prefix used in all the messages.
 Prefix: '&c&lCoins &6&l>&7'
 
 # Set this to true to use the player uuid or set to false to use player name.
 Online Mode: true
+
+# Here you can enable Vault to make this plugin manage all the Vault transactions.
+Vault:
+  Use: false
+  # Names used by vault for the currency.
+  Name:
+    Singular: 'Coin'
+    Plural: 'Coins'
 
 # Here are the MySQL server settings.
 MySQL:

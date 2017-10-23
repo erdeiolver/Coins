@@ -266,10 +266,10 @@ public class MySQL implements Database {
         try (Connection c = getConnection()) {
             try {
                 double beforeCoins = getCoins(player);
-                if (beforeCoins - coins < 0 || beforeCoins == coins) {
+                if ((beforeCoins - coins < 0) || beforeCoins == coins) {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = 0 WHERE nick = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(core.getUUID(player), 0D);
-                    core.updateCache(core.getUUID(player), coins);
+                    core.updateCache(core.getUUID(player), 0D);
                 } else if (beforeCoins > coins) {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE nick = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(core.getUUID(player), (beforeCoins - coins));
@@ -398,10 +398,10 @@ public class MySQL implements Database {
         try (Connection c = getConnection()) {
             try {
                 double beforeCoins = getCoins(player);
-                if (beforeCoins - coins < 0 || beforeCoins == coins) {
+                if ((beforeCoins - coins) < 0 || beforeCoins == coins) {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = 0 WHERE uuid = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(player, 0D);
-                    core.updateCache(player, coins);
+                    core.updateCache(player, 0D);
                 } else if (beforeCoins > coins) {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE uuid = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(player, beforeCoins - coins);

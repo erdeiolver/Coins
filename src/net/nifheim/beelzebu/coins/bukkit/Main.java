@@ -21,6 +21,7 @@ package net.nifheim.beelzebu.coins.bukkit;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.command.CommandManager;
 import net.nifheim.beelzebu.coins.bukkit.listener.*;
+import net.nifheim.beelzebu.coins.bukkit.utils.CoinsEconomy;
 import net.nifheim.beelzebu.coins.bukkit.utils.Configuration;
 import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
 import net.nifheim.beelzebu.coins.bukkit.utils.placeholders.*;
@@ -61,6 +62,10 @@ public class Main extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerQuitListener(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new SignListener(), this);
         
+        if (getConfig().getBoolean("Vault.Use", false)) {
+            new CoinsEconomy(this).setup();
+        }
+        
         getConfig().getConfigurationSection("Command executor").getKeys(false).forEach((id) -> {
             core.getExecutorManager().addExecutor(new Executor(id, getConfig().getString("Command executor." + id + ".Displayname", id), getConfig().getDouble("Command executor." + id + ".Cost", 0), getConfig().getStringList("Command executor." + id + ".Command")));
         });
@@ -77,6 +82,9 @@ public class Main extends JavaPlugin {
     
     @Override
     public void onDisable() {
+        if (getConfig().getBoolean("Vault.Use", false)) {
+            new CoinsEconomy(this).shutdown();
+        }
         Bukkit.getScheduler().cancelTasks(this);
         core.shutdown();
     }

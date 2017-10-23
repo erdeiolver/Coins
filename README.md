@@ -49,6 +49,7 @@ These languages are built-in, but you can add more if you want, just create a me
 
  - English
  - Español/Spanish
+ 
 If you want to translate the plugin to another language, please send a PR with your translation.
 ## ToDo:
  - Add support for Vault to make this manage the entire server economy.

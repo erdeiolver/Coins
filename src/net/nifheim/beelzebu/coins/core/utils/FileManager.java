@@ -74,7 +74,7 @@ public class FileManager {
         try {
             List<String> lines = FileUtils.readLines(configFile, Charsets.UTF_8);
             int index;
-            if (core.getConfig().getInt("version") == 9) {
+            if (core.getConfig().getInt("version") == 10) {
                 core.log("The config file is up to date.");
             } else {
                 switch (core.getConfig().getInt("version")) {
@@ -100,6 +100,22 @@ public class FileManager {
                         index = lines.indexOf("version: 8");
                         lines.set(index, "version: 9");
                         core.log("Configuration file updated to v9");
+                        break;
+                    case 9:
+                        index = lines.indexOf("MySQL:") - 2;
+                        lines.addAll(index, Arrays.asList(
+                                "# Here you can enable Vault to make this plugin manage all the Vault transactions.",
+                                "Vault:",
+                                "  Use: false",
+                                "  # Names used by vault for the currency.",
+                                "  Name:",
+                                "    Singular: 'Coin'",
+                                "    Plural: 'Coins'",
+                                ""
+                        ));
+                        index = lines.indexOf("version: 9");
+                        lines.set(index, "version: 10");
+                        core.log("Configuraton file updated to v10");
                         break;
                     default:
                         core.log("The config file is up to date.");

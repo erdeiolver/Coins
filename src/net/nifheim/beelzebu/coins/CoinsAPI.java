@@ -61,12 +61,26 @@ public class CoinsAPI {
     }
 
     /**
-     * Get the coins String of a Offline Player.
+     * Get the coins String of a player by his name.
      *
      * @param p Player to get the coins string.
      * @return
      */
     public static String getCoinsString(String p) {
+        if (isindb(p)) {
+            return (DF.format(getCoins(p)));
+        } else {
+            return "This player isn't in the database";
+        }
+    }
+
+    /**
+     * Get the coins String of a player by his name.
+     *
+     * @param p Player to get the coins string.
+     * @return
+     */
+    public static String getCoinsString(UUID p) {
         if (isindb(p)) {
             return (DF.format(getCoins(p)));
         } else {
@@ -188,6 +202,40 @@ public class CoinsAPI {
      */
     public static void setCoins(UUID p, Double coins) {
         core.getDatabase().setCoins(p, coins);
+    }
+
+    /**
+     * Pay coins to another player.
+     *
+     * @param from The player to get the coins.
+     * @param to The player to pay.
+     * @param amount The amount of coins to pay.
+     * @return true or false if the transaction is completed.
+     */
+    public static boolean payCoins(String from, String to, Double amount) {
+        if (getCoins(from) >= amount) {
+            takeCoins(from, amount);
+            addCoins(to, amount);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Pay coins to another player.
+     *
+     * @param from The player to get the coins.
+     * @param to The player to pay.
+     * @param amount The amount of coins to pay.
+     * @return true or false if the transaction is completed.
+     */
+    public static boolean payCoins(UUID from, UUID to, Double amount) {
+        if (getCoins(from) >= amount) {
+            takeCoins(from, amount);
+            addCoins(to, amount);
+            return true;
+        }
+        return false;
     }
 
     /**

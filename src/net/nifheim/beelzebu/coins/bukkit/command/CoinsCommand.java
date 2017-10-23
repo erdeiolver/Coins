@@ -22,6 +22,7 @@ import java.util.List;
 import net.milkbowl.vault.permission.Permission;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
+import net.nifheim.beelzebu.coins.bukkit.utils.CoinsEconomy;
 import net.nifheim.beelzebu.coins.bukkit.utils.MultipliersGUI;
 import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
 import net.nifheim.beelzebu.coins.core.Core;
@@ -84,7 +85,7 @@ public class CoinsCommand extends BukkitCommand {
                 reload(sender, args);
             } else if (args[0].equalsIgnoreCase("about")) {
                 about(sender, args);
-            }else if (args.length == 1 && CoinsAPI.isindb(args[0])) {
+            } else if (args.length == 1 && CoinsAPI.isindb(args[0])) {
                 target(sender, args);
             } else {
                 sender.sendMessage(core.getString("Errors.Unknow command", lang));
@@ -120,8 +121,8 @@ public class CoinsCommand extends BukkitCommand {
                 Player target = Bukkit.getPlayer(args[1]);
                 if (CoinsAPI.isindb(args[1])) {
                     double coins = Double.parseDouble(args[2]);
-                    if ((coins > 0)) {
-                        if ((CoinsAPI.getCoins(sender.getName()) > 0) && (CoinsAPI.getCoins(sender.getName()) >= coins)) {
+                    if (coins > 0) {
+                        if (CoinsAPI.getCoins(sender.getName()) >= coins) {
                             if (target != null) {
                                 CoinsAPI.takeCoins(sender.getName(), coins);
                                 sender.sendMessage(core.getString("Coins.Pay", lang).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%target%", target.getName()));
@@ -381,8 +382,14 @@ public class CoinsCommand extends BukkitCommand {
 
     private boolean reload(CommandSender sender, String[] args) {
         if (sender.hasPermission("coins.admin")) {
+            if (plugin.getConfig().getBoolean("Vault.Use", false)) {
+                new CoinsEconomy(plugin).shutdown();
+            }
             core.getConfig().reload();
             core.reloadMessages();
+            if (plugin.getConfig().getBoolean("Vault.Use", false)) {
+                new CoinsEconomy(plugin).setup();
+            }
             core.getExecutorManager().clear();
             plugin.getConfig().getConfigurationSection("Command executor").getKeys(false).forEach((id) -> {
                 core.getExecutorManager().addExecutor(new Executor(id, core.getConfig().getString("Command executor." + id + ".Displayname", id), core.getConfig().getDouble("Command executor." + id + ".Cost", 0), core.getConfig().getStringList("Command executor." + id + ".Command")));
@@ -393,7 +400,7 @@ public class CoinsCommand extends BukkitCommand {
         }
         return true;
     }
-    
+
     private boolean about(CommandSender sender, String[] args) {
         if (sender.hasPermission("coins.admin") || sender.getName().equals("Beelzebu")) {
             sender.sendMessage(core.rep("%prefix% Server setup:"));
