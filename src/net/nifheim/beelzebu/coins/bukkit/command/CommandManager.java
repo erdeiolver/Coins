@@ -19,15 +19,11 @@
 package net.nifheim.beelzebu.coins.bukkit.command;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.core.Core;
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
-import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.plugin.SimplePluginManager;
 
 /**
  *
@@ -35,35 +31,23 @@ import org.bukkit.plugin.SimplePluginManager;
  */
 public class CommandManager {
 
-    private final Main plugin;
-    private final Core core;
-    private final String commandName;
-    private final List<String> commandAliases = new ArrayList<>();
-
-    public CommandManager(Main main) {
-        plugin = main;
-        core = Core.getInstance();
-        commandName = core.getConfig().getString("General.Command.Name", "coins");
-    }
+    private final Core core = Core.getInstance();
+    private Command cmd;
 
     public void registerCommand() {
         try {
-            commandAliases.addAll(core.getConfig().getStringList("General.Command.Aliases"));
 
-            final Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-            bukkitCommandMap.setAccessible(true);
-            CommandMap commandMap = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
+            //Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+            //bukkitCommandMap.setAccessible(true);
+            CommandMap commandMap = (CommandMap) getPrivateField(Bukkit.getPluginManager(), "commandMap");
 
             String commandDescription = core.getConfig().getString("General.Command.Description", "Base command of the Coins plugin");
             String commandUsage = core.getConfig().getString("General.Command.Usage", "/coins");
             String commandPermission = core.getConfig().getString("General.Command.Permission", "coins.use");
 
-            commandAliases.forEach((str) -> {
-                unregisterCommand(str);
-            });
-            unregisterCommand(commandName);
-
-            commandMap.register(commandName, new CoinsCommand(commandName, commandDescription, commandUsage, commandPermission, commandAliases));
+            unregisterCommand();
+            cmd = new CoinsCommand(core.getConfig().getString("General.Command.Name", "coins"), commandDescription, commandUsage, commandPermission, core.getConfig().getStringList("General.Command.Aliases"));
+            commandMap.register(core.getConfig().getString("General.Command.Name", "coins"), cmd);
 
         } catch (SecurityException | IllegalArgumentException | NoSuchFieldException | IllegalAccessException ex) {
             core.getMethods().log("An internal error has ocurred while registering the command for the plugin.");
@@ -71,24 +55,33 @@ public class CommandManager {
         }
     }
 
-    public void unregisterCommand(final String command) {
-        if (plugin.getServer() != null && plugin.getServer().getPluginManager() instanceof SimplePluginManager) {
-            final SimplePluginManager manager = (SimplePluginManager) plugin.getServer().getPluginManager();
-            try {
-                final Field field = SimplePluginManager.class.getDeclaredField("commandMap");
-                field.setAccessible(true);
-                CommandMap map = (CommandMap) field.get(manager);
-                final Field field2 = SimpleCommandMap.class.getDeclaredField("knownCommands");
-                field2.setAccessible(true);
-                final Map<String, org.bukkit.command.Command> knownCommands = (Map<String, org.bukkit.command.Command>) field2.get(map);
-                knownCommands.entrySet().stream().filter((entry) -> (entry.getKey().equals(command))).forEachOrdered((entry) -> {
-                    entry.getValue().unregister(map);
-                });
-                knownCommands.remove(command);
-            } catch (IllegalArgumentException | NoSuchFieldException | IllegalAccessException | SecurityException ex) {
-                core.getMethods().log("An internal error has ocurred while registering the command for the plugin.");
-                core.debug(ex.getCause().getMessage());
+    @SuppressWarnings("unchecked")
+    public void unregisterCommand() {
+        try {
+            CommandMap commandMap = (CommandMap) getPrivateField(Bukkit.getPluginManager(), "commandMap");
+            Map<String, Command> knownCommands = (Map<String, Command>) getPrivateField(commandMap, "knownCommands");
+            knownCommands.remove(core.getConfig().getString("General.Command.Name"));
+            if (cmd != null && knownCommands.get(core.getConfig().getString("General.Command.Name")) != null) {
+                knownCommands.get(core.getConfig().getString("General.Command.Name")).unregister(commandMap);
             }
+            core.getConfig().getStringList("General.Command.Aliases").forEach(alias -> {
+                if (knownCommands.containsKey(alias)) {
+                    knownCommands.remove(alias);
+                    if (cmd != null && knownCommands.get(alias) != null) {
+                        knownCommands.get(alias).unregister(commandMap);
+                    }
+                }
+            });
+        } catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException | SecurityException ex) {
+            core.getMethods().log("An internal error has ocurred while unregistering the command for the plugin.");
+            core.debug(ex.getCause().getMessage());
         }
+    }
+
+    private Object getPrivateField(Object object, String field) throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+        Class<?> clazz = object.getClass();
+        Field objectField = clazz.getDeclaredField(field);
+        objectField.setAccessible(true);
+        return objectField.get(object);
     }
 }

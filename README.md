@@ -12,13 +12,16 @@ Coins is the most complete and efficient plugin to manage a secondary economy in
  - Multi lang, you can have different messages for any lang, the plugin will use the user's lang to get the corresponding file and if the message doesn't exist in that file the plugin gonna fallback to the messages.yml file.
  - BungeeCord support, you can put it in bungeecord to use the API if you need.
  - Command cost, you can add a cost to use commands.
- - Command Executors, you can create a list of commands that can be executed paying a specific amount of coins, see the config for more information. (you can create these in the BungeeCord config and will be sent to every spigot server)
- - A internal cache to avoid to many queries to the Database.
+ - Command Executors, you can create a list of commands that can be executed paying a specific amount of coins, see the config for more information. (you can create these in the BungeeCord config and will be available on every spigot server connected)
+ - Sign executors, you can use executors in signs.
+ - A internal cache to avoid too many queries to the Database.
  - The cache is updated through BungeeCord or RedisBungee if is present.
  - PlaceholderAPI support.
- - Multipliers, you can add a permission to players to get more coins or create multipliers that can be enabled for the entire server for a specific amount of time.
+ - Vault support, the plugin can manage the entire server economy also across servers.
+ - Multiplier, you can add a permission to players to get more coins or create multipliers that can be enabled for the entire server for a specific amount of time.
  - Internal log to find errors faster.
  - All tasks run async.
+
 
 ## Commands:
 ### User commands:
@@ -41,17 +44,19 @@ Coins is the most complete and efficient plugin to manage a secondary economy in
  - coins.multiplier.x<2-100> - Permission for personal multipliers, this can be between 2 to 100.
 
 ## Requisites:
- - Java 8 :p
- - PlaceholderAPI (optional, used for the placeholders listed below).
+ - Java 8
+ - PlaceholderAPI (optional, used for the placeholders).
+ - Vault (optional, used if you make this the primary economy).
 
 ## Languages:
-These languages are built-in, but you can add more if you want, just create a messages\_<lang>.yml and the plugin will use it for players with that language, see https://en.wikipedia.org/wiki/List\_of\_ISO\_639-1_codes for the lang code (ISO 639-1).
+These languages are built-in, but you can add more if you want, just create a messages\_<lang>.yml and the plugin will use it for players with that language, see [https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) for the lang code (ISO 639-1).
 
  - English
- - Español/Spanish
+ - Spanish
+ - Chinese
  
 If you want to translate the plugin to another language, please send a PR with your translation.
+
 ## ToDo:
- - Add support for Vault to make this manage the entire server economy.
  - Add a way to import data from similar plugins like PlayerPoints.
  - Add support for Redis storage.

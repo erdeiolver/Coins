@@ -26,7 +26,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.CacheManager;
@@ -251,6 +253,7 @@ public class MySQL implements Database {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE nick = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(core.getUUID(player), oldCoins + coins);
                     core.updateCache(core.getUUID(player), coins);
+                    core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, oldCoins + coins);
                 }
             } finally {
                 c.close();
@@ -266,16 +269,16 @@ public class MySQL implements Database {
         try (Connection c = getConnection()) {
             try {
                 double beforeCoins = getCoins(player);
-                if ((beforeCoins - coins < 0) || beforeCoins == coins) {
+                if ((beforeCoins - coins) < 0 || beforeCoins == coins) {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = 0 WHERE nick = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(core.getUUID(player), 0D);
                     core.updateCache(core.getUUID(player), 0D);
-                } else if (beforeCoins > coins) {
+                } else {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE nick = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(core.getUUID(player), (beforeCoins - coins));
                     core.updateCache(core.getUUID(player), coins);
                 }
-
+                core.getMethods().callCoinsChangeEvent(core.getUUID(player), beforeCoins, beforeCoins - coins);
             } finally {
                 c.close();
             }
@@ -289,10 +292,12 @@ public class MySQL implements Database {
     public void resetCoins(String player) {
         try (Connection c = getConnection()) {
             try {
-                if (isindb(player) && getCoins(player) >= 0) {
+                if (isindb(player)) {
+                    double oldCoins = getCoins(player);
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + core.getConfig().getDouble("General.Starting Coins") + " WHERE nick = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
                     core.updateCache(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
+                    core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, core.getConfig().getDouble("General.Starting Coins"));
                 }
             } finally {
                 c.close();
@@ -307,10 +312,12 @@ public class MySQL implements Database {
     public void setCoins(String player, Double coins) {
         try (Connection c = getConnection()) {
             try {
-                if (isindb(player) && getCoins(player) >= 0) {
+                if (isindb(player)) {
+                    double oldCoins = getCoins(player);
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + coins + " WHERE nick = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(core.getUUID(player), coins);
                     core.updateCache(core.getUUID(player), coins);
+                    core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, coins);
                 }
             } finally {
                 c.close();
@@ -382,6 +389,7 @@ public class MySQL implements Database {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE uuid = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(player, oldCoins + coins);
                     core.updateCache(player, coins);
+                    core.getMethods().callCoinsChangeEvent(player, oldCoins, oldCoins + coins);
                 }
             } finally {
                 c.close();
@@ -402,12 +410,12 @@ public class MySQL implements Database {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = 0 WHERE uuid = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(player, 0D);
                     core.updateCache(player, 0D);
-                } else if (beforeCoins > coins) {
+                } else {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE uuid = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(player, beforeCoins - coins);
                     core.updateCache(player, coins);
                 }
-
+                core.getMethods().callCoinsChangeEvent(player, beforeCoins, beforeCoins - coins);
             } finally {
                 c.close();
             }
@@ -421,10 +429,12 @@ public class MySQL implements Database {
     public void resetCoins(UUID player) {
         try (Connection c = getConnection()) {
             try {
-                if (isindb(player) && getCoins(player) >= 0) {
+                if (isindb(player)) {
+                    double oldCoins = getCoins(player);
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + core.getConfig().getDouble("General.Starting Coins") + " WHERE uuid = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(player, core.getConfig().getDouble("General.Starting Coins"));
                     core.updateCache(player, core.getConfig().getDouble("General.Starting Coins"));
+                    core.getMethods().callCoinsChangeEvent(player, oldCoins, core.getConfig().getDouble("General.Starting Coins"));
                 }
             } finally {
                 c.close();
@@ -439,10 +449,12 @@ public class MySQL implements Database {
     public void setCoins(UUID player, Double coins) {
         try (Connection c = getConnection()) {
             try {
-                if (isindb(player) && getCoins(player) >= 0) {
+                if (isindb(player)) {
+                    double oldCoins = getCoins(player);
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + coins + " WHERE uuid = '" + player + "';").executeUpdate();
                     CacheManager.updateCoins(player, coins);
                     core.updateCache(player, coins);
+                    core.getMethods().callCoinsChangeEvent(player, oldCoins, coins);
                 }
             } finally {
                 c.close();
@@ -500,6 +512,32 @@ public class MySQL implements Database {
             core.debug(ex.getMessage());
         }
         return toplist;
+    }
+
+    @Override
+    public Map<String, Double> getTopPlayers(int top) {
+        Map<String, Double> topplayers = new HashMap<>();
+        try (Connection c = getConnection()) {
+            ResultSet res = null;
+            try {
+                res = c.prepareStatement("SELECT * FROM " + prefix + "Data ORDER BY balance DESC LIMIT " + top + ";").executeQuery();
+                while (res.next()) {
+                    String playername = res.getString("nick");
+                    double coins = res.getDouble("balance");
+                    topplayers.put(playername, coins);
+                }
+            } finally {
+                if (res != null) {
+                    res.close();
+                }
+                c.close();
+            }
+        } catch (SQLException ex) {
+            core.log("&cAn internal error has occurred generating the toplist");
+            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+        return topplayers;
     }
 
     private boolean isColumnMissing(DatabaseMetaData metaData, String table, String column) throws SQLException {

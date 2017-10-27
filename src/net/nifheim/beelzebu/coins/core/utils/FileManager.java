@@ -319,6 +319,10 @@ public class FileManager {
         if (!es.exists()) {
             copy(core.getResource("messages_es.yml"), es);
         }
+        File zh = new File(core.getDataFolder(), "messages_zh.yml");
+        if (!es.exists()) {
+            copy(core.getResource("messages_zh.yml"), zh);
+        }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         File latestLog = new File(logsFolder, "latest.log");
         if (latestLog.exists()) {

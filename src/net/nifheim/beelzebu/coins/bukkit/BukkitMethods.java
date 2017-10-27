@@ -21,6 +21,7 @@ package net.nifheim.beelzebu.coins.bukkit;
 import java.io.File;
 import java.io.InputStream;
 import java.util.UUID;
+import net.nifheim.beelzebu.coins.bukkit.events.CoinsChangeEvent;
 import net.nifheim.beelzebu.coins.bukkit.utils.Messages;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
@@ -117,5 +118,10 @@ public class BukkitMethods implements IMethods {
     @Override
     public String getName(UUID uuid) {
         return Bukkit.getPlayer(uuid) != null ? Bukkit.getPlayer(uuid).getName() : null;
+    }
+
+    @Override
+    public void callCoinsChangeEvent(UUID uuid, double oldCoins, double newCoins) {
+        Bukkit.getPluginManager().callEvent(new CoinsChangeEvent(uuid, oldCoins, newCoins));
     }
 }

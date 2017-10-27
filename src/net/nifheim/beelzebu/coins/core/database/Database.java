@@ -21,6 +21,7 @@ package net.nifheim.beelzebu.coins.core.database;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -53,7 +54,10 @@ public interface Database {
 
     boolean isindb(UUID player);
 
+    @Deprecated
     List<String> getTop(int top);
+    
+    Map<String, Double> getTopPlayers(int top);
 
     void createPlayer(String player, UUID uuid);
 

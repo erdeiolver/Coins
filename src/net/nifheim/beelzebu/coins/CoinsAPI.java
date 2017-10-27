@@ -20,6 +20,7 @@ package net.nifheim.beelzebu.coins;
 
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
@@ -264,10 +265,24 @@ public class CoinsAPI {
      *
      * @param top The lenght of the top list, for example 5 will get a max of 5
      * users for the top.
-     * @return The ordered top list.
+     * @return The ordered top list of players and his balance, separated by a
+     * separated by a comma and space. ", "
+     * @deprecated see {@link #getTopPlayers(int)}
      */
+    @Deprecated
     public static List<String> getTop(int top) {
         return core.getDatabase().getTop(top);
+    }
+
+    /**
+     * Get the top players in coins data.
+     *
+     * @param top The lenght of the top list, for example 5 will get a max of 5
+     * users for the top.
+     * @return The ordered top list of players and his balance.
+     */
+    public static Map<String, Double> getTopPlayers(int top) {
+        return core.getDatabase().getTopPlayers(top);
     }
 
     /**

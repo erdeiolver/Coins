@@ -73,4 +73,6 @@ public interface IMethods {
      * @throws NullPointerException if the player with that uuid is offline.
      */
     String getName(UUID uuid) throws NullPointerException;
+    
+    void callCoinsChangeEvent(UUID uuid, double oldCoins, double newCoins);
 }

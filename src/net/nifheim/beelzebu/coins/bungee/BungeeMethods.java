@@ -27,6 +27,7 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.nifheim.beelzebu.coins.bungee.events.CoinsChangeEvent;
 import net.nifheim.beelzebu.coins.bungee.utils.Messages;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
@@ -129,5 +130,10 @@ public class BungeeMethods implements IMethods {
             return RedisBungee.getApi().getNameFromUuid(uuid);
         }
         return ProxyServer.getInstance().getPlayer(uuid) != null ? ProxyServer.getInstance().getPlayer(uuid).getName() : null;
+    }
+
+    @Override
+    public void callCoinsChangeEvent(UUID uuid, double oldCoins, double newCoins) {
+        ProxyServer.getInstance().getPluginManager().callEvent(new CoinsChangeEvent(uuid, oldCoins, newCoins));
     }
 }

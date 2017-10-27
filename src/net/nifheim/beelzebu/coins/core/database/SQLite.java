@@ -23,7 +23,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.CacheManager;
@@ -145,6 +147,7 @@ public class SQLite implements Database {
                 double oldCoins = getCoins(player);
                 getConnection().prepareStatement("UPDATE Data SET balance = " + (oldCoins + coins) + " WHERE nick = '" + player + "';").executeUpdate();
                 CacheManager.updateCoins(core.getUUID(player), oldCoins + coins);
+                core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, oldCoins + coins);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred adding coins to the player: " + player);
@@ -160,10 +163,11 @@ public class SQLite implements Database {
             if (beforeCoins - coins < 0 || beforeCoins == coins) {
                 getConnection().prepareStatement("UPDATE Data SET balance = 0 WHERE nick = '" + player + "';").executeUpdate();
                 CacheManager.updateCoins(core.getUUID(player), 0D);
-            } else if (beforeCoins > coins) {
+            } else {
                 getConnection().prepareStatement("UPDATE Data SET balance = " + (beforeCoins - coins) + " WHERE nick = '" + player + "';").executeUpdate();
                 CacheManager.updateCoins(core.getUUID(player), (beforeCoins - coins));
             }
+            core.getMethods().callCoinsChangeEvent(core.getUUID(player), beforeCoins, beforeCoins - coins);
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred taking coins to the player: " + player);
             core.debug("&cThe error code is: " + ex.getErrorCode());
@@ -174,9 +178,11 @@ public class SQLite implements Database {
     @Override
     public void resetCoins(String player) {
         try {
-            if (isindb(player) && getCoins(player) >= 0) {
+            if (isindb(player)) {
+                double oldCoins = getCoins(player);
                 getConnection().prepareStatement("UPDATE Data SET balance = " + core.getConfig().getDouble("General.Starting Coins") + " WHERE nick = '" + player + "';").executeUpdate();
                 CacheManager.updateCoins(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
+                core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, core.getConfig().getDouble("General.Starting Coins"));
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred reseting the coins of player: " + player);
@@ -188,9 +194,11 @@ public class SQLite implements Database {
     @Override
     public void setCoins(String player, Double coins) {
         try {
-            if (isindb(player) && getCoins(player) >= 0) {
+            if (isindb(player)) {
+                double oldCoins = getCoins(player);
                 getConnection().prepareStatement("UPDATE Data SET balance = " + coins + " WHERE nick = '" + player + "';").executeUpdate();
                 CacheManager.updateCoins(core.getUUID(player), coins);
+                core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, coins);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred setting the coins of player: " + player);
@@ -242,6 +250,7 @@ public class SQLite implements Database {
                 double oldCoins = getCoins(player);
                 getConnection().prepareStatement("UPDATE Data SET balance = " + (oldCoins + coins) + " WHERE uuid = '" + player + "';").executeUpdate();
                 CacheManager.updateCoins(player, oldCoins + coins);
+                core.getMethods().callCoinsChangeEvent(player, oldCoins, oldCoins + coins);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred adding coins to the player: " + core.getNick(player));
@@ -257,10 +266,11 @@ public class SQLite implements Database {
             if (beforeCoins - coins < 0 || beforeCoins == coins) {
                 getConnection().prepareStatement("UPDATE Data SET balance = 0 WHERE uuid = '" + player + "';").executeUpdate();
                 CacheManager.updateCoins(player, 0D);
-            } else if (beforeCoins > coins) {
+            } else {
                 getConnection().prepareStatement("UPDATE Data SET balance = " + (beforeCoins - coins) + " WHERE uuid = '" + player + "';").executeUpdate();
                 CacheManager.updateCoins(player, beforeCoins - coins);
             }
+            core.getMethods().callCoinsChangeEvent(player, beforeCoins, beforeCoins - coins);
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred taking coins to the player: " + core.getNick(player));
             core.debug("&cThe error code is: " + ex.getErrorCode());
@@ -271,9 +281,11 @@ public class SQLite implements Database {
     @Override
     public void resetCoins(UUID player) {
         try {
-            if (isindb(player) && getCoins(player) >= 0) {
+            if (isindb(player)) {
+                double oldCoins = getCoins(player);
                 getConnection().prepareStatement("UPDATE Data SET balance = " + core.getConfig().getDouble("General.Starting Coins") + " WHERE uuid = '" + player + "';").executeUpdate();
                 CacheManager.updateCoins(player, core.getConfig().getDouble("General.Starting Coins"));
+                core.getMethods().callCoinsChangeEvent(player, oldCoins, core.getConfig().getDouble("General.Starting Coins"));
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred reseting the coins of player: " + core.getNick(player));
@@ -285,9 +297,11 @@ public class SQLite implements Database {
     @Override
     public void setCoins(UUID player, Double coins) {
         try {
-            if (isindb(player) && getCoins(player) >= 0) {
+            if (isindb(player)) {
+                double oldCoins = getCoins(player);
                 getConnection().prepareStatement("UPDATE Data SET balance = " + coins + " WHERE uuid = '" + player + "';").executeUpdate();
                 CacheManager.updateCoins(player, coins);
+                core.getMethods().callCoinsChangeEvent(player, oldCoins, coins);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred setting the coins of player: " + core.getNick(player));
@@ -330,19 +344,29 @@ public class SQLite implements Database {
     }
 
     @Override
+    public Map<String, Double> getTopPlayers(int top) {
+        Map<String, Double> topplayers = new HashMap<>();
+        try {
+            ResultSet res = getConnection().prepareStatement("SELECT * FROM Data ORDER BY balance DESC LIMIT " + top + ";").executeQuery();
+            while (res.next()) {
+                String playername = res.getString("nick");
+                double coins = res.getDouble("balance");
+                topplayers.put(playername, coins);
+            }
+        } catch (SQLException ex) {
+            core.log("&cAn internal error has occurred generating the toplist");
+            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
+        }
+        return topplayers;
+    }
+
+    @Override
     public String getNick(UUID uuid) {
-        try (Connection c = getConnection()) {
-            ResultSet res = null;
-            try {
-                res = c.prepareStatement("SELECT * FROM Data WHERE uuid = '" + uuid + "';").executeQuery();
-                if (res.next()) {
-                    return res.getString("nick");
-                }
-            } finally {
-                if (res != null) {
-                    res.close();
-                }
-                c.close();
+        try {
+            ResultSet res = getConnection().prepareStatement("SELECT * FROM Data WHERE uuid = '" + uuid + "';").executeQuery();
+            if (res.next()) {
+                return res.getString("nick");
             }
         } catch (SQLException ex) {
             core.log("Something was wrong getting the nick for the uuid '" + uuid + "'");
@@ -354,18 +378,10 @@ public class SQLite implements Database {
 
     @Override
     public UUID getUUID(String nick) {
-        try (Connection c = getConnection()) {
-            ResultSet res = null;
-            try {
-                res = c.prepareStatement("SELECT * FROM Data WHERE nick = '" + nick + "';").executeQuery();
-                if (res.next()) {
-                    return UUID.fromString(res.getString("uuid"));
-                }
-            } finally {
-                if (res != null) {
-                    res.close();
-                }
-                c.close();
+        try {
+            ResultSet res = getConnection().prepareStatement("SELECT * FROM Data WHERE nick = '" + nick + "';").executeQuery();
+            if (res.next()) {
+                return UUID.fromString(res.getString("uuid"));
             }
         } catch (SQLException ex) {
             core.log("Something was wrong getting the uuid for the nick '" + nick + "'");
