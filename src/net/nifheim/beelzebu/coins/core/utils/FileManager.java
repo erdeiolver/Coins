@@ -50,9 +50,6 @@ public class FileManager {
         messagesFile = new File(core.getDataFolder(), "messages.yml");
         configFile = new File(core.getDataFolder(), "config.yml");
         logsFolder = new File(core.getDataFolder(), "logs");
-        if (!logsFolder.exists()) {
-            logsFolder.mkdirs();
-        }
     }
 
     public void copy(InputStream in, File file) {
@@ -307,7 +304,13 @@ public class FileManager {
     }
 
     public void copyFiles() {
-        core.getDataFolder().mkdirs();
+	if (!core.getDataFolder().exists()) {
+	    core.getDataFolder().mkdirs();
+	    File zh_cfg = new File(core.getDataFolder(), "config_zh.yml");
+	    if (!zh_cfg.exists()) {
+		copy(core.getResource("config_zh.yml"), zh_cfg);
+	    }
+	}
 
         if (!messagesFile.exists()) {
             copy(core.getResource("messages.yml"), messagesFile);
@@ -323,9 +326,8 @@ public class FileManager {
         if (!es.exists()) {
             copy(core.getResource("messages_zh.yml"), zh);
         }
-	File zh_cfg = new File(core.getDataFolder(), "config_zh.yml");
-	if (!zh_cfg.exists()) {
-	    copy(core.getResource("config_zh.yml"), zh_cfg);
+	if (!logsFolder.exists()) {
+	    logsFolder.mkdirs();
 	}
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         File latestLog = new File(logsFolder, "latest.log");
