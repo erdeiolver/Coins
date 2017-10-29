@@ -35,9 +35,9 @@ public class Messages extends MessagesManager {
 
     public Messages(String lang) {
         super(lang);
-        langFile = new File(Core.getInstance().getDataFolder(), "messages_" + lang + ".yml");
+        langFile = new File(Core.getInstance().getDataFolder() + "/messages", "messages_" + lang + ".yml");
         if (!langFile.exists()) {
-            langFile = new File(Core.getInstance().getDataFolder(), "messages.yml");
+            langFile = new File(Core.getInstance().getDataFolder() + "/messages", "messages.yml");
         }
         messages = YamlConfiguration.loadConfiguration(langFile);
     }

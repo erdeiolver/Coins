@@ -25,9 +25,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
@@ -41,13 +44,19 @@ import org.apache.commons.io.FileUtils;
 public class FileManager {
 
     private final Core core;
-    private final File messagesFile;
+    private final File messagesFolder;
+    private final Map<String, File> messagesFiles;
     private final File configFile;
     private final File logsFolder;
 
     public FileManager(Core c) {
         core = c;
-        messagesFile = new File(core.getDataFolder(), "messages.yml");
+        messagesFolder = new File(core.getDataFolder(), "messages");
+        messagesFiles = new HashMap<>();
+        messagesFiles.put("default", new File(messagesFolder, "messages.yml"));
+        messagesFiles.put("es", new File(messagesFolder, "messages_es.yml"));
+        messagesFiles.put("zh", new File(messagesFolder, "messages_zh.yml"));
+        messagesFiles.put("cz", new File(messagesFolder, "messages_cz.yml"));
         configFile = new File(core.getDataFolder(), "config.yml");
         logsFolder = new File(core.getDataFolder(), "logs");
     }
@@ -67,7 +76,7 @@ public class FileManager {
         }
     }
 
-    public void updateConfig() {
+    private void updateConfig() {
         try {
             List<String> lines = FileUtils.readLines(configFile, Charsets.UTF_8);
             int index;
@@ -115,21 +124,21 @@ public class FileManager {
                         core.log("Configuraton file updated to v10");
                         break;
                     default:
-                        core.log("The config file is up to date.");
+                        core.log("Seems that you hava a too old version of the config or you canged this to another number >:(");
+                        core.log("We can't update it, if is a old version you should try to update it slow and not jump from a version to another, keep in mind that we keep track of the last 3 versions of the config to update.");
                         break;
                 }
             }
             FileUtils.writeLines(configFile, lines);
-            core.getConfig().reload();
         } catch (IOException ex) {
             core.log("An unexpected error occurred while updating the config file.");
             core.debug(ex.getMessage());
         }
     }
 
-    public void updateMessages() {
+    private void updateMessages() {
         try {
-            List<String> lines = FileUtils.readLines(messagesFile, Charsets.UTF_8);
+            List<String> lines = FileUtils.readLines(messagesFiles.get("default"), Charsets.UTF_8);
             int index;
             if (core.getMessages("").getInt("version") == 5) {
                 index = lines.indexOf("  Multiplier:") - 1;
@@ -207,14 +216,13 @@ public class FileManager {
                 ));
                 core.log("Updated messages.yml file to v9");
             }
-            FileUtils.writeLines(messagesFile, lines);
+            FileUtils.writeLines(messagesFiles.get("default"), lines);
         } catch (IOException ex) {
             core.log("An unexpected error occurred while updating the messages.yml file.");
             core.debug(ex.getMessage());
         }
         try {
-            File messages_esFile = new File(core.getDataFolder(), "messages_es.yml");
-            List<String> lines = FileUtils.readLines(messages_esFile, Charsets.UTF_8);
+            List<String> lines = FileUtils.readLines(messagesFiles.get("es"), Charsets.UTF_8);
             int index;
             if (core.getMessages("es").getInt("version") == 5) {
                 index = lines.indexOf("  Multiplier:") - 1;
@@ -296,7 +304,7 @@ public class FileManager {
                 ));
                 core.log("Updated messages_es.yml file to v9");
             }
-            FileUtils.writeLines(messages_esFile, lines);
+            FileUtils.writeLines(messagesFiles.get("es"), lines);
         } catch (IOException ex) {
             core.log("An unexpected error occurred while updating the messages_es.yml file.");
             core.debug(ex.getMessage());
@@ -304,31 +312,48 @@ public class FileManager {
     }
 
     public void copyFiles() {
-	if (!core.getDataFolder().exists()) {
-	    core.getDataFolder().mkdirs();
-	    File zh_cfg = new File(core.getDataFolder(), "config_zh.yml");
-	    if (!zh_cfg.exists()) {
-		copy(core.getResource("config_zh.yml"), zh_cfg);
-	    }
-	}
-
-        if (!messagesFile.exists()) {
-            copy(core.getResource("messages.yml"), messagesFile);
+        if (!core.getDataFolder().exists()) {
+            core.getDataFolder().mkdirs();
+            File zh_cfg = new File(core.getDataFolder(), "config_zh.yml");
+            if (!zh_cfg.exists()) {
+                copy(core.getResource("config_zh.yml"), zh_cfg);
+            }
         }
+        if (!messagesFolder.exists()) {
+            messagesFolder.mkdirs();
+        }
+        {
+            File[] files = core.getDataFolder().listFiles();
+            for (File f : files) {
+                if (f.isFile() && f.getName().startsWith("messages")) {
+                    try {
+                        Files.move(f.toPath(), new File(messagesFolder, f.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    } catch (IOException ex) {
+                        Logger.getLogger(FileManager.class.getName()).log(Level.SEVERE, "An error has ocurred while moving messages files to the new messages folder.", ex);
+                    }
+                }
+            }
+        }
+        checkLogs();
+        messagesFiles.keySet().forEach(filename -> {
+            File messages = messagesFiles.get(filename);
+            if (!messages.exists()) {
+                copy(core.getResource(messages.getName()), messages);
+            }
+        });
+        updateMessages();
         if (!configFile.exists()) {
             copy(core.getResource("config.yml"), configFile);
         }
-        File es = new File(core.getDataFolder(), "messages_es.yml");
-        if (!es.exists()) {
-            copy(core.getResource("messages_es.yml"), es);
+        core.getConfig().reload();
+        updateConfig();
+        core.getConfig().reload();
+    }
+
+    private void checkLogs() {
+        if (!logsFolder.exists()) {
+            logsFolder.mkdirs();
         }
-        File zh = new File(core.getDataFolder(), "messages_zh.yml");
-        if (!es.exists()) {
-            copy(core.getResource("messages_zh.yml"), zh);
-        }
-	if (!logsFolder.exists()) {
-	    logsFolder.mkdirs();
-	}
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         File latestLog = new File(logsFolder, "latest.log");
         if (latestLog.exists()) {
@@ -340,8 +365,7 @@ public class FileManager {
                 gzipFile(Files.newInputStream(latestLog.toPath()), logsFolder + "/" + sdf.format(latestLog.lastModified()) + "-" + filen + ".log.gz");
                 latestLog.delete();
             } catch (IOException ex) {
-                Logger.getLogger(FileManager.class
-                        .getName()).log(Level.WARNING, "An unexpected error has ocurred while trying to compress the latest log file. {0}", ex.getMessage());
+                Logger.getLogger(FileManager.class.getName()).log(Level.WARNING, "An unexpected error has ocurred while trying to compress the latest log file. {0}", ex.getMessage());
             }
         }
         File[] fList = logsFolder.listFiles();

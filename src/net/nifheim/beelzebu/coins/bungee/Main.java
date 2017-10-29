@@ -27,7 +27,6 @@ import net.nifheim.beelzebu.coins.bungee.listener.PubSubMessageListener;
 import net.nifheim.beelzebu.coins.bungee.utils.Configuration;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
-import net.nifheim.beelzebu.coins.core.utils.IMethods;
 
 /**
  *
@@ -38,7 +37,6 @@ public class Main extends Plugin {
     private static Main instance;
     private final Core core = Core.getInstance();
     private IConfiguration config;
-    private IMethods methods = new BungeeMethods();
     private static Boolean useRedis = false;
 
     public static Main getInstance() {
@@ -48,9 +46,8 @@ public class Main extends Plugin {
     @Override
     public void onEnable() {
         instance = this;
-        methods = new BungeeMethods();
         config = new Configuration();
-        core.setup(methods);
+        core.setup(new BungeeMethods());
         if (ProxyServer.getInstance().getPluginManager().getPlugin("RedisBungee") != null) {
             ProxyServer.getInstance().getPluginManager().registerListener(this, new PubSubMessageListener());
             RedisBungee.getApi().registerPubSubChannels("Coins", "Update");

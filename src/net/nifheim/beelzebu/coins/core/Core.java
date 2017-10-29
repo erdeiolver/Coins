@@ -62,8 +62,6 @@ public class Core {
         messagesMap = new HashMap<>();
         FileManager fileUpdater = new FileManager(this);
         fileUpdater.copyFiles();
-        fileUpdater.updateConfig();
-        fileUpdater.updateMessages();
         getDatabase();
         executorManager = new ExecutorManager();
         motd(true);
@@ -79,7 +77,13 @@ public class Core {
         mi.sendMessage(mi.getConsole(), rep("&6-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"));
         mi.sendMessage(mi.getConsole(), rep("           &4Coins &fBy:  &7Beelzebu"));
         mi.sendMessage(mi.getConsole(), rep(""));
-        mi.sendMessage(mi.getConsole(), rep("                 &4v: &f" + mi.getVersion()));
+	String version = "";
+	int spaces = (42 - ("v: " + mi.getVersion()).length()) / 2;
+	for (int i = 0; i < spaces; i++) {
+	    version += " ";
+	}
+	version += rep("&4v: &f" + mi.getVersion());
+        mi.sendMessage(mi.getConsole(), version);
         mi.sendMessage(mi.getConsole(), rep("&6-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"));
         mi.sendMessage(mi.getConsole(), rep(""));
         // Only send this in the onEnable

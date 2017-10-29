@@ -38,7 +38,7 @@ public class Configuration implements IConfiguration {
     private net.md_5.bungee.config.Configuration config;
 
     public Configuration() {
-        reload();
+        reload(true);
     }
 
     @Override
@@ -113,10 +113,16 @@ public class Configuration implements IConfiguration {
 
     @Override
     public final void reload() {
+        reload(false);
+    }
+
+    private void reload(boolean canFail) {
         try {
             config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
         } catch (IOException ex) {
-            Logger.getLogger(Configuration.class.getName()).log(Level.WARNING, "An unexpected error has ocurred reloading the config. {0}", ex.getMessage());
+            if (!canFail) {
+                Logger.getLogger(Configuration.class.getName()).log(Level.WARNING, "An unexpected error has ocurred reloading the config. {0}", ex.getMessage());
+            }
         }
     }
 }
