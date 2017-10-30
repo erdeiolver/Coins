@@ -27,9 +27,10 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
-import net.nifheim.beelzebu.coins.bungee.events.CoinsChangeEvent;
+import net.nifheim.beelzebu.coins.bungee.events.*;
 import net.nifheim.beelzebu.coins.bungee.utils.Messages;
 import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 import net.nifheim.beelzebu.coins.core.utils.IMethods;
 import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
@@ -65,7 +66,7 @@ public class BungeeMethods implements IMethods {
 
     @Override
     public void runAsync(Runnable rn, Long timer) {
-        ProxyServer.getInstance().getScheduler().schedule((Plugin) getPlugin(), rn, timer, TimeUnit.MINUTES);
+        ProxyServer.getInstance().getScheduler().schedule((Plugin) getPlugin(), rn, timer, TimeUnit.SECONDS);
     }
 
     @Override
@@ -135,5 +136,10 @@ public class BungeeMethods implements IMethods {
     @Override
     public void callCoinsChangeEvent(UUID uuid, double oldCoins, double newCoins) {
         ProxyServer.getInstance().getPluginManager().callEvent(new CoinsChangeEvent(uuid, oldCoins, newCoins));
+    }
+
+    @Override
+    public void callMultiplierEnableEvent(UUID uuid, MultiplierData multiplierData) {
+        ProxyServer.getInstance().getPluginManager().callEvent(new MultiplierEnableEvent(uuid, multiplierData));
     }
 }

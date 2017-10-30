@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 
 /**
  * Handle Coins multipliers.
@@ -38,7 +39,8 @@ public final class Multiplier {
     private final String server;
     private String enabler = null;
     private Boolean enabled = false;
-    private Integer amount;
+    private Integer amount = 1;
+    private Long endTime = 0L;
     private Integer id;
 
     private Connection getConnection() throws SQLException {
@@ -51,7 +53,7 @@ public final class Multiplier {
         enabled = isEnabled(server);
         amount = getAmount(server);
         id = getID(server);
-        getMultiplierTime(server);
+        checkMultiplierTime(server);
     }
 
     /**
@@ -61,6 +63,16 @@ public final class Multiplier {
      */
     public String getEnabler() {
         return enabler;
+    }
+
+    /**
+     * Set the enabler for this multiplier instance.
+     *
+     * @param enabler The new enabler for this multiplier.
+     */
+    public void setEnabler(String enabler) {
+        this.enabler = enabler;
+        id = -1;
     }
 
     /**
@@ -74,6 +86,16 @@ public final class Multiplier {
     }
 
     /**
+     * Set the state of this multiplier instance.
+     *
+     * @param enabled The new status for this multiplier.
+     */
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+        id = -1;
+    }
+
+    /**
      * Get the the amount of the multiplier enabled in this server.
      *
      * @return
@@ -82,8 +104,72 @@ public final class Multiplier {
         return amount;
     }
 
+    /**
+     * Set the amout for this multiplier instance. If it is below 2, it will be
+     * set to 2.
+     *
+     * @param amount The new amount for the multiplier.
+     */
+    public void setAmount(Integer amount) {
+        if (amount < 2) {
+            this.amount = 2;
+        } else {
+            this.amount = amount;
+        }
+        id = -1;
+    }
+
+    /**
+     * Set the endtime for this multiplier instance.
+     *
+     * @param endtime The new end time.
+     */
+    public void setEndTime(Long endtime) {
+        endTime = endtime;
+        id = -1;
+    }
+
+    /**
+     * Get the multiplier ID for this server.
+     *
+     * @return
+     */
     public Integer getID() {
         return id;
+    }
+
+    /**
+     * Get the name of the server for this multiplier.
+     *
+     * @return The name of the server.
+     */
+    public String getServer() {
+        return server;
+    }
+
+    /**
+     * Update this multiplier in all spigot servers.
+     */
+    public void sendMultiplier() {
+        core.updateMultiplier(this);
+    }
+
+    /**
+     * Get the real data for this multiplier.
+     *
+     * @return The multiplier data direct from the database.
+     */
+    public MultiplierData getData() {
+        return getDataByID(id);
+    }
+
+    /**
+     * Check for the time of this multiplier, and disable it if is expired.
+     *
+     * @return the remaining millis of this multiplier.
+     */
+    public Long checkTime() {
+        return checkMultiplierTime(server);
     }
 
     /**
@@ -92,11 +178,13 @@ public final class Multiplier {
      * @param uuid The player to create the multiplier.
      * @param multiplier The multiplier.
      * @param minutes The time for the multiplier.
+     * @param server The server to create the multiplier, if is null, we use the
+     * server specified in the config.
      */
-    public void createMultiplier(UUID uuid, Integer multiplier, Integer minutes) {
+    public void createMultiplier(UUID uuid, Integer multiplier, Integer minutes, String server) {
         try (Connection c = getConnection()) {
             try {
-                c.prepareStatement("INSERT INTO " + prefix + "Multipliers VALUES(NULL, '" + uuid + "', " + multiplier + ", -1, " + minutes + ", 0, " + "'" + server + "'" + ", false);").executeUpdate();
+                c.prepareStatement("INSERT INTO " + prefix + "Multipliers VALUES(NULL, '" + uuid + "', " + multiplier + ", -1, " + minutes + ", 0, " + "'" + (server != null ? server : this.server) + "'" + ", false);").executeUpdate();
             } finally {
                 c.close();
             }
@@ -113,12 +201,12 @@ public final class Multiplier {
      * @return The multiplier time formated.
      */
     public String getMultiplierTimeFormated() {
-        Long endtime = getMultiplierTime(server);
+        Long endtime = checkMultiplierTime(server);
         String format;
-        Long time = -75600000L + getMultiplierTime(server);
-        if (endtime > 86400000) {
+        Long time = -75600000L + checkMultiplierTime(server);
+        if (endtime > 86400000L) {
             format = "%1$td, %1$tH:%1$tM:%1$tS";
-        } else if (endtime > 3600000) {
+        } else if (endtime > 3600000L) {
             format = "%1$tH:%1$tM:%1$tS";
         } else {
             format = "%1$tM:%1$tS";
@@ -126,7 +214,7 @@ public final class Multiplier {
         if (time < 0) {
             return String.format(format, time);
         }
-        return "Ninguno :(";
+        return "00:00";
     }
 
     /**
@@ -145,36 +233,6 @@ public final class Multiplier {
         return getMultipliersFor(uuid, server, all);
     }
 
-    public Long getMultiplierTime(String server) {
-        try (Connection c = getConnection()) {
-            ResultSet res = null;
-            try {
-                res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + server + "' AND enabled = true;").executeQuery();
-                if (res.next()) {
-                    Long start = System.currentTimeMillis();
-                    Long end = res.getLong("endtime");
-                    if ((end - start) > 0) {
-                        return (end - start);
-                    } else {
-                        c.prepareStatement("DELETE FROM " + prefix + "Multipliers WHERE server = '" + server + "' AND enabled = true;").executeUpdate();
-                        amount = getAmount(server);
-                        enabled = false;
-                    }
-                }
-            } finally {
-                if (res != null) {
-                    res.close();
-                }
-                c.close();
-            }
-        } catch (SQLException ex) {
-            core.log("&cSomething was wrong when we're getting the multiplier time for " + server);
-            core.debug("The error code is: " + ex.getErrorCode());
-            core.debug(ex.getMessage());
-        }
-        return 0L;
-    }
-
     /**
      * Use the multiplier of a player in the server by the multiplier id.
      *
@@ -188,17 +246,21 @@ public final class Multiplier {
             ResultSet res = null;
             try {
                 res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE id = " + id + ";").executeQuery();
-                if (!isEnabled()) {
+                MultiplierData data = getDataByID(id);
+                if (!isEnabled(data.getServer())) {
                     if (res.next()) {
                         Long minutes = res.getLong("minutes");
                         Long endtime = System.currentTimeMillis() + (minutes * 60000);
                         c.prepareStatement("UPDATE " + prefix + "Multipliers SET endtime = " + endtime + ", enabled = true WHERE id = " + id + ";").executeUpdate();
-                        amount = getAmount(server);
+                        amount = getAmount(res.getString("server"));
+                        CacheManager.addMultiplier(res.getString("server"), new Multiplier(res.getString("server")));
+                        core.getMethods().callMultiplierEnableEvent(UUID.fromString(res.getString("uuid")), data);
                         return true;
                     }
                 } else {
+                    res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + server + "' ORDER BY queue DESC;").executeQuery();
                     if (res.next()) {
-                        c.prepareStatement("UPDATE " + prefix + "Multipliers SET queue = true WHERE id = " + id + ";").executeUpdate();
+                        c.prepareStatement("UPDATE " + prefix + "Multipliers SET queue = " + (res.getInt("queue") + 1) + " WHERE id = " + id + ";").executeUpdate();
                         return false;
                     }
                 }
@@ -216,12 +278,63 @@ public final class Multiplier {
         return false;
     }
 
+    private Long checkMultiplierTime(String server) {
+        if (id == -1) {
+            if ((endTime - System.currentTimeMillis()) > 0) {
+                return System.currentTimeMillis() - endTime;
+            } else {
+                amount = 1;
+                enabled = false;
+                enabler = null;
+                endTime = 0L;
+                CacheManager.removeMultiplier(server);
+                return 0L;
+            }
+        } else if (endTime > 0 && (endTime - System.currentTimeMillis()) > 0) {
+            return endTime - System.currentTimeMillis();
+        } else {
+            try (Connection c = getConnection()) {
+                ResultSet res = null;
+                try {
+                    res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + server + "' AND enabled = true;").executeQuery();
+                    if (res.next()) {
+                        endTime = res.getLong("endtime");
+                        if ((endTime - System.currentTimeMillis()) > 0) {
+                            return (endTime - System.currentTimeMillis());
+                        } else {
+                            c.prepareStatement("DELETE FROM " + prefix + "Multipliers WHERE server = '" + server + "' AND enabled = true;").executeUpdate();
+                            amount = 1;
+                            enabled = false;
+                            enabler = null;
+                            endTime = 0L;
+                            CacheManager.removeMultiplier(server);
+                            res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + server + "' AND enabled = false ORDER BY queue DESC;").executeQuery();
+                            if (res.next()) {
+                                useMultiplier(res.getInt("id"), MultiplierType.SERVER);
+                            }
+                        }
+                    }
+                } finally {
+                    if (res != null) {
+                        res.close();
+                    }
+                    c.close();
+                }
+            } catch (SQLException ex) {
+                core.log("&cSomething was wrong when we're getting the multiplier time for " + server);
+                core.debug("The error code is: " + ex.getErrorCode());
+                core.debug(ex.getMessage());
+            }
+        }
+        return 0L;
+    }
+
     private Set<Integer> getMultipliersFor(UUID uuid, String server, boolean all) {
         Set<Integer> multipliers = new HashSet<>();
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
-                String query = "SELECT * FROM " + prefix + "Multipliers WHERE uuid = '" + uuid + "' AND enabled = false";
+                String query = "SELECT * FROM " + prefix + "Multipliers WHERE uuid = '" + uuid + "' AND enabled = false AND queue = -1";
                 if (server != null && all == false) {
                     query += " AND server = '" + server + "'";
                 }

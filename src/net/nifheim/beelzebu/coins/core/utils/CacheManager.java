@@ -59,6 +59,10 @@ public class CacheManager {
         multipliersData.put(server, multiplier);
     }
 
+    public static synchronized void removeMultiplier(String server) {
+        multipliersData.remove(server);
+    }
+
     public static synchronized Multiplier getMultiplier(String server) {
         if (multipliersData.containsKey(server)) {
             return multipliersData.get(server);

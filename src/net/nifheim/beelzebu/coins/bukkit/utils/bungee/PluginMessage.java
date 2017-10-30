@@ -25,9 +25,11 @@ import com.google.common.io.ByteStreams;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.executor.Executor;
+import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
 import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -38,9 +40,9 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
  * @author Beelzebu
  */
 public class PluginMessage implements PluginMessageListener {
-
+    
     private final Core core = Core.getInstance();
-
+    
     @Override
     public synchronized void onPluginMessageReceived(String channel, Player player, byte[] message) {
         if (!channel.equals("Coins")) {
@@ -48,40 +50,58 @@ public class PluginMessage implements PluginMessageListener {
         }
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
         String subchannel = in.readUTF();
-        if (subchannel.equals("Coins")) {
-            String id = in.readUTF();
-            String displayname = in.readUTF();
-            double cost = Double.valueOf(in.readUTF());
-            int cmds = Integer.valueOf(in.readUTF());
-            List<String> commands = new ArrayList<>();
-            if (cmds > 0) {
-                for (int i = 0; i < cmds; i++) {
-                    commands.add(in.readUTF());
+        switch (subchannel) {
+            case "Coins":
+                String id = in.readUTF();
+                String displayname = in.readUTF();
+                double cost = Double.valueOf(in.readUTF());
+                int cmds = Integer.valueOf(in.readUTF());
+                List<String> commands = new ArrayList<>();
+                if (cmds > 0) {
+                    for (int i = 0; i < cmds; i++) {
+                        commands.add(in.readUTF());
+                    }
                 }
-            }
-            Executor ex = new Executor(id, displayname, cost, commands);
-            if (core.getExecutorManager().getExecutor(id) == null) {
-                core.getExecutorManager().addExecutor(ex);
-                core.log("The executor " + ex.getID() + " was received from BungeeCord.");
-                core.debug("ID: " + ex.getID());
-                core.debug("Displayname: " + ex.getDisplayName());
-                core.debug("Cost: " + ex.getCost());
-                core.debug("Commands: ");
-                ex.getCommands().forEach((command) -> {
-                    core.debug(command);
-                });
-            } else {
-                core.debug("An executor with the id: " + ex.getID() + " was received from BungeeCord but a local Executor with that id already exists.");
-            }
-        } else if (subchannel.equals("Update")) {
-            String data = in.readUTF();
-            if (data.split(" ").length == 2) {
-                UUID puuid = UUID.fromString(data.split(" ")[0]);
-                CacheManager.updateCoins(puuid, Double.valueOf(data.split(" ")[1]));
-            }
+                Executor ex = new Executor(id, displayname, cost, commands);
+                if (core.getExecutorManager().getExecutor(id) == null) {
+                    core.getExecutorManager().addExecutor(ex);
+                    core.log("The executor " + ex.getID() + " was received from BungeeCord.");
+                    core.debug("ID: " + ex.getID());
+                    core.debug("Displayname: " + ex.getDisplayName());
+                    core.debug("Cost: " + ex.getCost());
+                    core.debug("Commands: ");
+                    ex.getCommands().forEach((command) -> {
+                        core.debug(command);
+                    });
+                } else {
+                    core.debug("An executor with the id: " + ex.getID() + " was received from BungeeCord but a local Executor with that id already exists.");
+                }
+                break;
+            case "Update":
+                String data = in.readUTF();
+                if (data.split(" ").length == 2) {
+                    UUID puuid = UUID.fromString(data.split(" ")[0]);
+                    CacheManager.updateCoins(puuid, Double.valueOf(data.split(" ")[1]));
+                }
+                break;
+            case "Multiplier":
+                List<String> multiplierData = new ArrayList<>();
+                for (int i = 0; i < 5; i++) {
+                    multiplierData.add(in.readUTF());
+                }
+                if (multiplierData.size() == 5) {
+                    Multiplier multiplier = CoinsAPI.getMultiplier(multiplierData.get(0));
+                    multiplier.setEnabled(Boolean.valueOf(multiplierData.get(1)));
+                    multiplier.setEnabler(multiplierData.get(2));
+                    multiplier.setAmount(Integer.valueOf(multiplierData.get(3)));
+                    multiplier.setEndTime(Long.valueOf(multiplierData.get(4)));
+                }
+                break;
+            default:
+                break;
         }
     }
-
+    
     public void sendToBungeeCord(String channel, String message) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF(channel);
@@ -89,6 +109,18 @@ public class PluginMessage implements PluginMessageListener {
         Player p = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
         if (p != null) {
             p.sendPluginMessage(Main.getInstance(), "Coins", out.toByteArray());
+        }
+    }
+    
+    public void sendToBungeeCord(String channel, List<String> messages) {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF(channel);
+        messages.forEach(message -> {
+            out.writeUTF(message);
+        });
+        Player p = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
+        if (p != null) {
+            p.sendPluginMessage(Main.getInstance(), channel, out.toByteArray());
         }
     }
 }
