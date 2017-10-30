@@ -61,10 +61,32 @@ public class ConfirmGUI extends BaseGUI {
             meta.setDisplayName(core.getString("Multipliers.Menu.Confirm.Accept", p.spigot().getLocale()));
             is.setItemMeta(meta);
             setItem(2, is, player -> {
-                if (CoinsAPI.getMultiplier(multiplierData.getServer()).useMultiplier(multiplierData.getID(), MultiplierType.SERVER)) {
-                    player.playSound(player.getLocation(), Sound.valueOf(core.getConfig().getString("Multipliers.GUI.Use.Sound", "PLAYER_LEVELUP")), 10, 2);
+                if (CoinsAPI.getMultiplier().useMultiplier(multiplierData.getID(), MultiplierType.SERVER)) {
+                    try {
+                        player.playSound(player.getLocation(), Sound.valueOf(core.getConfig().getString("Multipliers.GUI.Use.Sound")), 10, 2);
+                    } catch (IllegalStateException ex) {
+                        try {
+                            player.playSound(player.getLocation(), Sound.valueOf("LEVEL_UP"), 10, 2);
+                        } catch (IllegalStateException ignore) {
+                        }
+                        core.log("Seems that you're using an invalind sound, please edit the config and set the sound that corresponds for the version of your server.");
+                        core.log("If you're using 1.8 please check http://docs.codelanx.com/Bukkit/1.8/org/bukkit/Sound.html\n"
+                                + "If you're using 1.9+ use https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html\n"
+                                + "If need more help, please open an issue in https://github.com/Beelzebu/Coins/issues");
+                    }
                 } else {
-                    player.playSound(player.getLocation(), Sound.valueOf(core.getConfig().getString("Multipliers.GUI.Use.Fail.Sound", "VILLAGER_NO")), 10, 1);
+                    try {
+                        player.playSound(player.getLocation(), Sound.valueOf(core.getConfig().getString("Multipliers.GUI.Use.Fail.Sound")), 10, 1);
+                    } catch (IllegalStateException ex) {
+                        try {
+                            player.playSound(player.getLocation(), Sound.valueOf("VILLAGER_NO"), 10, 2);
+                        } catch (IllegalStateException ignore) {
+                        }
+                        core.log("Seems that you're using an invalind sound, please edit the config and set the sound that corresponds for the version of your server.");
+                        core.log("If you're using 1.8 please check http://docs.codelanx.com/Bukkit/1.8/org/bukkit/Sound.html\n"
+                                + "If you're using 1.9+ use https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html\n"
+                                + "If need more help, please open an issue in https://github.com/Beelzebu/Coins/issues");
+                    }
                     player.sendMessage(core.getString("Multipliers.Already active", player.spigot().getLocale()));
                 }
                 player.closeInventory();

@@ -140,26 +140,6 @@ public class FileManager {
         try {
             List<String> lines = FileUtils.readLines(messagesFiles.get("default"), Charsets.UTF_8);
             int index;
-            if (core.getMessages("").getInt("version") == 5) {
-                index = lines.indexOf("  Multiplier:") - 1;
-                lines.add(index, "  Multiplier Create: '%prefix% &cPlease use &f/coins multiplier create <name> <amount> <minutes>'");
-                index = lines.indexOf("Multipliers:");
-                lines.addAll(index + 1, Arrays.asList(
-                        "  Menu:",
-                        "    Title: '&6Multipliers GUI'",
-                        "  Placeholders:",
-                        "    Enabler:",
-                        "      Message: '&8➠ Multiplier enabled by &a%enabler%'",
-                        "      Anyone: '&8➠ No multiplier active :('"
-                ));
-                index = lines.indexOf("  Set: '" + core.getMessages("").getString("Multipliers.Set") + "'");
-                if (index != -1) {
-                    lines.remove(index);
-                }
-                index = lines.indexOf("version: 5");
-                lines.set(index, "version: 6");
-                core.log("Updated messages.yml file to v6");
-            }
             if (core.getMessages("").getInt("version") == 6) {
                 index = lines.indexOf("version: 6");
                 lines.set(index, "version: 7");
@@ -216,6 +196,20 @@ public class FileManager {
                 ));
                 core.log("Updated messages.yml file to v9");
             }
+            if (core.getMessages("").getInt("version") == 9) {
+                index = lines.indexOf("version: 9");
+                lines.set(index, "version: 10");
+                index = lines.indexOf("  Multiplier Create: '" + core.getMessages("").getString("Help.Multiplier Create") + "'") + 1;
+                lines.add(index, "  Multiplier Set: '%prefix% &cPlease use &f/coins multiplier set <amount> <enabler> <minutes> (server)'");
+                lines.addAll(Arrays.asList(
+                        "  Set:",
+                        "  - '%prefix% A multiplier with the following data was set for %server%'",
+                        "  - '  &7Enabler: &c%enabler%'",
+                        "  - '  &7Amount: &c%amount%'",
+                        "  - '  &7Minutes: &c%minutes%'"
+                ));
+                core.log("Updated messages.yml file to v10");
+            }
             FileUtils.writeLines(messagesFiles.get("default"), lines);
         } catch (IOException ex) {
             core.log("An unexpected error occurred while updating the messages.yml file.");
@@ -224,26 +218,6 @@ public class FileManager {
         try {
             List<String> lines = FileUtils.readLines(messagesFiles.get("es"), Charsets.UTF_8);
             int index;
-            if (core.getMessages("es").getInt("version") == 5) {
-                index = lines.indexOf("  Multiplier:") - 1;
-                lines.add(index, "  Multiplier Create: '%prefix% &cPor favor usa &f/coins multiplier create <nombre> <cantidad> <minutos>'");
-                index = lines.indexOf("Multipliers:");
-                lines.addAll(index + 1, Arrays.asList(
-                        "  Menu:",
-                        "    Title: '&6Menú de multiplicadores'",
-                        "  Placeholders:",
-                        "    Enabler:",
-                        "      Message: '&8➠ Multiplicador activado por &a%enabler%'",
-                        "      Anyone: '&8➠ No hay multiplicadores activos :('"
-                ));
-                index = lines.indexOf("  Set: '" + core.getMessages("es").getString("Multipliers.Set") + "'");
-                if (index != -1) {
-                    lines.remove(index);
-                }
-                index = lines.indexOf("version: 5");
-                lines.set(index, "version: 6");
-                core.log("Updated messages_es.yml file to v6");
-            }
             if (core.getMessages("es").getInt("version") == 6) {
                 index = lines.indexOf("version: 6");
                 lines.set(index, "version: 7");
@@ -303,6 +277,20 @@ public class FileManager {
                         "# a menos que sepas lo que haces."
                 ));
                 core.log("Updated messages_es.yml file to v9");
+            }
+            if (core.getMessages("").getInt("version") == 9) {
+                index = lines.indexOf("version: 9");
+                lines.set(index, "version: 10");
+                index = lines.indexOf("  Multiplier Create: '" + core.getMessages("").getString("Help.Multiplier Create") + "'") + 1;
+                lines.add(index, "  Multiplier Set: '%prefix% &cPor favor usa &f/coins multiplier set <cantidad> <activador> <minutos> (server)'");
+                lines.addAll(Arrays.asList(
+                        "  Set:",
+                        "  - '%prefix% Un multiplicador con la siguiente información fue establecido en %server%'",
+                        "  - '  &7Activador: &c%enabler%'",
+                        "  - '  &7Cantidad: &c%amount%'",
+                        "  - '  &7Minutos: &c%minutes%'"
+                ));
+                core.log("Updated messages_es.yml file to v10");
             }
             FileUtils.writeLines(messagesFiles.get("es"), lines);
         } catch (IOException ex) {

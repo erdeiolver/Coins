@@ -32,18 +32,28 @@ public class PubSubMessageListener extends CoinsBungeeListener implements Listen
 
     @EventHandler
     public void onPubSubMessage(PubSubMessageEvent e) {
-        if (e.getChannel().equalsIgnoreCase("Coins")) {
-            if (e.getMessage().equalsIgnoreCase("getExecutors")) {
-                core.debug("Sending executors");
-                ProxyServer.getInstance().getServers().values().forEach((server) -> {
-                    sendExecutors(server);
-                    core.debug("Sending to " + server.getName());
+        switch (e.getChannel()) {
+            case "Coins":
+                if (e.getMessage().equals("getExecutors")) {
+                    core.debug("Sending executors");
+                    ProxyServer.getInstance().getServers().values().forEach((server) -> {
+                        sendExecutors(server);
+                        core.debug("Sending to " + server.getName());
+                    });
+                }
+                break;
+            case "Update":
+                ProxyServer.getInstance().getServers().keySet().forEach(server -> {
+                    sendToBukkit("Update", Arrays.asList(e.getMessage()), ProxyServer.getInstance().getServerInfo(server));
                 });
-            }
-        } else if (e.getChannel().equalsIgnoreCase("Update")) {
-            ProxyServer.getInstance().getServers().keySet().forEach(server -> {
-                sendToBukkit("Update", Arrays.asList(e.getMessage()), ProxyServer.getInstance().getServerInfo(server));
-            });
+                break;
+            case "Multiplier":
+                ProxyServer.getInstance().getServers().keySet().forEach(server -> {
+                    sendMultiplier(ProxyServer.getInstance().getServerInfo(server), Arrays.asList(e.getMessage().split("|||")));
+                });
+                break;
+            default:
+                break;
         }
     }
 }

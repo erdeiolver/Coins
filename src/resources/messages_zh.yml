@@ -33,12 +33,12 @@ Help:
   Reset Usage: '%prefix% &c请使用 &f/coins reset <玩家名>'
   Set Usage: '%prefix% &c请使用 &f/coins set <玩家名> <钱数>'
   Multiplier Usage: '%prefix% &c请使用 &f/coins multiplier'
-  Multiplier Create: '%prefix% &c请使用 &f/coins multiplier create <玩家名> <数量> <分钟>'
+  Multiplier Create: '%prefix% &c请使用 &f/coins multiplier create <玩家名> <数量> <分钟> (服务器)'
   Multiplier:
   - '&8&m+-------------------------------------------------+'
   - '%prefix% 乘数的命令'
   - ' '
-  - ' &ccreate <player> <数量> <minutes> &f- &7创建一个乘数.'
+  - ' &ccreate <player> <数量> <minutes> (服务器) &f- &7创建一个乘数.'
   - '&8&m+-------------------------------------------------+'
 Errors:
   No permissions: '%prefix% &c你没有权限.'

@@ -21,9 +21,10 @@ package net.nifheim.beelzebu.coins.bukkit;
 import java.io.File;
 import java.io.InputStream;
 import java.util.UUID;
-import net.nifheim.beelzebu.coins.bukkit.events.CoinsChangeEvent;
+import net.nifheim.beelzebu.coins.bukkit.events.*;
 import net.nifheim.beelzebu.coins.bukkit.utils.Messages;
 import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 import net.nifheim.beelzebu.coins.core.utils.IMethods;
 import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
@@ -62,7 +63,7 @@ public class BukkitMethods implements IMethods {
 
     @Override
     public void runAsync(Runnable rn, Long timer) {
-        Bukkit.getScheduler().runTaskTimerAsynchronously((Plugin) getPlugin(), rn, 0, timer * 1200);
+        Bukkit.getScheduler().runTaskTimerAsynchronously((Plugin) getPlugin(), rn, 0, timer);
     }
 
     @Override
@@ -123,5 +124,12 @@ public class BukkitMethods implements IMethods {
     @Override
     public void callCoinsChangeEvent(UUID uuid, double oldCoins, double newCoins) {
         Bukkit.getPluginManager().callEvent(new CoinsChangeEvent(uuid, oldCoins, newCoins));
+    }
+
+    @Override
+    public void callMultiplierEnableEvent(UUID uuid, MultiplierData multiplierData) {
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            Bukkit.getPluginManager().callEvent(new MultiplierEnableEvent(uuid, multiplierData));
+        });
     }
 }

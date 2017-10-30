@@ -21,7 +21,9 @@ package net.nifheim.beelzebu.coins.bungee.listener;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.PluginMessageEvent;
@@ -41,33 +43,57 @@ public class PluginMessageListener extends CoinsBungeeListener implements Listen
         }
         ByteArrayDataInput in = ByteStreams.newDataInput(e.getData());
         String channel = in.readUTF();
-        if (channel.equals("Coins")) {
-            ServerInfo server = ProxyServer.getInstance().getPlayer(e.getReceiver().toString()).getServer().getInfo();
-            String input = in.readUTF();
-            if (input.startsWith("getExecutors")) {
-                if (plugin.useRedis()) {
-                    RedisBungee.getApi().sendChannelMessage("Coins", "getExecutors");
-                } else {
-                    sendExecutors(server);
-                }
-            } else if (input.startsWith("execute ")) {
-                String[] msg = input.split(" ");
-                ProxyServer.getInstance().getPluginManager().dispatchCommand(ProxyServer.getInstance().getPlayer(msg[1]), input.substring((msg[0] + msg[1]).length() + 2));
-            }
-        } else if (channel.equals("Update")) {
-            String input = in.readUTF();
-            if (input.startsWith("updateCache")) {
-                String[] updatemsg = input.split(" ");
-                if (updatemsg.length == 3) {
+        switch (channel) {
+            case "Coins": {
+                ServerInfo server = ProxyServer.getInstance().getPlayer(e.getReceiver().toString()).getServer().getInfo();
+                String input = in.readUTF();
+                if (input.startsWith("getExecutors")) {
                     if (plugin.useRedis()) {
-                        RedisBungee.getApi().sendChannelMessage("Update", updatemsg[1] + " " + updatemsg[2]);
+                        RedisBungee.getApi().sendChannelMessage("Coins", "getExecutors");
+                    } else {
+                        sendExecutors(server);
+                    }
+                } else if (input.startsWith("execute ")) {
+                    String[] msg = input.split(" ");
+                    ProxyServer.getInstance().getPluginManager().dispatchCommand(ProxyServer.getInstance().getPlayer(msg[1]), input.substring((msg[0] + msg[1]).length() + 2));
+                }
+                break;
+            }
+            case "Update": {
+                String input = in.readUTF();
+                if (input.startsWith("updateCache")) {
+                    String[] updatemsg = input.split(" ");
+                    if (updatemsg.length == 3) {
+                        if (plugin.useRedis()) {
+                            RedisBungee.getApi().sendChannelMessage("Update", updatemsg[1] + " " + updatemsg[2]);
+                        } else {
+                            ProxyServer.getInstance().getServers().keySet().forEach(server -> {
+                                sendToBukkit("Update", Arrays.asList(updatemsg[1] + " " + updatemsg[2]), ProxyServer.getInstance().getServerInfo(server));
+                            });
+                        }
+                    }
+                }
+                break;
+            }
+            case "Multiplier":
+                List<String> multiplierData = new ArrayList<>();
+                for (int i = 0; i < 5; i++) {
+                    multiplierData.add(in.readUTF());
+                }
+                if (multiplierData.size() == 5) {
+                    if (plugin.useRedis()) {
+                        String multiplier = "";
+                        multiplier = multiplierData.stream().map((str) -> str + "|||").reduce(multiplier, String::concat);
+                        RedisBungee.getApi().sendChannelMessage("Multiplier", multiplier);
                     } else {
                         ProxyServer.getInstance().getServers().keySet().forEach(server -> {
-                            sendToBukkit("Update", Arrays.asList(updatemsg[1] + " " + updatemsg[2]), ProxyServer.getInstance().getServerInfo(server));
+                            sendMultiplier(ProxyServer.getInstance().getServerInfo(server), multiplierData);
                         });
                     }
                 }
-            }
+                break;
+            default:
+                break;
         }
     }
 }

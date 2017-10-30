@@ -44,6 +44,8 @@ public class CoinsAPI {
     public static Double getCoins(String player) {
         if (CacheManager.getCoins(core.getUUID(player)) > -1) {
             return CacheManager.getCoins(core.getUUID(player));
+        } else {
+            CacheManager.updateCoins(core.getUUID(player), core.getDatabase().getCoins(player));
         }
         return core.getDatabase().getCoins(player);
     }
@@ -57,6 +59,8 @@ public class CoinsAPI {
     public static Double getCoins(UUID player) {
         if (CacheManager.getCoins(player) > -1) {
             return CacheManager.getCoins(player);
+        } else {
+            CacheManager.updateCoins(player, core.getDatabase().getCoins(player));
         }
         return core.getDatabase().getCoins(player);
     }
@@ -301,17 +305,21 @@ public class CoinsAPI {
      * @param server The server to modify and get info about multiplier.
      * @return The active multiplier for the specified server.
      */
-    public static Multiplier getMultiplier(String server) {
-        return new Multiplier(server);
+    public static Multiplier getMultiplier(String server) throws NullPointerException {
+        if (CacheManager.getMultiplier(server) == null) {
+            CacheManager.addMultiplier(server, new Multiplier(server));
+        }
+        CacheManager.getMultiplier(server).checkTime();
+        return CacheManager.getMultiplier(server);
     }
 
     /**
      * Get and modify information about the multiplier for the server specified
-     * in the plugin's config.
+     * in the plugin's config or manage other data about multipliers.
      *
      * @return The active multiplier for this server.
      */
     public static Multiplier getMultiplier() {
-        return new Multiplier(core.getConfig().getString("Multipliers.Server"));
+        return getMultiplier(core.getConfig().getString("Multipliers.Server"));
     }
 }

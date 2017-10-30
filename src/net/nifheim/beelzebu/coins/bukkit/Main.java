@@ -29,12 +29,9 @@ import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.executor.Executor;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 import org.bukkit.Bukkit;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
-
-    private final ConsoleCommandSender console = Bukkit.getConsoleSender();
 
     private static Main instance;
     private CommandManager commandManager;
@@ -56,11 +53,12 @@ public class Main extends JavaPlugin {
         commandManager = new CommandManager();
         loadManagers();
 
-        Bukkit.getServer().getPluginManager().registerEvents(new CommandListener(), this);
-        Bukkit.getServer().getPluginManager().registerEvents(new GUIListener(), this);
-        Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
-        Bukkit.getServer().getPluginManager().registerEvents(new PlayerQuitListener(), this);
-        Bukkit.getServer().getPluginManager().registerEvents(new SignListener(), this);
+        Bukkit.getPluginManager().registerEvents(new CommandListener(), this);
+        Bukkit.getPluginManager().registerEvents(new GUIListener(), this);
+        Bukkit.getPluginManager().registerEvents(new InternalListener(), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerQuitListener(), this);
+        Bukkit.getPluginManager().registerEvents(new SignListener(), this);
 
         if (getConfig().getBoolean("Vault.Use", false)) {
             new CoinsEconomy(this).setup();
@@ -70,8 +68,9 @@ public class Main extends JavaPlugin {
             core.getExecutorManager().addExecutor(new Executor(id, getConfig().getString("Command executor." + id + ".Displayname", id), getConfig().getDouble("Command executor." + id + ".Cost", 0), getConfig().getStringList("Command executor." + id + ".Command")));
         });
         PluginMessage pmsg = new PluginMessage();
-        Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this, "Coins");
-        Bukkit.getServer().getMessenger().registerIncomingPluginChannel(this, "Coins", pmsg);
+        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "Coins");
+        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "Multiplier");
+        Bukkit.getMessenger().registerIncomingPluginChannel(this, "Coins", pmsg);
         Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
             pmsg.sendToBungeeCord("Coins", "getExecutors");
             Bukkit.getOnlinePlayers().forEach((p) -> {
@@ -94,7 +93,7 @@ public class Main extends JavaPlugin {
         // Create the command
         commandManager.registerCommand();
         // Hook placeholders
-        if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             core.getMethods().log("PlaceholderAPI found, hooking in ");
             placeholderAPI = new PlaceholderAPI(this);
             placeholderAPI.hook();

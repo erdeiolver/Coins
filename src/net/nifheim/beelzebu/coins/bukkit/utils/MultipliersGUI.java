@@ -93,7 +93,21 @@ public class MultipliersGUI extends BaseGUI {
             setItem(i, glass);
         }
         setItem(49, new ItemStack(Material.REDSTONE_BLOCK), player -> {
-            player.playSound(player.getLocation(), Sound.valueOf(core.getConfig().getString("Multipliers.GUI.Close.Sound", "CLICK")), 10, core.getConfig().getInt("Multipliers.GUI.Close.Pitch", 1));
+            try {
+                // try to play the sound for 1.9
+                player.playSound(player.getLocation(), Sound.valueOf(core.getConfig().getString("Multipliers.GUI.Close.Sound")), 10, core.getConfig().getInt("Multipliers.GUI.Close.Pitch", 1));
+            } catch (IllegalStateException ex) {
+                // may be is 1.8
+                try {
+                    player.playSound(player.getLocation(), Sound.valueOf("CLICK"), 10, core.getConfig().getInt("Multipliers.GUI.Close.Pitch", 1));
+                } catch (IllegalStateException ignore) {
+                    // the sound just doesn't exists.
+                }
+                core.log("Seems that you're using an invalind sound, please edit the config and set the sound that corresponds for the version of your server.");
+                core.log("If you're using 1.8 please check http://docs.codelanx.com/Bukkit/1.8/org/bukkit/Sound.html\n"
+                        + "If you're using 1.9+ use https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html\n"
+                        + "If need more help, please open an issue in https://github.com/Beelzebu/Coins/issues");
+            }
             player.closeInventory();
         });
     }
