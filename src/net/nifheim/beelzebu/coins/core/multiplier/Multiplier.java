@@ -307,9 +307,9 @@ public final class Multiplier {
     }
 
     private Long checkMultiplierTime(String server) {
-        if (id == -1) {
+        if (id == -1) { // this multiplier is fake
             if ((endTime - System.currentTimeMillis()) > 0) {
-                return System.currentTimeMillis() - endTime;
+                return endTime - System.currentTimeMillis();
             } else {
                 amount = 1;
                 enabled = false;
@@ -318,9 +318,9 @@ public final class Multiplier {
                 CacheManager.removeMultiplier(server);
                 return 0L;
             }
-        } else if (endTime > 0 && (endTime - System.currentTimeMillis()) > 0) {
+        } else if (endTime > 0 && (endTime - System.currentTimeMillis()) > 0) { // this is the cached time of a real multiplier
             return endTime - System.currentTimeMillis();
-        } else {
+        } else { // we don't know about any multiplier :/
             try (Connection c = getConnection()) {
                 ResultSet res = null;
                 try {
