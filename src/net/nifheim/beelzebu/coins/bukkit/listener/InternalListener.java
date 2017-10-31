@@ -21,6 +21,7 @@ package net.nifheim.beelzebu.coins.bukkit.listener;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.bukkit.events.MultiplierEnableEvent;
+import net.nifheim.beelzebu.coins.core.Core;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -30,16 +31,20 @@ import org.bukkit.scheduler.BukkitRunnable;
  * @author Beelzebu
  */
 public class InternalListener implements Listener {
+    
+    private final Core core = Core.getInstance();
 
     @EventHandler
     public void onMultiplierUse(MultiplierEnableEvent e) {
-        new BukkitRunnable() {
+        core.debug("Started multiplier check task");
+        (new BukkitRunnable() {
             @Override
             public void run() {
                 if (CoinsAPI.getMultiplier(e.getData().getServer()).checkTime() <= 0) {
+                    core.debug("Canceling the multiplier check task");
                     cancel();
                 }
             }
-        }.runTaskTimer(Main.getInstance(), 0, 20);
+        }).runTaskTimerAsynchronously(Main.getInstance(), 0, 20);
     }
 }
