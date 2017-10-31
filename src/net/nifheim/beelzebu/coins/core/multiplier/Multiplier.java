@@ -336,7 +336,7 @@ public final class Multiplier {
                             enabler = null;
                             endTime = 0L;
                             CacheManager.removeMultiplier(server);
-                            res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + server + "' AND enabled = false AND queue > -1 ORDER BY queue DESC;").executeQuery();
+                            res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + server + "' AND enabled = false AND queue > -1 ORDER BY queue ASC;").executeQuery();
                             if (res.next()) {
                                 useMultiplier(res.getInt("id"), MultiplierType.SERVER);
                             }
