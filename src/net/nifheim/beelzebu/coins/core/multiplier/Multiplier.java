@@ -246,15 +246,14 @@ public final class Multiplier {
             ResultSet res = null;
             try {
                 res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE id = " + id + ";").executeQuery();
-                MultiplierData data = getDataByID(id);
-                if (!isEnabled(data.getServer())) {
+                if (!isEnabled(getDataByID(id).getServer())) {
                     if (res.next()) {
                         Long minutes = res.getLong("minutes");
                         Long endtime = System.currentTimeMillis() + (minutes * 60000);
                         c.prepareStatement("UPDATE " + prefix + "Multipliers SET endtime = " + endtime + ", enabled = true WHERE id = " + id + ";").executeUpdate();
                         amount = getAmount(res.getString("server"));
                         CacheManager.addMultiplier(res.getString("server"), new Multiplier(res.getString("server")));
-                        core.getMethods().callMultiplierEnableEvent(UUID.fromString(res.getString("uuid")), data);
+                        core.getMethods().callMultiplierEnableEvent(UUID.fromString(res.getString("uuid")), getDataByID(id));
                         return true;
                     }
                 } else {
@@ -308,7 +307,7 @@ public final class Multiplier {
                             enabler = null;
                             endTime = 0L;
                             CacheManager.removeMultiplier(server);
-                            res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + server + "' AND enabled = false ORDER BY queue DESC;").executeQuery();
+                            res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + server + "' AND enabled = false AND queue > 0 ORDER BY queue DESC;").executeQuery();
                             if (res.next()) {
                                 useMultiplier(res.getInt("id"), MultiplierType.SERVER);
                             }
