@@ -1,3 +1,4 @@
+
 /**
  * This file is part of Coins
  *
@@ -305,11 +306,10 @@ public class CoinsAPI {
      * @param server The server to modify and get info about multiplier.
      * @return The active multiplier for the specified server.
      */
-    public static Multiplier getMultiplier(String server) throws NullPointerException {
+    public static Multiplier getMultiplier(String server) {
         if (CacheManager.getMultiplier(server) == null) {
             CacheManager.addMultiplier(server, new Multiplier(server));
         }
-        CacheManager.getMultiplier(server).checkTime();
         return CacheManager.getMultiplier(server);
     }
 
@@ -320,6 +320,6 @@ public class CoinsAPI {
      * @return The active multiplier for this server.
      */
     public static Multiplier getMultiplier() {
-        return getMultiplier(core.getConfig().getString("Multipliers.Server"));
+        return getMultiplier(core.getConfig().getString("Multipliers.Server", "default"));
     }
 }
