@@ -123,7 +123,9 @@ public class BukkitMethods implements IMethods {
 
     @Override
     public void callCoinsChangeEvent(UUID uuid, double oldCoins, double newCoins) {
-        Bukkit.getPluginManager().callEvent(new CoinsChangeEvent(uuid, oldCoins, newCoins));
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            Bukkit.getPluginManager().callEvent(new CoinsChangeEvent(uuid, oldCoins, newCoins));
+        });
     }
 
     @Override

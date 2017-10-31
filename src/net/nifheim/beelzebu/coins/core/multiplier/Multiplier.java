@@ -173,6 +173,21 @@ public final class Multiplier {
     }
 
     /**
+     * Create a multiplier for a player with the server for this multiplier.
+     *
+     * @param uuid The player to create the multiplier.
+     * @param multiplier The multiplier.
+     * @param minutes The time for the multiplier.
+     * @deprecated
+     * @see
+     * {@link #createMultiplier(java.util.UUID, java.lang.Integer, java.lang.Integer, java.lang.String)}
+     */
+    @Deprecated
+    public void createMultiplier(UUID uuid, Integer multiplier, Integer minutes) {
+        createMultiplier(uuid, multiplier, minutes, server);
+    }
+
+    /**
      * Create a multiplier for a player with the specified time.
      *
      * @param uuid The player to create the multiplier.
@@ -246,15 +261,14 @@ public final class Multiplier {
             ResultSet res = null;
             try {
                 res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE id = " + id + ";").executeQuery();
-                MultiplierData data = getDataByID(id);
-                if (!isEnabled(data.getServer())) {
+                if (!isEnabled(getDataByID(id).getServer())) {
                     if (res.next()) {
                         Long minutes = res.getLong("minutes");
                         Long endtime = System.currentTimeMillis() + (minutes * 60000);
                         c.prepareStatement("UPDATE " + prefix + "Multipliers SET endtime = " + endtime + ", enabled = true WHERE id = " + id + ";").executeUpdate();
                         amount = getAmount(res.getString("server"));
                         CacheManager.addMultiplier(res.getString("server"), new Multiplier(res.getString("server")));
-                        core.getMethods().callMultiplierEnableEvent(UUID.fromString(res.getString("uuid")), data);
+                        core.getMethods().callMultiplierEnableEvent(UUID.fromString(res.getString("uuid")), getDataByID(id));
                         return true;
                     }
                 } else {
@@ -276,6 +290,20 @@ public final class Multiplier {
             core.debug(ex.getMessage());
         }
         return false;
+    }
+
+    /**
+     * Get the time of the multiplier for the specific server.
+     *
+     * @param server The server to check.
+     * @return The millis for the multiplier.
+     * @deprecated will be removed in future updates, is better create a new
+     * instance of multiplier to check the time.
+     * @see {@link #checkTime()}
+     */
+    @Deprecated
+    public Long getMultiplierTime(String server) {
+        return checkMultiplierTime(server);
     }
 
     private Long checkMultiplierTime(String server) {
@@ -308,7 +336,7 @@ public final class Multiplier {
                             enabler = null;
                             endTime = 0L;
                             CacheManager.removeMultiplier(server);
-                            res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + server + "' AND enabled = false ORDER BY queue DESC;").executeQuery();
+                            res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + server + "' AND enabled = false AND queue > -1 ORDER BY queue ASC;").executeQuery();
                             if (res.next()) {
                                 useMultiplier(res.getInt("id"), MultiplierType.SERVER);
                             }
