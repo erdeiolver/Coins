@@ -47,7 +47,6 @@ public class MySQL implements Database {
     private final String name;
     private final String user;
     private final String passwd;
-    private final String prefix;
 
     public MySQL(Core c) {
         core = c;
@@ -56,7 +55,6 @@ public class MySQL implements Database {
         name = core.getConfig().getString("MySQL.Database");
         user = core.getConfig().getString("MySQL.User");
         passwd = core.getConfig().getString("MySQL.Password");
-        prefix = core.getConfig().getString("MySQL.Prefix");
         SQLConnection();
     }
 
