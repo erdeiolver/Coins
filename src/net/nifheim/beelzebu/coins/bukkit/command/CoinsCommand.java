@@ -279,18 +279,10 @@ public class CoinsCommand extends BukkitCommand {
     public boolean top(CommandSender sender, String[] args) {
         sender.sendMessage(core.getString("Coins.Top.Header", lang));
         Map<String, Double> topMap = CoinsAPI.getTopPlayers(10);
-        List<String> top = CoinsAPI.getTop(10);
         int i = 0;
-        for (String t : top) {
-            if (i < top.size()) {
-                i++;
-            }
-            String[] pc = t.split(", ");
-            String str = core.getString("Coins.Top.List", lang)
-                    .replaceAll("%top%", String.valueOf(i))
-                    .replaceAll("%player%", pc[0])
-                    .replaceAll("%coins%", String.valueOf(pc[1]));
-            sender.sendMessage(core.rep(str));
+        for (String player : topMap.keySet()) {
+            i++;
+            sender.sendMessage(core.getString("Coins.Top.List", lang).replaceAll("%top%", String.valueOf(i)).replaceAll("%player%", player).replaceAll("%coins%", String.valueOf((int) Math.round(topMap.get(player)))));
         }
         return true;
     }
