@@ -160,7 +160,12 @@ public final class Multiplier {
      * @return The multiplier data direct from the database.
      */
     public MultiplierData getData() {
-        return getDataByID(id);
+        if (id == -1) {
+            //String server, String enabler, int id, int amount, boolean enabled, int minutes, boolean queue
+            return new MultiplierData(server, enabler, enabled, amount, id, (int) (checkTime() / 60000), false);
+        } else {
+            return getDataByID(id);
+        }
     }
 
     /**
@@ -479,18 +484,6 @@ public final class Multiplier {
         private int minutes = 0;
         private final int id;
         private final boolean queue;
-
-        public Builder(String server, String enabler, int id, boolean queue) {
-            this(server, enabler, id, 1, queue);
-        }
-
-        public Builder(String server, String enabler, int id, int amount, boolean queue) {
-            this(server, enabler, id, amount, false, queue);
-        }
-
-        public Builder(String server, String enabler, int id, int amount, boolean enabled, boolean queue) {
-            this(server, enabler, id, amount, enabled, 0, queue);
-        }
 
         public Builder(String server, String enabler, int id, int amount, boolean enabled, int minutes, boolean queue) {
             this.server = server;
