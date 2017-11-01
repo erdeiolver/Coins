@@ -116,7 +116,7 @@ public interface Database {
     public enum SQLQuery {
         SEARCH_USER_ONLINE("SELECT * FROM `" + prefix + "Data` WHERE uuid = ?;"),
         SEARCH_USER_OFFLINE("SELECT * FROM `" + prefix + "Data` WHERE nick = ?;"),
-        CREATE_USER("INSERT INTO `" + prefix + "Data` (`uuid`, `name`, `balance`, `lastlogin`) VALUES (?, ?, ?, ?);"),
+        CREATE_USER("INSERT INTO `" + prefix + "Data` (`uuid`, `nick`, `balance`, `lastlogin`) VALUES (?, ?, ?, ?);"),
         UPDATE_USER_ONLINE("UPDATE `" + prefix + "Data` SET nick = ?, lastlogin = ? WHERE uuid = ?;"),
         UPDATE_USER_OFFLINE("UPDATE `" + prefix + "Data` SET uuid = ?, lastlogin = ? WHERE nick = ?;"),
         UPDATE_COINS_ONLINE("UPDATE `" + prefix + "Data` SET balance = ? WHERE uuid = ?;"),
