@@ -69,7 +69,6 @@ public class Main extends JavaPlugin {
         });
         PluginMessage pmsg = new PluginMessage();
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, "Coins");
-        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "Multiplier");
         Bukkit.getMessenger().registerIncomingPluginChannel(this, "Coins", pmsg);
         Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
             pmsg.sendToBungeeCord("Coins", "getExecutors");

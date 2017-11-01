@@ -120,7 +120,7 @@ public class PluginMessage implements PluginMessageListener {
         });
         Player p = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
         if (p != null) {
-            p.sendPluginMessage(Main.getInstance(), channel, out.toByteArray());
+            p.sendPluginMessage(Main.getInstance(), "Coins", out.toByteArray());
         }
     }
 }
