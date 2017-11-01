@@ -288,6 +288,7 @@ public class CoinsCommand extends BukkitCommand {
     }
 
     private boolean multiplier(CommandSender sender, String[] args) {
+        // TODO: add a command to get all multipliers for a player and a command to enable any multiplier by the ID.
         if (sender.hasPermission("coins.admin")) {
             if (args.length >= 2) {
                 if (args[1].equalsIgnoreCase("help")) {
@@ -324,6 +325,7 @@ public class CoinsCommand extends BukkitCommand {
                             multiplier.setEnabler(args[3].replaceAll("_", " "));
                             multiplier.setEndTime(System.currentTimeMillis() + Long.valueOf(args[4]) * 60000);
                             multiplier.sendMultiplier();
+                            core.getMethods().callMultiplierEnableEvent(null, multiplier.getData());
                             core.rep(core.getMessages(lang).getStringList("Multipliers.Created")).forEach(msg -> {
                                 sender.sendMessage(msg);
                             });
