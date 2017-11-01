@@ -19,7 +19,6 @@
 package net.nifheim.beelzebu.coins.bukkit.events;
 
 import java.util.UUID;
-import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -30,7 +29,6 @@ import org.bukkit.event.HandlerList;
  */
 public class MultiplierEnableEvent extends Event {
 
-    private final Core core = Core.getInstance();
     private final UUID enabler;
     private final MultiplierData data;
     private final static HandlerList handlers = new HandlerList();
@@ -49,26 +47,57 @@ public class MultiplierEnableEvent extends Event {
         return handlers;
     }
 
+    /**
+     * Get the enabler for this multiplier.
+     *
+     * @return the enabler.
+     */
     public String getEnabler() {
-        return core.getNick(enabler);
+        return data.getEnabler();
     }
-    
-    public UUID getEnablerUUID() {
+
+    /**
+     * Get the UUID of the enabler for this multiplier.
+     *
+     * @return the uuid.
+     * @throws NullPointerException if the multiplier is fake, this can be null.
+     */
+    public UUID getEnablerUUID() throws NullPointerException {
         return enabler;
     }
-    
+
+    /**
+     * Get all the data about this multiplier.
+     *
+     * @return all the multiplier data.
+     */
     public MultiplierData getData() {
         return data;
     }
-    
+
+    /**
+     * Get the id of this multiplier.
+     *
+     * @return the id, can be -1 if the multiplier is fake.
+     */
     public int getID() {
         return data.getID();
     }
-    
+
+    /**
+     * Get the amount of this multiplier.
+     *
+     * @return the amount.
+     */
     public int getAmount() {
         return data.getAmount();
     }
-    
+
+    /**
+     * Get the amount of minutes that this multiplier will be enabled.
+     *
+     * @return the minutes.
+     */
     public int getMinutes() {
         return data.getMinutes();
     }
