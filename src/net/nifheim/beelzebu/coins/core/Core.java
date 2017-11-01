@@ -24,17 +24,20 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ProxyServer;
 import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
 import net.nifheim.beelzebu.coins.bungee.BungeeMethods;
-import net.nifheim.beelzebu.coins.core.database.Database;
-import net.nifheim.beelzebu.coins.core.database.MySQL;
-import net.nifheim.beelzebu.coins.core.database.SQLite;
+import net.nifheim.beelzebu.coins.bungee.listener.PluginMessageListener;
+import net.nifheim.beelzebu.coins.core.database.*;
 import net.nifheim.beelzebu.coins.core.executor.ExecutorManager;
+import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
 import net.nifheim.beelzebu.coins.core.utils.FileManager;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 import net.nifheim.beelzebu.coins.core.utils.IMethods;
@@ -77,12 +80,12 @@ public class Core {
         mi.sendMessage(mi.getConsole(), rep("&6-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"));
         mi.sendMessage(mi.getConsole(), rep("           &4Coins &fBy:  &7Beelzebu"));
         mi.sendMessage(mi.getConsole(), rep(""));
-	String version = "";
-	int spaces = (42 - ("v: " + mi.getVersion()).length()) / 2;
-	for (int i = 0; i < spaces; i++) {
-	    version += " ";
-	}
-	version += rep("&4v: &f" + mi.getVersion());
+        String version = "";
+        int spaces = (42 - ("v: " + mi.getVersion()).length()) / 2;
+        for (int i = 0; i < spaces; i++) {
+            version += " ";
+        }
+        version += rep("&4v: &f" + mi.getVersion());
         mi.sendMessage(mi.getConsole(), version);
         mi.sendMessage(mi.getConsole(), rep("&6-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"));
         mi.sendMessage(mi.getConsole(), rep(""));
@@ -159,6 +162,14 @@ public class Core {
         return msg.replaceAll("%prefix%", getConfig().getString("Prefix")).replaceAll("&", "§");
     }
 
+    public List<String> rep(List<String> msgs) {
+        List<String> message = new ArrayList<>();
+        msgs.forEach(msg -> {
+            message.add(rep(msg));
+        });
+        return message;
+    }
+
     public String removeColor(String str) {
         return ChatColor.stripColor(rep(str)).replaceAll("Debug: ", "");
     }
@@ -212,7 +223,25 @@ public class Core {
             pm.sendToBungeeCord("Update", "updateCache " + player + " " + coins);
         }
     }
-    
+
+    public void updateMultiplier(Multiplier multiplier) {
+        List<String> message = new ArrayList<>();
+        message.add(multiplier.getServer());
+        message.add(String.valueOf(multiplier.isEnabled()));
+        message.add(multiplier.getEnabler());
+        message.add(String.valueOf(multiplier.getAmount()));
+        message.add(String.valueOf(multiplier.checkTime()));
+        if (!isBungee()) {
+            PluginMessage pm = new PluginMessage();
+            pm.sendToBungeeCord("Multiplier", message);
+        } else {
+            ProxyServer.getInstance().getServers().keySet().forEach(server -> {
+                PluginMessageListener pml = new PluginMessageListener();
+                pml.sendMultiplier(ProxyServer.getInstance().getServerInfo(server), message);
+            });
+        }
+    }
+
     public void reloadMessages() {
         messagesMap.keySet().forEach((lang) -> {
             messagesMap.get(lang).reload();

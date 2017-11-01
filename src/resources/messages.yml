@@ -4,7 +4,7 @@
 
 # The version of this file, is used to auto update this file, don't change it
 # unless you know what you do.
-version: 9
+version: 10
 
 Help:
   User:
@@ -35,12 +35,13 @@ Help:
   Reset Usage: '%prefix% &cPlease use &f/coins reset <name>'
   Set Usage: '%prefix% &cPlease use &f/coins set <name> <coins>'
   Multiplier Usage: '%prefix% &cPlease use &f/coins multiplier'
-  Multiplier Create: '%prefix% &cPlease use &f/coins multiplier create <name> <amount> <minutes>'
+  Multiplier Create: '%prefix% &cPlease use &f/coins multiplier create <name> <amount> <minutes> (server)'
+  Multiplier Set: '%prefix% &cPlease use &f/coins multiplier set <amount> <enabler> <minutes> (server)'
   Multiplier:
   - '&8&m+-------------------------------------------------+'
   - '%prefix% Multiplier subcommands'
   - ' '
-  - ' &ccreate <player> <amount> <minutes> &f- &7Create a multiplier.'
+  - ' &ccreate <player> <amount> <minutes> (server) &f- &7Create a multiplier.'
   - '&8&m+-------------------------------------------------+'
 Errors:
   No permissions: '%prefix% &cYou don''t have permissions.'
@@ -94,6 +95,11 @@ Multipliers:
       Message: '&8➠ Multiplier enabled by &a%enabler%'
       Anyone: '&8➠ No multiplier active :('
   Created: '%prefix% You sucessfull created a multiplier for %player%.'
+  Set:
+  - '%prefix% A multiplier with the following data was set for %server%'
+  - '  &7Enabler: &c%enabler%'
+  - '  &7Amount: &c%amount%'
+  - '  &7Minutes: &c%minutes%'
   No Multipliers: '%prefix% You don''t have any multiplier.'
   Already active: '%prefix% There is an active multiplier already, your multiplier was queued and will be enabled when the active multiplier finish.'
   Format: '&8(&bx%multiplier%&8) &aMultiplier enabled by &c%enabler%&a!'

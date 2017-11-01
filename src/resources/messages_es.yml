@@ -4,7 +4,7 @@
 
 # La versión de este archivo, es usado para actualizarlo automáticamente, no lo cambies
 # a menos que sepas lo que haces.
-version: 9
+version: 10
 
 Help:
   User:
@@ -35,12 +35,13 @@ Help:
   Reset Usage: '%prefix% &cPor favor usa &f/coins reset <nombre>'
   Set Usage: '%prefix% &cPor favor usa &f/coins set <nombre> <coins>'
   Multiplier Usage: '%prefix% &cPor favor usa &f/coins multiplier'
-  Multiplier Create: '%prefix% &cPor favor usa &f/coins multiplier create <nombre> <cantidad> <minutos>'
+  Multiplier Create: '%prefix% &cPor favor usa &f/coins multiplier create <nombre> <cantidad> <minutos> (servidor)'
+  Multiplier Set: '%prefix% &cPor favor usa &f/coins multiplier set <cantidad> <activador> <minutos> (server)'
   Multiplier:
   - '&8&m+-------------------------------------------------+'
   - '%prefix% Sub comandos de multiplicador'
   - ' '
-  - ' &ccreate <nombre> <cantidad> <minútos> &f- &7Crea un multiplicador.'
+  - ' &ccreate <nombre> <cantidad> <minutos> (servidor) &f- &7Crea un multiplicador.'
   - '&8&m+-------------------------------------------------+'
 Errors:
   No permissions: '%prefix% &cNo tienes permisos.'
@@ -94,6 +95,11 @@ Multipliers:
       Message: '&8➠ Multiplicador activado por &a%enabler%'
       Anyone: '&8➠ No hay multiplicadores activos :('
   Created: '%prefix% Has creado un multiplicador para %player% correctamente.'
+  Set:
+  - '%prefix% Un multiplicador con la siguiente información fue establecido en %server%'
+  - '  &7Activador: &c%enabler%'
+  - '  &7Cantidad: &c%amount%'
+  - '  &7Minutos: &c%minutes%'
   No Multipliers: '%prefix% No tienes ningún multiplicador.'
   Already active: '%prefix% En estos momentos ya hay un multiplicador activo.'
   Format: '&8(&bx%multiplier%&8) &aMultiplicador activado por &c%enabler%&a!'

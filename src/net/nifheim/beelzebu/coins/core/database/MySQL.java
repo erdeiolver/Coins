@@ -47,7 +47,6 @@ public class MySQL implements Database {
     private final String name;
     private final String user;
     private final String passwd;
-    private final String prefix;
 
     public MySQL(Core c) {
         core = c;
@@ -56,7 +55,6 @@ public class MySQL implements Database {
         name = core.getConfig().getString("MySQL.Database");
         user = core.getConfig().getString("MySQL.User");
         passwd = core.getConfig().getString("MySQL.Password");
-        prefix = core.getConfig().getString("MySQL.Prefix");
         SQLConnection();
     }
 
@@ -89,7 +87,7 @@ public class MySQL implements Database {
                 core.debug("The error code is: " + ex.getErrorCode());
                 core.debug(ex.getMessage());
             }
-        }, (long) core.getConfig().getInt("MySQL.Connection Interval"));
+        }, (long) core.getConfig().getInt("MySQL.Connection Interval") * 1200);
     }
 
     private void Connect() {
@@ -251,7 +249,7 @@ public class MySQL implements Database {
                 if (isindb(player) && getCoins(player) >= 0) {
                     double oldCoins = getCoins(player);
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE nick = '" + player + "';").executeUpdate();
-                    CacheManager.updateCoins(core.getUUID(player), oldCoins + coins);
+                    getCoins(player);
                     core.updateCache(core.getUUID(player), coins);
                     core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, oldCoins + coins);
                 }
@@ -275,7 +273,7 @@ public class MySQL implements Database {
                     core.updateCache(core.getUUID(player), 0D);
                 } else {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE nick = '" + player + "';").executeUpdate();
-                    CacheManager.updateCoins(core.getUUID(player), (beforeCoins - coins));
+                    getCoins(player);
                     core.updateCache(core.getUUID(player), coins);
                 }
                 core.getMethods().callCoinsChangeEvent(core.getUUID(player), beforeCoins, beforeCoins - coins);
@@ -387,7 +385,7 @@ public class MySQL implements Database {
                 if (isindb(player) && getCoins(player) >= 0) {
                     double oldCoins = getCoins(player);
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE uuid = '" + player + "';").executeUpdate();
-                    CacheManager.updateCoins(player, oldCoins + coins);
+                    getCoins(player);
                     core.updateCache(player, coins);
                     core.getMethods().callCoinsChangeEvent(player, oldCoins, oldCoins + coins);
                 }
@@ -412,7 +410,7 @@ public class MySQL implements Database {
                     core.updateCache(player, 0D);
                 } else {
                     c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE uuid = '" + player + "';").executeUpdate();
-                    CacheManager.updateCoins(player, beforeCoins - coins);
+                    getCoins(player);
                     core.updateCache(player, coins);
                 }
                 core.getMethods().callCoinsChangeEvent(player, beforeCoins, beforeCoins - coins);

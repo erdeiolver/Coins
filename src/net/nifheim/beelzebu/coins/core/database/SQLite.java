@@ -146,7 +146,7 @@ public class SQLite implements Database {
             if (isindb(player) && getCoins(player) >= 0) {
                 double oldCoins = getCoins(player);
                 getConnection().prepareStatement("UPDATE Data SET balance = " + (oldCoins + coins) + " WHERE nick = '" + player + "';").executeUpdate();
-                CacheManager.updateCoins(core.getUUID(player), oldCoins + coins);
+                getCoins(player);
                 core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, oldCoins + coins);
             }
         } catch (SQLException ex) {
@@ -165,7 +165,7 @@ public class SQLite implements Database {
                 CacheManager.updateCoins(core.getUUID(player), 0D);
             } else {
                 getConnection().prepareStatement("UPDATE Data SET balance = " + (beforeCoins - coins) + " WHERE nick = '" + player + "';").executeUpdate();
-                CacheManager.updateCoins(core.getUUID(player), (beforeCoins - coins));
+                getCoins(player);
             }
             core.getMethods().callCoinsChangeEvent(core.getUUID(player), beforeCoins, beforeCoins - coins);
         } catch (SQLException ex) {
@@ -249,7 +249,7 @@ public class SQLite implements Database {
             if (isindb(player) && getCoins(player) >= 0) {
                 double oldCoins = getCoins(player);
                 getConnection().prepareStatement("UPDATE Data SET balance = " + (oldCoins + coins) + " WHERE uuid = '" + player + "';").executeUpdate();
-                CacheManager.updateCoins(player, oldCoins + coins);
+                getCoins(player);
                 core.getMethods().callCoinsChangeEvent(player, oldCoins, oldCoins + coins);
             }
         } catch (SQLException ex) {
@@ -268,7 +268,7 @@ public class SQLite implements Database {
                 CacheManager.updateCoins(player, 0D);
             } else {
                 getConnection().prepareStatement("UPDATE Data SET balance = " + (beforeCoins - coins) + " WHERE uuid = '" + player + "';").executeUpdate();
-                CacheManager.updateCoins(player, beforeCoins - coins);
+                getCoins(player);
             }
             core.getMethods().callCoinsChangeEvent(player, beforeCoins, beforeCoins - coins);
         } catch (SQLException ex) {

@@ -35,33 +35,49 @@ public class CacheManager {
     private static final Map<String, Multiplier> multipliersData = Collections.synchronizedMap(new HashMap<>());
 
     public static Double getCoins(UUID uuid) {
-        if (playersData.containsKey(uuid)) {
-            return playersData.get(uuid);
+        synchronized (playersData) {
+            if (playersData.containsKey(uuid)) {
+                return playersData.get(uuid);
+            }
         }
         return -1D;
     }
 
-    public static synchronized void updateCoins(UUID uuid, Double coins) {
-        if (playersData.containsKey(uuid)) {
-            playersData.replace(uuid, coins);
-        } else if (Core.getInstance().isOnline(uuid)) {
-            playersData.put(uuid, coins);
+    public static void updateCoins(UUID uuid, Double coins) {
+        synchronized (playersData) {
+            if (playersData.containsKey(uuid)) {
+                playersData.replace(uuid, coins);
+            } else if (Core.getInstance().isOnline(uuid)) {
+                playersData.put(uuid, coins);
+            }
         }
     }
 
-    public static synchronized void removePlayer(UUID uuid) {
-        if (playersData.containsKey(uuid)) {
-            playersData.remove(uuid);
+    public static void removePlayer(UUID uuid) {
+        synchronized (playersData) {
+            if (playersData.containsKey(uuid)) {
+                playersData.remove(uuid);
+            }
         }
     }
 
-    public static synchronized void addMultiplier(String server, Multiplier multiplier) {
-        multipliersData.put(server, multiplier);
+    public static void addMultiplier(String server, Multiplier multiplier) {
+        synchronized (multipliersData) {
+            multipliersData.put(server, multiplier);
+        }
     }
 
-    public static synchronized Multiplier getMultiplier(String server) {
-        if (multipliersData.containsKey(server)) {
-            return multipliersData.get(server);
+    public static void removeMultiplier(String server) {
+        synchronized (multipliersData) {
+            multipliersData.remove(server);
+        }
+    }
+
+    public static Multiplier getMultiplier(String server) {
+        synchronized (multipliersData) {
+            if (multipliersData.containsKey(server)) {
+                return multipliersData.get(server);
+            }
         }
         return null;
     }

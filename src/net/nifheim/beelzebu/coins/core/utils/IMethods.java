@@ -21,6 +21,7 @@ package net.nifheim.beelzebu.coins.core.utils;
 import java.io.File;
 import java.io.InputStream;
 import java.util.UUID;
+import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
 
 /**
  *
@@ -75,4 +76,6 @@ public interface IMethods {
     String getName(UUID uuid) throws NullPointerException;
     
     void callCoinsChangeEvent(UUID uuid, double oldCoins, double newCoins);
+    
+    void callMultiplierEnableEvent(UUID uuid, MultiplierData multiplierData);
 }

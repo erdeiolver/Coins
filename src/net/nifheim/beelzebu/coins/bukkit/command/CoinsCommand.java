@@ -19,7 +19,7 @@
 package net.nifheim.beelzebu.coins.bukkit.command;
 
 import java.util.List;
-import net.milkbowl.vault.permission.Permission;
+import java.util.Map;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.bukkit.utils.CoinsEconomy;
@@ -32,6 +32,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 
 /**
  *
@@ -165,17 +166,13 @@ public class CoinsCommand extends BukkitCommand {
                 if (amount > 1) {
                     multiplier = core.getString("Multipliers.Format", target.spigot().getLocale()).replaceAll("%multiplier%", String.valueOf(amount)).replaceAll("%enabler%", CoinsAPI.getMultiplier().getEnabler());
                 }
-                for (int i = 2; i < 100; i++) {
-                    try {
-                        Permission perm = Bukkit.getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class).getProvider();
-                        if (perm.has(target, "coins.multiplier.x" + i)) {
+                for (PermissionAttachmentInfo perm : target.getEffectivePermissions()) {
+                    if (perm.getPermission().startsWith("coins.multiplier.x")) {
+                        try {
+                            int i = Integer.parseInt(perm.getPermission().split("coins.multiplier.x")[1]);
                             coins *= i;
                             break;
-                        }
-                    } catch (Exception ex) {
-                        if (target.hasPermission("coins.multiplier.x" + i)) {
-                            coins *= i;
-                            break;
+                        } catch (NumberFormatException ignore) {
                         }
                     }
                 }
@@ -281,23 +278,17 @@ public class CoinsCommand extends BukkitCommand {
 
     public boolean top(CommandSender sender, String[] args) {
         sender.sendMessage(core.getString("Coins.Top.Header", lang));
-        List<String> top = CoinsAPI.getTop(10);
+        Map<String, Double> topMap = CoinsAPI.getTopPlayers(10);
         int i = 0;
-        for (String t : top) {
-            if (i < top.size()) {
-                i++;
-            }
-            String[] pc = t.split(", ");
-            String str = core.getString("Coins.Top.List", lang)
-                    .replaceAll("%top%", String.valueOf(i))
-                    .replaceAll("%player%", pc[0])
-                    .replaceAll("%coins%", String.valueOf(pc[1]));
-            sender.sendMessage(core.rep(str));
+        for (String player : topMap.keySet()) {
+            i++;
+            sender.sendMessage(core.getString("Coins.Top.List", lang).replaceAll("%top%", String.valueOf(i)).replaceAll("%player%", player).replaceAll("%coins%", String.valueOf((int) Math.round(topMap.get(player)))));
         }
         return true;
     }
 
     private boolean multiplier(CommandSender sender, String[] args) {
+        // TODO: add a command to get all multipliers for a player and a command to enable any multiplier by the ID.
         if (sender.hasPermission("coins.admin")) {
             if (args.length >= 2) {
                 if (args[1].equalsIgnoreCase("help")) {
@@ -310,11 +301,7 @@ public class CoinsCommand extends BukkitCommand {
                         try {
                             int multiplier = Integer.parseInt(args[3]);
                             int minutes = Integer.parseInt(args[4]);
-                            Multiplier multipliers = CoinsAPI.getMultiplier();
-                            if (args.length == 6 && args[5] != null && !args[5].equals("")) {
-                                multipliers = CoinsAPI.getMultiplier(args[5]);
-                            }
-                            multipliers.createMultiplier(Bukkit.getPlayer(args[2]).getUniqueId(), multiplier, minutes);
+                            CoinsAPI.getMultiplier().createMultiplier(Bukkit.getPlayer(args[2]).getUniqueId(), multiplier, minutes, ((args.length == 6 && !args[5].equals("")) ? args[5] : null));
                             sender.sendMessage(core.getString("Multipliers.Created", lang).replaceAll("%player%", Bukkit.getPlayer(args[2]).getName()));
                         } catch (NumberFormatException e) {
                             sender.sendMessage(core.rep(String.valueOf(e.getCause().getMessage())));
@@ -327,7 +314,27 @@ public class CoinsCommand extends BukkitCommand {
                     sender.sendMessage(CoinsAPI.getMultiplier().getMultiplierTimeFormated());
                 }
                 if (args[1].equalsIgnoreCase("set")) {
-                    // TODO: add a way to fake multipliers data.
+                    if (args.length >= 5) {
+                        try {
+                            Multiplier multiplier = CoinsAPI.getMultiplier();
+                            if (args.length == 6) {
+                                multiplier = CoinsAPI.getMultiplier(args[5]);
+                            }
+                            multiplier.setEnabled(true);
+                            multiplier.setAmount(Integer.valueOf(args[2]));
+                            multiplier.setEnabler(args[3].replaceAll("_", " "));
+                            multiplier.setEndTime(System.currentTimeMillis() + Long.valueOf(args[4]) * 60000);
+                            multiplier.sendMultiplier();
+                            core.getMethods().callMultiplierEnableEvent(null, multiplier.getData());
+                            core.rep(core.getMessages(lang).getStringList("Multipliers.Created")).forEach(msg -> {
+                                sender.sendMessage(msg);
+                            });
+                        } catch (NullPointerException | NumberFormatException ex) {
+                            sender.sendMessage(core.getString("Help.Multiplier Set", lang));
+                        }
+                    } else {
+                        sender.sendMessage(core.getString("Help.Multiplier Set", lang));
+                    }
                 }
                 return true;
             }

@@ -58,6 +58,10 @@ public abstract class CoinsBungeeListener {
         });
     }
 
+    public void sendMultiplier(ServerInfo server, List<String> multiplier) {
+        sendToBukkit("Multiplier", multiplier, server);
+    }
+
     public void sendToBukkit(String channel, List<String> messages, ServerInfo server) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF(channel);
