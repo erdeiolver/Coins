@@ -22,7 +22,7 @@ package net.nifheim.beelzebu.coins.core.multiplier;
  *
  * @author Beelzebu
  */
-public class MultiplierData {
+public abstract class MultiplierData {
 
     private final String server;
     private final String enabler;

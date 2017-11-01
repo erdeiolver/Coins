@@ -180,22 +180,22 @@ public class MySQL implements Database {
                 core.debug("Trying to create or update data.");
                 if (core.getConfig().getBoolean("Online Mode")) {
                     core.debug("Preparing to create or update an entry for online mode.");
-                    res = c.prepareStatement("SELECT uuid FROM " + prefix + "Data WHERE uuid = '" + uuid + "';").executeQuery();
+                    res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, uuid).executeQuery();
                     if (!res.next()) {
-                        c.prepareStatement("INSERT INTO " + prefix + "Data VALUES ('" + uuid.toString() + "', '" + player + "', 0.0, " + System.currentTimeMillis() + ");").execute();
+                        Utils.generatePreparedStatement(c, SQLQuery.CREATE_USER, uuid, player, 0.0, System.currentTimeMillis()).executeUpdate();
                         core.debug("An entry in the database was created for: " + player);
                     } else {
-                        c.prepareStatement("UPDATE " + prefix + "Data SET nick = '" + player + "', lastlogin = " + System.currentTimeMillis() + " WHERE uuid = '" + uuid + "';").execute();
+                        Utils.generatePreparedStatement(c, SQLQuery.UPDATE_USER_ONLINE, player, System.currentTimeMillis(), uuid).executeUpdate();
                         core.debug("The nickname of: " + player + " was updated in the database.");
                     }
                 } else {
                     core.debug("Preparing to create or update an entry for offline mode.");
-                    res = c.prepareStatement("SELECT nick FROM " + prefix + "Data WHERE nick = '" + player + "';").executeQuery();
+                    res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();
                     if (!res.next()) {
-                        c.prepareStatement("INSERT INTO " + prefix + "Data VALUES ('" + uuid.toString() + "', '" + player + "', 0.0, " + System.currentTimeMillis() + ");").execute();
+                        Utils.generatePreparedStatement(c, SQLQuery.CREATE_USER, uuid, player, 0.0, System.currentTimeMillis()).executeUpdate();
                         core.debug("An entry in the database was created for: " + player);
                     } else {
-                        c.prepareStatement("UPDATE " + prefix + "Data SET uuid = '" + uuid.toString() + "', lastlogin = " + System.currentTimeMillis() + " WHERE nick = '" + player + "';").execute();
+                        Utils.generatePreparedStatement(c, SQLQuery.UPDATE_USER_OFFLINE, uuid, System.currentTimeMillis(), player).executeUpdate();
                         core.debug("The uuid of: " + core.getNick(uuid) + " was updated in the database.");
                     }
                 }
@@ -218,7 +218,7 @@ public class MySQL implements Database {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + prefix + "Data WHERE nick = '" + player + "';").executeQuery();
+                res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();
                 if (res.next() && res.getString("uuid") != null) {
                     double coins = res.getDouble("balance");
                     CacheManager.updateCoins(core.getUUID(player), coins);
@@ -248,7 +248,7 @@ public class MySQL implements Database {
             try {
                 if (isindb(player) && getCoins(player) >= 0) {
                     double oldCoins = getCoins(player);
-                    c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE nick = '" + player + "';").executeUpdate();
+                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, oldCoins + coins, player).executeUpdate();
                     getCoins(player);
                     core.updateCache(core.getUUID(player), coins);
                     core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, oldCoins + coins);
@@ -268,11 +268,11 @@ public class MySQL implements Database {
             try {
                 double beforeCoins = getCoins(player);
                 if ((beforeCoins - coins) < 0 || beforeCoins == coins) {
-                    c.prepareStatement("UPDATE " + prefix + "Data SET balance = 0 WHERE nick = '" + player + "';").executeUpdate();
+                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, 0, player).executeUpdate();
                     CacheManager.updateCoins(core.getUUID(player), 0D);
                     core.updateCache(core.getUUID(player), 0D);
                 } else {
-                    c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE nick = '" + player + "';").executeUpdate();
+                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, beforeCoins - coins, player).executeUpdate();
                     getCoins(player);
                     core.updateCache(core.getUUID(player), coins);
                 }
@@ -292,7 +292,7 @@ public class MySQL implements Database {
             try {
                 if (isindb(player)) {
                     double oldCoins = getCoins(player);
-                    c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + core.getConfig().getDouble("General.Starting Coins") + " WHERE nick = '" + player + "';").executeUpdate();
+                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, core.getConfig().getDouble("General.Starting Coins", 0), player).executeUpdate();
                     CacheManager.updateCoins(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
                     core.updateCache(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
                     core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, core.getConfig().getDouble("General.Starting Coins"));
@@ -312,7 +312,7 @@ public class MySQL implements Database {
             try {
                 if (isindb(player)) {
                     double oldCoins = getCoins(player);
-                    c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + coins + " WHERE nick = '" + player + "';").executeUpdate();
+                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, coins, player).executeUpdate();
                     CacheManager.updateCoins(core.getUUID(player), coins);
                     core.updateCache(core.getUUID(player), coins);
                     core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, coins);
@@ -331,7 +331,7 @@ public class MySQL implements Database {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + prefix + "Data WHERE nick = '" + player + "';").executeQuery();
+                res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();
                 if (res.next()) {
                     return res.getString("nick") != null;
                 }
@@ -354,7 +354,7 @@ public class MySQL implements Database {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + prefix + "Data WHERE uuid = '" + player + "';").executeQuery();
+                res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, player).executeQuery();
                 if (res.next() && res.getString("uuid") != null) {
                     double coins = res.getDouble("balance");
                     CacheManager.updateCoins(player, coins);
@@ -384,7 +384,7 @@ public class MySQL implements Database {
             try {
                 if (isindb(player) && getCoins(player) >= 0) {
                     double oldCoins = getCoins(player);
-                    c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (oldCoins + coins) + " WHERE uuid = '" + player + "';").executeUpdate();
+                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, oldCoins + coins, player).executeUpdate();
                     getCoins(player);
                     core.updateCache(player, coins);
                     core.getMethods().callCoinsChangeEvent(player, oldCoins, oldCoins + coins);
@@ -405,11 +405,11 @@ public class MySQL implements Database {
             try {
                 double beforeCoins = getCoins(player);
                 if ((beforeCoins - coins) < 0 || beforeCoins == coins) {
-                    c.prepareStatement("UPDATE " + prefix + "Data SET balance = 0 WHERE uuid = '" + player + "';").executeUpdate();
+                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, 0, player).executeUpdate();
                     CacheManager.updateCoins(player, 0D);
                     core.updateCache(player, 0D);
                 } else {
-                    c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + (beforeCoins - coins) + " WHERE uuid = '" + player + "';").executeUpdate();
+                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, beforeCoins - coins, player).executeUpdate();
                     getCoins(player);
                     core.updateCache(player, coins);
                 }
@@ -429,7 +429,7 @@ public class MySQL implements Database {
             try {
                 if (isindb(player)) {
                     double oldCoins = getCoins(player);
-                    c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + core.getConfig().getDouble("General.Starting Coins") + " WHERE uuid = '" + player + "';").executeUpdate();
+                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, core.getConfig().getDouble("General.Starting Coins", 0), player).executeUpdate();
                     CacheManager.updateCoins(player, core.getConfig().getDouble("General.Starting Coins"));
                     core.updateCache(player, core.getConfig().getDouble("General.Starting Coins"));
                     core.getMethods().callCoinsChangeEvent(player, oldCoins, core.getConfig().getDouble("General.Starting Coins"));
@@ -449,7 +449,7 @@ public class MySQL implements Database {
             try {
                 if (isindb(player)) {
                     double oldCoins = getCoins(player);
-                    c.prepareStatement("UPDATE " + prefix + "Data SET balance = " + coins + " WHERE uuid = '" + player + "';").executeUpdate();
+                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, coins, player).executeUpdate();
                     CacheManager.updateCoins(player, coins);
                     core.updateCache(player, coins);
                     core.getMethods().callCoinsChangeEvent(player, oldCoins, coins);
@@ -468,7 +468,7 @@ public class MySQL implements Database {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + prefix + "Data WHERE uuid = '" + player + "';").executeQuery();
+                res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, player).executeQuery();
                 if (res.next()) {
                     return res.getString("nick") != null;
                 }
@@ -492,7 +492,7 @@ public class MySQL implements Database {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + prefix + "Data ORDER BY balance DESC LIMIT " + top + ";").executeQuery();
+                res = Utils.generatePreparedStatement(c, SQLQuery.SELECT_TOP, top).executeQuery();
                 while (res.next()) {
                     String playername = res.getString("nick");
                     int coins = (int) res.getDouble("balance");
@@ -518,7 +518,7 @@ public class MySQL implements Database {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + prefix + "Data ORDER BY balance DESC LIMIT " + top + ";").executeQuery();
+                res = Utils.generatePreparedStatement(c, SQLQuery.SELECT_TOP, top).executeQuery();
                 while (res.next()) {
                     String playername = res.getString("nick");
                     double coins = res.getDouble("balance");
@@ -535,7 +535,7 @@ public class MySQL implements Database {
             core.debug("&cThe error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
-        return topplayers;
+        return Utils.sortByValue(topplayers);
     }
 
     private boolean isColumnMissing(DatabaseMetaData metaData, String table, String column) throws SQLException {
@@ -549,7 +549,7 @@ public class MySQL implements Database {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + prefix + "Data WHERE uuid = '" + uuid + "';").executeQuery();
+                res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, uuid).executeQuery();
                 if (res.next()) {
                     return res.getString("nick");
                 }
@@ -572,7 +572,7 @@ public class MySQL implements Database {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
-                res = c.prepareStatement("SELECT * FROM " + prefix + "Data WHERE nick = '" + nick + "';").executeQuery();
+                res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, nick).executeQuery();
                 if (res.next()) {
                     return UUID.fromString(res.getString("uuid"));
                 }

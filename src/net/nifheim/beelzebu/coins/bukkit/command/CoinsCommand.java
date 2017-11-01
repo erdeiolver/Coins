@@ -326,7 +326,7 @@ public class CoinsCommand extends BukkitCommand {
                             multiplier.setEndTime(System.currentTimeMillis() + Long.valueOf(args[4]) * 60000);
                             multiplier.sendMultiplier();
                             core.getMethods().callMultiplierEnableEvent(null, multiplier.getData());
-                            core.rep(core.getMessages(lang).getStringList("Multipliers.Created")).forEach(msg -> {
+                            core.rep(core.getMessages(lang).getStringList("Multipliers.Set"), multiplier.getData()).forEach(msg -> {
                                 sender.sendMessage(msg);
                             });
                         } catch (NullPointerException | NumberFormatException ex) {

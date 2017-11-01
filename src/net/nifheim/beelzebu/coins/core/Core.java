@@ -38,6 +38,7 @@ import net.nifheim.beelzebu.coins.bungee.listener.PluginMessageListener;
 import net.nifheim.beelzebu.coins.core.database.*;
 import net.nifheim.beelzebu.coins.core.executor.ExecutorManager;
 import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
+import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
 import net.nifheim.beelzebu.coins.core.utils.FileManager;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 import net.nifheim.beelzebu.coins.core.utils.IMethods;
@@ -161,11 +162,32 @@ public class Core {
     public String rep(String msg) {
         return msg.replaceAll("%prefix%", getConfig().getString("Prefix")).replaceAll("&", "§");
     }
+    
+    public String rep(String msg, MultiplierData multiplierData) {
+        String string = msg;
+        if (multiplierData != null) {
+            string = msg
+                    .replaceAll("%enabler%", multiplierData.getEnabler())
+                    .replaceAll("%server%", multiplierData.getServer())
+                    .replaceAll("%amount%", String.valueOf(multiplierData.getAmount()))
+                    .replaceAll("%minutes%",String.valueOf(multiplierData.getMinutes()))
+                    .replaceAll("%id%", String.valueOf(multiplierData.getID()));
+        }
+        return rep(string);
+    }
 
     public List<String> rep(List<String> msgs) {
         List<String> message = new ArrayList<>();
         msgs.forEach(msg -> {
             message.add(rep(msg));
+        });
+        return message;
+    }
+    
+    public List<String> rep(List<String> msgs, MultiplierData multiplierData) {
+        List<String> message = new ArrayList<>();
+        msgs.forEach(msg -> {
+            message.add(rep(msg, multiplierData));
         });
         return message;
     }

@@ -161,8 +161,7 @@ public final class Multiplier {
      */
     public MultiplierData getData() {
         if (id == -1) {
-            //String server, String enabler, int id, int amount, boolean enabled, int minutes, boolean queue
-            return new MultiplierData(server, enabler, enabled, amount, id, (int) (checkTime() / 60000), false);
+            return new MultiplierData(server, enabler, enabled, amount, (int) (checkTime() / 60000), id, false) {};
         } else {
             return getDataByID(id);
         }
@@ -496,7 +495,7 @@ public final class Multiplier {
         }
 
         public MultiplierData create() {
-            return new MultiplierData(server, enabler, enabled, amount, minutes, id, queue);
+            return new MultiplierData(server, enabler, enabled, amount, minutes, id, queue) {};
         }
     }
 
