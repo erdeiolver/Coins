@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 
@@ -215,25 +216,13 @@ public final class Multiplier {
     }
 
     /**
-     * Get the active multiplier countdown time formated in HHH:mm:ss
+     * Get the active multiplier countdown time formated in "days, hours:minutes:seconds"
+     * Ex: 10, 03:59:30
      *
      * @return The multiplier time formated.
      */
     public String getMultiplierTimeFormated() {
-        Long endtime = checkMultiplierTime(server);
-        String format;
-        Long time = -75600000L + checkMultiplierTime(server);
-        if (endtime > 86400000L) {
-            format = "%1$td, %1$tH:%1$tM:%1$tS";
-        } else if (endtime > 3600000L) {
-            format = "%1$tH:%1$tM:%1$tS";
-        } else {
-            format = "%1$tM:%1$tS";
-        }
-        if (time < 0) {
-            return String.format(format, time);
-        }
-        return "00:00";
+        return formatTime(checkMultiplierTime(server));
     }
 
     /**
@@ -519,5 +508,24 @@ public final class Multiplier {
             core.debug(ex.getMessage());
         }
         return null;
+    }
+
+    private String formatTime(final long millis) {
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis));
+        long hours = TimeUnit.MILLISECONDS.toHours(millis) - TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(millis));
+        long days = TimeUnit.MILLISECONDS.toDays(millis);
+
+        StringBuilder b = new StringBuilder();
+        if (days > 0) {
+            b.append(days);
+            b.append(", ");
+        }
+        b.append(hours == 0 ? "00" : hours < 10 ? "0" + hours : hours);
+        b.append(":");
+        b.append(minutes == 0 ? "00" : minutes < 10 ? "0" + minutes : minutes);
+        b.append(":");
+        b.append(seconds == 0 ? "00" : seconds < 10 ? "0" + seconds : seconds);
+        return b.toString();
     }
 }

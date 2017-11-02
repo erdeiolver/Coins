@@ -52,9 +52,10 @@ public class Core {
 
     private static Core instance;
     private IMethods mi;
+    private FileManager fileUpdater;
     private Database db;
     private ExecutorManager executorManager;
-    private static boolean mysql = false;
+    private boolean mysql;
     private HashMap<String, MessagesManager> messagesMap;
 
     public static Core getInstance() {
@@ -63,17 +64,32 @@ public class Core {
 
     public void setup(IMethods methodinterface) {
         mi = methodinterface;
-        messagesMap = new HashMap<>();
-        FileManager fileUpdater = new FileManager(this);
+        fileUpdater = new FileManager(this);
         fileUpdater.copyFiles();
-        getDatabase();
-        executorManager = new ExecutorManager();
-        motd(true);
+        messagesMap = new HashMap<>();
     }
 
     public void shutdown() {
         getDatabase().shutdown();
         motd(false);
+    }
+
+    public void start() {
+        fileUpdater.updateFiles();
+        mysql = getConfig().getBoolean("MySQL.Use");
+        if (!mysql && isBungee()) {
+            log(" ");
+            log("    WARNING");
+            log(" ");
+            log("Bungeecord doesn't support SQLite storage, change it to MySQL and reload the plugin.");
+            log(" ");
+            log("    WARNING");
+            log(" ");
+            return;
+        }
+        motd(true);
+        getDatabase();
+        executorManager = new ExecutorManager();
     }
 
     private void motd(boolean enable) {
@@ -147,8 +163,7 @@ public class Core {
     }
 
     public Database getDatabase() {
-        if (getConfig().getBoolean("MySQL.Use")) {
-            mysql = true;
+        if (mysql) {
             return db == null ? db = new MySQL(this) : db;
         } else {
             return db == null ? db = new SQLite(this) : db;
@@ -160,9 +175,13 @@ public class Core {
     }
 
     public String rep(String msg) {
-        return msg.replaceAll("%prefix%", getConfig().getString("Prefix")).replaceAll("&", "§");
+        String message = msg;
+        if (getConfig() != null) {
+            message = message.replaceAll("%prefix%", getConfig().getString("Prefix"));
+        }
+        return message.replaceAll("&", "§");
     }
-    
+
     public String rep(String msg, MultiplierData multiplierData) {
         String string = msg;
         if (multiplierData != null) {
@@ -170,7 +189,7 @@ public class Core {
                     .replaceAll("%enabler%", multiplierData.getEnabler())
                     .replaceAll("%server%", multiplierData.getServer())
                     .replaceAll("%amount%", String.valueOf(multiplierData.getAmount()))
-                    .replaceAll("%minutes%",String.valueOf(multiplierData.getMinutes()))
+                    .replaceAll("%minutes%", String.valueOf(multiplierData.getMinutes()))
                     .replaceAll("%id%", String.valueOf(multiplierData.getID()));
         }
         return rep(string);
@@ -183,7 +202,7 @@ public class Core {
         });
         return message;
     }
-    
+
     public List<String> rep(List<String> msgs, MultiplierData multiplierData) {
         List<String> message = new ArrayList<>();
         msgs.forEach(msg -> {

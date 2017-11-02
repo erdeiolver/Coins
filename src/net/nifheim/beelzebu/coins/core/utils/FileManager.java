@@ -130,6 +130,7 @@ public class FileManager {
                 }
             }
             FileUtils.writeLines(configFile, lines);
+            core.getConfig().reload();
         } catch (IOException ex) {
             core.log("An unexpected error occurred while updating the config file.");
             core.debug(ex.getMessage());
@@ -322,20 +323,23 @@ public class FileManager {
                 }
             }
         }
-        checkLogs();
         messagesFiles.keySet().forEach(filename -> {
             File messages = messagesFiles.get(filename);
             if (!messages.exists()) {
                 copy(core.getResource(messages.getName()), messages);
             }
         });
-        updateMessages();
         if (!configFile.exists()) {
             copy(core.getResource("config.yml"), configFile);
         }
+
+    }
+
+    public void updateFiles() {
+        checkLogs();
+        updateMessages();
         core.getConfig().reload();
         updateConfig();
-        core.getConfig().reload();
     }
 
     private void checkLogs() {

@@ -28,6 +28,7 @@ import net.nifheim.beelzebu.coins.bukkit.utils.placeholders.*;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.executor.Executor;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
+import net.nifheim.beelzebu.coins.core.utils.dependencies.DependencyManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -46,10 +47,16 @@ public class Main extends JavaPlugin {
     }
 
     @Override
-    public void onEnable() {
+    public void onLoad() {
         instance = this;
-        configuration = new Configuration(this);
         core.setup(new BukkitMethods());
+        DependencyManager.loadAllDependencies();
+    }
+
+    @Override
+    public void onEnable() {
+        configuration = new Configuration(this);
+        core.start();
         commandManager = new CommandManager();
         loadManagers();
 
@@ -100,7 +107,7 @@ public class Main extends JavaPlugin {
             multipliers.hook();
         }
     }
-    
+
     public IConfiguration getConfiguration() {
         return configuration;
     }
