@@ -279,10 +279,10 @@ public class FileManager {
                 ));
                 core.log("Updated messages_es.yml file to v9");
             }
-            if (core.getMessages("").getInt("version") == 9) {
+            if (core.getMessages("es").getInt("version") == 9) {
                 index = lines.indexOf("version: 9");
                 lines.set(index, "version: 10");
-                index = lines.indexOf("  Multiplier Create: '" + core.getMessages("").getString("Help.Multiplier Create") + "'") + 1;
+                index = lines.indexOf("  Multiplier Create: '" + core.getMessages("es").getString("Help.Multiplier Create") + "'") + 1;
                 lines.add(index, "  Multiplier Set: '%prefix% &cPor favor usa &f/coins multiplier set <cantidad> <activador> <minutos> (server)'");
                 lines.addAll(Arrays.asList(
                         "  Set:",
@@ -292,6 +292,11 @@ public class FileManager {
                         "  - '  &7Minutos: &c%minutes%'"
                 ));
                 core.log("Updated messages_es.yml file to v10");
+            }
+            if (lines.get(0).startsWith("  Multiplier Set:")) {
+                lines.remove(0);
+                index = lines.indexOf("  Multiplier Create: '" + core.getMessages("es").getString("Help.Multiplier Create") + "'") + 1;
+                lines.add(index, "  Multiplier Set: '%prefix% &cPor favor usa &f/coins multiplier set <cantidad> <activador> <minutos> (server)'");
             }
             FileUtils.writeLines(messagesFiles.get("es"), lines);
         } catch (IOException ex) {
