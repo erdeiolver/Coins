@@ -278,7 +278,7 @@ public class Core {
         } else {
             ProxyServer.getInstance().getServers().keySet().forEach(server -> {
                 PluginMessageListener pml = new PluginMessageListener();
-                pml.sendMultiplier(ProxyServer.getInstance().getServerInfo(server), message);
+                pml.sendToBukkit("Multiplier", message, ProxyServer.getInstance().getServerInfo(server), false);
             });
         }
     }

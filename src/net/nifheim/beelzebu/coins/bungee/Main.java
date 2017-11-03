@@ -57,7 +57,7 @@ public class Main extends Plugin {
         core.start();
         if (ProxyServer.getInstance().getPluginManager().getPlugin("RedisBungee") != null) {
             ProxyServer.getInstance().getPluginManager().registerListener(this, new PubSubMessageListener());
-            RedisBungee.getApi().registerPubSubChannels("Coins", "Update");
+            RedisBungee.getApi().registerPubSubChannels("Coins", "Update", "Multiplier");
             useRedis = true;
             core.log("Using RedisBungee for plugin messaging.");
         }

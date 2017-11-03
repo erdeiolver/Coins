@@ -29,6 +29,9 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import net.nifheim.beelzebu.coins.CoinsAPI;
+import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
+import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 
 /**
  *
@@ -68,7 +71,7 @@ public class PluginMessageListener extends CoinsBungeeListener implements Listen
                             RedisBungee.getApi().sendChannelMessage("Update", updatemsg[1] + " " + updatemsg[2]);
                         } else {
                             ProxyServer.getInstance().getServers().keySet().forEach(server -> {
-                                sendToBukkit("Update", Arrays.asList(updatemsg[1] + " " + updatemsg[2]), ProxyServer.getInstance().getServerInfo(server));
+                                sendToBukkit("Update", Arrays.asList(updatemsg[1] + " " + updatemsg[2]), ProxyServer.getInstance().getServerInfo(server), true);
                             });
                         }
                     }
@@ -77,17 +80,36 @@ public class PluginMessageListener extends CoinsBungeeListener implements Listen
             }
             case "Multiplier":
                 List<String> multiplierData = new ArrayList<>();
-                for (int i = 0; i < 5; i++) {
-                    multiplierData.add(in.readUTF());
-                }
-                if (multiplierData.size() == 5) {
-                    if (plugin.useRedis()) {
-                        String multiplier = "";
-                        multiplier = multiplierData.stream().map((str) -> str + "|||").reduce(multiplier, String::concat);
-                        RedisBungee.getApi().sendChannelMessage("Multiplier", multiplier);
-                    } else {
+                String input = in.readUTF();
+                if (input.startsWith("get ")) { // update the multiplier for the specified server
+                    Multiplier multiplier = CacheManager.getMultiplier(input.split(" ")[1]);
+                    if (multiplier != null) {
+                        core.updateMultiplier(multiplier);
+                    }
+                } else if (input.equals("getAllMultipliers")) { // update all multipliers
+                    CacheManager.getMultipliersData().keySet().stream().map((server) -> CacheManager.getMultiplier(server)).forEachOrdered((multiplier) -> {
+                        core.updateMultiplier(multiplier);
+                    });
+                } else { // store the data
+                    multiplierData.add(input);
+                    for (int i = 0; i < 4; i++) {
+                        multiplierData.add(in.readUTF());
+                    }
+                    if (multiplierData.size() == 5) {
+                        if (plugin.useRedis()) { // update in all servers if use redis
+                            String multiplierString = "";
+                            multiplierString = multiplierData.stream().map((str) -> str + "|||").reduce(multiplierString, String::concat);
+                            RedisBungee.getApi().sendChannelMessage("Multiplier", multiplierString.substring(0, multiplierString.length() - 3));
+                        } else { // just upadte this
+                            Multiplier multiplier = CoinsAPI.getMultiplier(multiplierData.get(0));
+                            multiplier.setEnabled(Boolean.valueOf(multiplierData.get(1)));
+                            multiplier.setEnabler(multiplierData.get(2));
+                            multiplier.setAmount(Integer.valueOf(multiplierData.get(3)));
+                            multiplier.setEndTime(Long.valueOf(multiplierData.get(4)));
+                            CacheManager.addMultiplier(multiplier.getServer(), multiplier);
+                        }
                         ProxyServer.getInstance().getServers().keySet().forEach(server -> {
-                            sendMultiplier(ProxyServer.getInstance().getServerInfo(server), multiplierData);
+                            sendToBukkit("Multiplier", multiplierData, ProxyServer.getInstance().getServerInfo(server), false);
                         });
                     }
                 }

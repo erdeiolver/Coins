@@ -53,21 +53,17 @@ public abstract class CoinsBungeeListener {
                 );
                 message.addAll(messages);
                 message.addAll(messages.size(), commands);
-                sendToBukkit("Coins", message, server);
+                sendToBukkit("Coins", message, server, true);
             }
         });
     }
 
-    public void sendMultiplier(ServerInfo server, List<String> multiplier) {
-        sendToBukkit("Multiplier", multiplier, server);
-    }
-
-    public void sendToBukkit(String channel, List<String> messages, ServerInfo server) {
+    public void sendToBukkit(String channel, List<String> messages, ServerInfo server, boolean wait) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF(channel);
         messages.forEach((msg) -> {
             out.writeUTF(msg);
         });
-        server.sendData("Coins", out.toByteArray(), true);
+        server.sendData("Coins", out.toByteArray(), wait);
     }
 }

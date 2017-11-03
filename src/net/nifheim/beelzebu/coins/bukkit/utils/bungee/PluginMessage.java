@@ -40,9 +40,9 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
  * @author Beelzebu
  */
 public class PluginMessage implements PluginMessageListener {
-    
+
     private final Core core = Core.getInstance();
-    
+
     @Override
     public synchronized void onPluginMessageReceived(String channel, Player player, byte[] message) {
         if (!channel.equals("Coins")) {
@@ -89,19 +89,18 @@ public class PluginMessage implements PluginMessageListener {
                 for (int i = 0; i < 5; i++) {
                     multiplierData.add(in.readUTF());
                 }
-                if (multiplierData.size() == 5) {
-                    Multiplier multiplier = CoinsAPI.getMultiplier(multiplierData.get(0));
-                    multiplier.setEnabled(Boolean.valueOf(multiplierData.get(1)));
-                    multiplier.setEnabler(multiplierData.get(2));
-                    multiplier.setAmount(Integer.valueOf(multiplierData.get(3)));
-                    multiplier.setEndTime(Long.valueOf(multiplierData.get(4)));
-                }
+                Multiplier multiplier = CoinsAPI.getMultiplier(multiplierData.get(0));
+                multiplier.setEnabled(Boolean.valueOf(multiplierData.get(1)));
+                multiplier.setEnabler(multiplierData.get(2));
+                multiplier.setAmount(Integer.valueOf(multiplierData.get(3)));
+                multiplier.setEndTime(Long.valueOf(multiplierData.get(4)));
+                CacheManager.addMultiplier(multiplier.getServer(), multiplier);
                 break;
             default:
                 break;
         }
     }
-    
+
     public void sendToBungeeCord(String channel, String message) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF(channel);
@@ -111,7 +110,7 @@ public class PluginMessage implements PluginMessageListener {
             p.sendPluginMessage(Main.getInstance(), "Coins", out.toByteArray());
         }
     }
-    
+
     public void sendToBungeeCord(String channel, List<String> messages) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF(channel);

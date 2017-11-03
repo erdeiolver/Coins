@@ -45,6 +45,7 @@ public class PlayerJoinListener implements Listener {
         PluginMessage pmsg = new PluginMessage();
         if (first) {
             Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+                pmsg.sendToBungeeCord("Multiplier", "getAllMultipliers");
                 pmsg.sendToBungeeCord("Coins", "getExecutors");
             }, 30);
             first = false;

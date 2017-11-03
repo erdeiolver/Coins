@@ -78,6 +78,7 @@ public class Main extends JavaPlugin {
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, "Coins");
         Bukkit.getMessenger().registerIncomingPluginChannel(this, "Coins", pmsg);
         Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
+            pmsg.sendToBungeeCord("Multiplier", "getAllMultipliers");
             pmsg.sendToBungeeCord("Coins", "getExecutors");
             Bukkit.getOnlinePlayers().forEach((p) -> {
                 CoinsAPI.createPlayer(p.getName(), p.getUniqueId());

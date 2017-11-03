@@ -18,6 +18,8 @@
  */
 package net.nifheim.beelzebu.coins.bukkit.utils.placeholders;
 
+import java.text.NumberFormat;
+import java.util.Locale;
 import me.clip.placeholderapi.external.EZPlaceholderHook;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
@@ -38,9 +40,40 @@ public class PlaceholderAPI extends EZPlaceholderHook {
         if (p == null) {
             return "Player needed!";
         }
-        if (coins.equalsIgnoreCase("amount")) {
-            return CoinsAPI.getCoinsString(p.getName());
+        switch (coins) {
+            case "amount":
+                return CoinsAPI.getCoinsString(p.getName());
+            case "amount_formatted":
+                return fix(CoinsAPI.getCoins(p.getName()));
+            default:
+                break;
         }
         return "0";
+    }
+
+    private String format(double d) {
+        NumberFormat format = NumberFormat.getInstance(Locale.ENGLISH);
+        format.setMaximumFractionDigits(2);
+        format.setMinimumFractionDigits(0);
+        return format.format(d);
+    }
+
+    private String fix(double d) {
+        if (d < 1000D) {
+            return format(d);
+        } else if (d < 1000000D) {
+            return format(d / 1000D) + "k";
+        } else if (d < 1.0E9D) {
+            return format(d / 1000000D) + "m";
+        } else if (d < 1.0E12D) {
+            return format(d / 1.0E9D) + "b";
+        } else if (d < 1.0E15D) {
+            return format(d / 1.0E12D) + "t";
+        } else if (d < 1.0E18D) {
+            return format(d / 1.0E15D) + "t";
+        } else {
+            long send = (long) d;
+            return String.valueOf(send);
+        }
     }
 }

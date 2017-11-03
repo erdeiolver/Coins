@@ -402,6 +402,7 @@ public class CoinsCommand extends BukkitCommand {
                 core.getExecutorManager().addExecutor(new Executor(id, core.getConfig().getString("Command executor." + id + ".Displayname", id), core.getConfig().getDouble("Command executor." + id + ".Cost", 0), core.getConfig().getStringList("Command executor." + id + ".Command")));
             });
             PluginMessage pm = new PluginMessage();
+            pm.sendToBungeeCord("Multiplier", "getAllMultipliers");
             pm.sendToBungeeCord("Coins", "getExecutors");
             sender.sendMessage(core.rep("%prefix% Reloaded config and all loaded messages files. If you want reload the command, you need to restart the server."));
         }

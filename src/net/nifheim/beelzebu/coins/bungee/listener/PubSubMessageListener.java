@@ -20,9 +20,13 @@ package net.nifheim.beelzebu.coins.bungee.listener;
 
 import com.imaginarycode.minecraft.redisbungee.events.PubSubMessageEvent;
 import java.util.Arrays;
+import java.util.List;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import net.nifheim.beelzebu.coins.CoinsAPI;
+import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
+import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 
 /**
  *
@@ -44,13 +48,17 @@ public class PubSubMessageListener extends CoinsBungeeListener implements Listen
                 break;
             case "Update":
                 ProxyServer.getInstance().getServers().keySet().forEach(server -> {
-                    sendToBukkit("Update", Arrays.asList(e.getMessage()), ProxyServer.getInstance().getServerInfo(server));
+                    sendToBukkit("Update", Arrays.asList(e.getMessage()), ProxyServer.getInstance().getServerInfo(server), true);
                 });
                 break;
             case "Multiplier":
-                ProxyServer.getInstance().getServers().keySet().forEach(server -> {
-                    sendMultiplier(ProxyServer.getInstance().getServerInfo(server), Arrays.asList(e.getMessage().split("|||")));
-                });
+                List<String> multiplierData = Arrays.asList(e.getMessage().split("\\|\\|\\|"));
+                Multiplier multiplier = CoinsAPI.getMultiplier(multiplierData.get(0));
+                multiplier.setEnabled(Boolean.valueOf(multiplierData.get(1)));
+                multiplier.setEnabler(multiplierData.get(2));
+                multiplier.setAmount(Integer.valueOf(multiplierData.get(3)));
+                multiplier.setEndTime(Long.valueOf(multiplierData.get(4)));
+                CacheManager.addMultiplier(multiplier.getServer(), multiplier);
                 break;
             default:
                 break;

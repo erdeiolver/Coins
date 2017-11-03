@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import lombok.Getter;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
 
@@ -32,6 +33,7 @@ import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
 public class CacheManager {
 
     private static final Map<UUID, Double> playersData = Collections.synchronizedMap(new HashMap<>());
+    @Getter
     private static final Map<String, Multiplier> multipliersData = Collections.synchronizedMap(new HashMap<>());
 
     public static Double getCoins(UUID uuid) {
