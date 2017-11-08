@@ -23,13 +23,13 @@ import com.google.common.io.ByteStreams;
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
-import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
 import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 
@@ -87,9 +87,11 @@ public class PluginMessageListener extends CoinsBungeeListener implements Listen
                         core.updateMultiplier(multiplier);
                     }
                 } else if (input.equals("getAllMultipliers")) { // update all multipliers
-                    CacheManager.getMultipliersData().keySet().stream().map((server) -> CacheManager.getMultiplier(server)).forEachOrdered((multiplier) -> {
-                        core.updateMultiplier(multiplier);
-                    });
+                    Iterator<String> it = CacheManager.getMultipliersData().keySet().iterator();
+                    while (it.hasNext()) {
+                        String server = it.next();
+                        core.updateMultiplier(CacheManager.getMultiplier(server));
+                    }
                 } else { // store the data
                     multiplierData.add(input);
                     for (int i = 0; i < 4; i++) {
@@ -101,12 +103,12 @@ public class PluginMessageListener extends CoinsBungeeListener implements Listen
                             multiplierString = multiplierData.stream().map((str) -> str + "|||").reduce(multiplierString, String::concat);
                             RedisBungee.getApi().sendChannelMessage("Multiplier", multiplierString.substring(0, multiplierString.length() - 3));
                         } else { // just upadte this
-                            Multiplier multiplier = CoinsAPI.getMultiplier(multiplierData.get(0));
+                            Multiplier multiplier = new Multiplier(multiplierData.get(0));
                             multiplier.setEnabled(Boolean.valueOf(multiplierData.get(1)));
                             multiplier.setEnabler(multiplierData.get(2));
                             multiplier.setAmount(Integer.valueOf(multiplierData.get(3)));
                             multiplier.setEndTime(Long.valueOf(multiplierData.get(4)));
-                            CacheManager.addMultiplier(multiplier.getServer(), multiplier);
+                            CacheManager.addMultiplier(multiplierData.get(0), multiplier);
                         }
                         ProxyServer.getInstance().getServers().keySet().forEach(server -> {
                             sendToBukkit("Multiplier", multiplierData, ProxyServer.getInstance().getServerInfo(server), false);

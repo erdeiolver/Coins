@@ -24,7 +24,6 @@ import java.util.List;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
-import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
 import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 
@@ -53,12 +52,12 @@ public class PubSubMessageListener extends CoinsBungeeListener implements Listen
                 break;
             case "Multiplier":
                 List<String> multiplierData = Arrays.asList(e.getMessage().split("\\|\\|\\|"));
-                Multiplier multiplier = CoinsAPI.getMultiplier(multiplierData.get(0));
+                Multiplier multiplier = new Multiplier(multiplierData.get(0));
                 multiplier.setEnabled(Boolean.valueOf(multiplierData.get(1)));
                 multiplier.setEnabler(multiplierData.get(2));
                 multiplier.setAmount(Integer.valueOf(multiplierData.get(3)));
                 multiplier.setEndTime(Long.valueOf(multiplierData.get(4)));
-                CacheManager.addMultiplier(multiplier.getServer(), multiplier);
+                CacheManager.addMultiplier(multiplierData.get(0), multiplier);
                 break;
             default:
                 break;

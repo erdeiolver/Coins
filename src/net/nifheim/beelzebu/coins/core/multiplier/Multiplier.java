@@ -54,7 +54,7 @@ public final class Multiplier {
         enabled = isEnabled(server);
         amount = getAmount(server);
         id = getID(server);
-        checkMultiplierTime(server);
+        checkMultiplierTime(server, false);
     }
 
     /**
@@ -162,7 +162,8 @@ public final class Multiplier {
      */
     public MultiplierData getData() {
         if (id == -1) {
-            return new MultiplierData(server, enabler, enabled, amount, (int) (checkTime() / 60000), id, false) {};
+            return new MultiplierData(server, enabler, enabled, amount, (int) (checkTime() / 60000), id, false) {
+            };
         } else {
             return getDataByID(id);
         }
@@ -174,7 +175,7 @@ public final class Multiplier {
      * @return the remaining millis of this multiplier.
      */
     public Long checkTime() {
-        return checkMultiplierTime(server);
+        return checkMultiplierTime(server, true);
     }
 
     /**
@@ -216,13 +217,13 @@ public final class Multiplier {
     }
 
     /**
-     * Get the active multiplier countdown time formated in "days, hours:minutes:seconds"
-     * Ex: 10, 03:59:30
+     * Get the active multiplier countdown time formated in "days,
+     * hours:minutes:seconds" Ex: 10, 03:59:30
      *
      * @return The multiplier time formated.
      */
     public String getMultiplierTimeFormated() {
-        return formatTime(checkMultiplierTime(server));
+        return formatTime(checkMultiplierTime(server, true));
     }
 
     /**
@@ -296,10 +297,10 @@ public final class Multiplier {
      */
     @Deprecated
     public Long getMultiplierTime(String server) {
-        return checkMultiplierTime(server);
+        return checkMultiplierTime(server, true);
     }
 
-    private Long checkMultiplierTime(String server) {
+    private Long checkMultiplierTime(String server, boolean remove) {
         if (id == -1) { // this multiplier is fake
             if ((endTime - System.currentTimeMillis()) > 0) {
                 return endTime - System.currentTimeMillis();
@@ -308,7 +309,9 @@ public final class Multiplier {
                 enabled = false;
                 enabler = null;
                 endTime = 0L;
-                CacheManager.removeMultiplier(server);
+                if (remove) {
+                    CacheManager.removeMultiplier(server);
+                }
                 return 0L;
             }
         } else if (endTime > 0 && (endTime - System.currentTimeMillis()) > 0) { // this is the cached time of a real multiplier
@@ -328,7 +331,9 @@ public final class Multiplier {
                             enabled = false;
                             enabler = null;
                             endTime = 0L;
-                            CacheManager.removeMultiplier(server);
+                            if (remove) {
+                                CacheManager.removeMultiplier(server);
+                            }
                             res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + server + "' AND enabled = false AND queue > -1 ORDER BY queue ASC;").executeQuery();
                             if (res.next()) {
                                 useMultiplier(res.getInt("id"), MultiplierType.SERVER);
@@ -484,7 +489,8 @@ public final class Multiplier {
         }
 
         public MultiplierData create() {
-            return new MultiplierData(server, enabler, enabled, amount, minutes, id, queue) {};
+            return new MultiplierData(server, enabler, enabled, amount, minutes, id, queue) {
+            };
         }
     }
 

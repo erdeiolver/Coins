@@ -25,7 +25,6 @@ import com.google.common.io.ByteStreams;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.executor.Executor;
@@ -89,7 +88,7 @@ public class PluginMessage implements PluginMessageListener {
                 for (int i = 0; i < 5; i++) {
                     multiplierData.add(in.readUTF());
                 }
-                Multiplier multiplier = CoinsAPI.getMultiplier(multiplierData.get(0));
+                Multiplier multiplier = new Multiplier(multiplierData.get(0));
                 multiplier.setEnabled(Boolean.valueOf(multiplierData.get(1)));
                 multiplier.setEnabler(multiplierData.get(2));
                 multiplier.setAmount(Integer.valueOf(multiplierData.get(3)));

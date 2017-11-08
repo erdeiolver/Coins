@@ -28,6 +28,7 @@ import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.executor.Executor;
 import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
+import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
@@ -411,11 +412,12 @@ public class CoinsCommand extends BukkitCommand {
 
     private boolean about(CommandSender sender, String[] args) {
         if (sender.hasPermission("coins.admin") || sender.getName().equals("Beelzebu")) {
-            sender.sendMessage(core.rep("%prefix% Server setup:"));
+            sender.sendMessage(core.rep("%prefix% Plugin info:"));
             sender.sendMessage("");
             sender.sendMessage(core.rep(" &cVersion:&7 " + core.getMethods().getVersion()));
             sender.sendMessage(core.rep(" &cExecutors:&7 " + core.getExecutorManager().getExecutors().size()));
             sender.sendMessage(core.rep(" &cMySQL:&7 " + core.isMySQL()));
+            sender.sendMessage(core.rep(" &cMultipliers in cache:&7 " + CacheManager.getMultipliersData().keySet()));
             sender.sendMessage("");
         }
         return true;
