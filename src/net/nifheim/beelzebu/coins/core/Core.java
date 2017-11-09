@@ -39,6 +39,7 @@ import net.nifheim.beelzebu.coins.core.database.*;
 import net.nifheim.beelzebu.coins.core.executor.ExecutorManager;
 import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
 import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
+import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 import net.nifheim.beelzebu.coins.core.utils.FileManager;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 import net.nifheim.beelzebu.coins.core.utils.IMethods;
@@ -281,6 +282,7 @@ public class Core {
                 pml.sendToBukkit("Multiplier", message, ProxyServer.getInstance().getServerInfo(server), false);
             });
         }
+        CacheManager.addMultiplier(multiplier.getServer(), multiplier);
     }
 
     public void reloadMessages() {

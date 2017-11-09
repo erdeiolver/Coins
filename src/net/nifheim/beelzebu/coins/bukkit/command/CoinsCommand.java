@@ -58,6 +58,8 @@ public class CoinsCommand extends BukkitCommand {
         core.getMethods().runAsync(() -> {
             if (sender instanceof Player) {
                 lang = ((Player) sender).spigot().getLocale().split("_")[0];
+            } else {
+                lang = "";
             }
             if (args.length == 0) {
                 if (sender instanceof Player) {
@@ -317,14 +319,16 @@ public class CoinsCommand extends BukkitCommand {
                 if (args[1].equalsIgnoreCase("set")) {
                     if (args.length >= 5) {
                         try {
-                            Multiplier multiplier = CoinsAPI.getMultiplier();
+                            Multiplier multiplier;
                             if (args.length == 6) {
-                                multiplier = CoinsAPI.getMultiplier(args[5]);
+                                multiplier = new Multiplier(args[5], args[3].replaceAll("_", " "), true, Integer.valueOf(args[2]), System.currentTimeMillis() + Long.valueOf(args[4]) * 60000);
+                            } else {
+                                multiplier = CoinsAPI.getMultiplier();
+                                multiplier.setEnabled(true);
+                                multiplier.setAmount(Integer.valueOf(args[2]));
+                                multiplier.setEnabler(args[3].replaceAll("_", " "));
+                                multiplier.setEndTime(System.currentTimeMillis() + Long.valueOf(args[4]) * 60000);
                             }
-                            multiplier.setEnabled(true);
-                            multiplier.setAmount(Integer.valueOf(args[2]));
-                            multiplier.setEnabler(args[3].replaceAll("_", " "));
-                            multiplier.setEndTime(System.currentTimeMillis() + Long.valueOf(args[4]) * 60000);
                             multiplier.sendMultiplier();
                             core.getMethods().callMultiplierEnableEvent(null, multiplier.getData());
                             core.rep(core.getMessages(lang).getStringList("Multipliers.Set"), multiplier.getData()).forEach(msg -> {

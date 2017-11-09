@@ -54,7 +54,7 @@ public final class Multiplier {
         enabled = isEnabled(server);
         amount = getAmount(server);
         id = getID(server);
-        checkMultiplierTime(server);
+        endTime = checkMultiplierTime(server);
     }
 
     public Multiplier(String server, String enabler, boolean enabled, int amount, long endTime) {

@@ -22,7 +22,6 @@ import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.bukkit.events.MultiplierEnableEvent;
 import net.nifheim.beelzebu.coins.core.Core;
-import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -40,9 +39,8 @@ public class InternalListener implements Listener {
         core.debug("Started multiplier check task");
         (new BukkitRunnable() {
             @Override
-            public void run() {
+	    public void run() {
                 if (CoinsAPI.getMultiplier(e.getData().getServer()).checkTime() <= 0) {
-		    CacheManager.removeMultiplier(e.getData().getServer());
                     core.debug("Canceling the multiplier check task");
                     cancel();
                 }

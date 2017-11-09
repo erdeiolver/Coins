@@ -112,7 +112,7 @@ public class PluginMessageListener extends CoinsBungeeListener implements Listen
                             multiplierString = multiplierData.stream().map((str) -> str + "|||").reduce(multiplierString, String::concat);
                             RedisBungee.getApi().sendChannelMessage("Multiplier", multiplierString.substring(0, multiplierString.length() - 3));
                         } else { // just upadte this
-                            Multiplier multiplier = new Multiplier(multiplierData.get(0), multiplierData.get(2), Boolean.valueOf(multiplierData.get(1)), Integer.valueOf(multiplierData.get(3)), Long.valueOf(multiplierData.get(4)));
+                            Multiplier multiplier = new Multiplier(multiplierData.get(0), multiplierData.get(2), Boolean.valueOf(multiplierData.get(1)), Integer.valueOf(multiplierData.get(3)), System.currentTimeMillis() + Long.valueOf(multiplierData.get(4)));
                             CacheManager.addMultiplier(multiplierData.get(0), multiplier);
                         }
                         ProxyServer.getInstance().getServers().keySet().forEach(server -> {
