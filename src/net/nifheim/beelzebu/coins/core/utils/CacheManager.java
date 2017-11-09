@@ -32,6 +32,7 @@ import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
  */
 public class CacheManager {
 
+    private static final Core core = Core.getInstance();
     private static final Map<UUID, Double> playersData = Collections.synchronizedMap(new HashMap<>());
     @Getter
     private static final Map<String, Multiplier> multipliersData = Collections.synchronizedMap(new HashMap<>());
@@ -65,12 +66,14 @@ public class CacheManager {
 
     public static void addMultiplier(String server, Multiplier multiplier) {
         synchronized (multipliersData) {
+	    core.log("Multiplier: " + server + " added");
             multipliersData.put(server, multiplier);
         }
     }
 
     public static void removeMultiplier(String server) {
         synchronized (multipliersData) {
+	    core.log("Multiplier: " + server + " removed");
             multipliersData.remove(server);
         }
     }

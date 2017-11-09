@@ -48,13 +48,23 @@ public final class Multiplier {
         return core.getDatabase().getConnection();
     }
 
-    public Multiplier(String sv) {
-        server = sv;
+    public Multiplier(String server) {
+        this.server = server;
         enabler = getEnabler(server);
         enabled = isEnabled(server);
         amount = getAmount(server);
         id = getID(server);
-        checkMultiplierTime(server, false);
+        checkMultiplierTime(server);
+    }
+
+    public Multiplier(String server, String enabler, boolean enabled, int amount, long endTime) {
+	this.server = server;
+	this.enabler = enabler;
+	this.enabled = enabled;
+	this.amount = amount;
+	this.id = -1;
+	this.endTime = endTime;
+	checkMultiplierTime(server);
     }
 
     /**
@@ -175,7 +185,7 @@ public final class Multiplier {
      * @return the remaining millis of this multiplier.
      */
     public Long checkTime() {
-        return checkMultiplierTime(server, true);
+        return checkMultiplierTime(server);
     }
 
     /**
@@ -223,7 +233,7 @@ public final class Multiplier {
      * @return The multiplier time formated.
      */
     public String getMultiplierTimeFormated() {
-        return formatTime(checkMultiplierTime(server, true));
+        return formatTime(checkMultiplierTime(server));
     }
 
     /**
@@ -297,10 +307,10 @@ public final class Multiplier {
      */
     @Deprecated
     public Long getMultiplierTime(String server) {
-        return checkMultiplierTime(server, true);
+        return checkMultiplierTime(server);
     }
 
-    private Long checkMultiplierTime(String server, boolean remove) {
+    private Long checkMultiplierTime(String server) {
         if (id == -1) { // this multiplier is fake
             if ((endTime - System.currentTimeMillis()) > 0) {
                 return endTime - System.currentTimeMillis();
@@ -309,9 +319,6 @@ public final class Multiplier {
                 enabled = false;
                 enabler = null;
                 endTime = 0L;
-                if (remove) {
-                    CacheManager.removeMultiplier(server);
-                }
                 return 0L;
             }
         } else if (endTime > 0 && (endTime - System.currentTimeMillis()) > 0) { // this is the cached time of a real multiplier
@@ -331,9 +338,6 @@ public final class Multiplier {
                             enabled = false;
                             enabler = null;
                             endTime = 0L;
-                            if (remove) {
-                                CacheManager.removeMultiplier(server);
-                            }
                             res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + server + "' AND enabled = false AND queue > -1 ORDER BY queue ASC;").executeQuery();
                             if (res.next()) {
                                 useMultiplier(res.getInt("id"), MultiplierType.SERVER);

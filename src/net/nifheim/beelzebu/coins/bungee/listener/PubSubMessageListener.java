@@ -51,13 +51,13 @@ public class PubSubMessageListener extends CoinsBungeeListener implements Listen
                 });
                 break;
             case "Multiplier":
-                List<String> multiplierData = Arrays.asList(e.getMessage().split("\\|\\|\\|"));
-                Multiplier multiplier = new Multiplier(multiplierData.get(0));
-                multiplier.setEnabled(Boolean.valueOf(multiplierData.get(1)));
-                multiplier.setEnabler(multiplierData.get(2));
-                multiplier.setAmount(Integer.valueOf(multiplierData.get(3)));
-                multiplier.setEndTime(Long.valueOf(multiplierData.get(4)));
-                CacheManager.addMultiplier(multiplierData.get(0), multiplier);
+                if (e.getMessage().startsWith("disable ")) {
+                    CacheManager.getMultiplier(e.getMessage().split(" ")[1]).setEnabled(false);
+                } else {
+                    List<String> multiplierData = Arrays.asList(e.getMessage().split("\\|\\|\\|"));
+                    Multiplier multiplier = new Multiplier(multiplierData.get(0), multiplierData.get(2), Boolean.valueOf(multiplierData.get(1)), Integer.valueOf(multiplierData.get(3)), Long.valueOf(multiplierData.get(4)));
+                    CacheManager.addMultiplier(multiplierData.get(0), multiplier);
+                }
                 break;
             default:
                 break;

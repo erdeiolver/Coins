@@ -88,12 +88,9 @@ public class PluginMessage implements PluginMessageListener {
                 for (int i = 0; i < 5; i++) {
                     multiplierData.add(in.readUTF());
                 }
-                Multiplier multiplier = new Multiplier(multiplierData.get(0));
-                multiplier.setEnabled(Boolean.valueOf(multiplierData.get(1)));
-                multiplier.setEnabler(multiplierData.get(2));
-                multiplier.setAmount(Integer.valueOf(multiplierData.get(3)));
-                multiplier.setEndTime(Long.valueOf(multiplierData.get(4)));
-                CacheManager.addMultiplier(multiplier.getServer(), multiplier);
+                Multiplier multiplier = new Multiplier(multiplierData.get(0), multiplierData.get(2), Boolean.valueOf(multiplierData.get(1)), Integer.valueOf(multiplierData.get(3)), Long.valueOf(multiplierData.get(4)));
+		CacheManager.addMultiplier(multiplierData.get(0), multiplier);
+                core.getMethods().callMultiplierEnableEvent(null, multiplier.getData());
                 break;
             default:
                 break;

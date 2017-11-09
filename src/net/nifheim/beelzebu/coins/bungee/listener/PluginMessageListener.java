@@ -92,6 +92,15 @@ public class PluginMessageListener extends CoinsBungeeListener implements Listen
                         String server = it.next();
                         core.updateMultiplier(CacheManager.getMultiplier(server));
                     }
+                } else if (input.startsWith("disable ")) {
+                    Multiplier multiplier = CacheManager.getMultiplier(input.split(" ")[1]);
+                    if (multiplier != null) {
+                        if (plugin.useRedis()) {
+                            RedisBungee.getApi().sendChannelMessage("Multiplier", input);
+                        } else {
+                            multiplier.setEnabled(false);
+                        }
+                    }
                 } else { // store the data
                     multiplierData.add(input);
                     for (int i = 0; i < 4; i++) {
@@ -103,11 +112,7 @@ public class PluginMessageListener extends CoinsBungeeListener implements Listen
                             multiplierString = multiplierData.stream().map((str) -> str + "|||").reduce(multiplierString, String::concat);
                             RedisBungee.getApi().sendChannelMessage("Multiplier", multiplierString.substring(0, multiplierString.length() - 3));
                         } else { // just upadte this
-                            Multiplier multiplier = new Multiplier(multiplierData.get(0));
-                            multiplier.setEnabled(Boolean.valueOf(multiplierData.get(1)));
-                            multiplier.setEnabler(multiplierData.get(2));
-                            multiplier.setAmount(Integer.valueOf(multiplierData.get(3)));
-                            multiplier.setEndTime(Long.valueOf(multiplierData.get(4)));
+                            Multiplier multiplier = new Multiplier(multiplierData.get(0), multiplierData.get(2), Boolean.valueOf(multiplierData.get(1)), Integer.valueOf(multiplierData.get(3)), Long.valueOf(multiplierData.get(4)));
                             CacheManager.addMultiplier(multiplierData.get(0), multiplier);
                         }
                         ProxyServer.getInstance().getServers().keySet().forEach(server -> {
