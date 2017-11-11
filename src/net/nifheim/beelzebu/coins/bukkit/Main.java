@@ -27,6 +27,7 @@ import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
 import net.nifheim.beelzebu.coins.bukkit.utils.placeholders.*;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.executor.Executor;
+import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 import net.nifheim.beelzebu.coins.core.utils.dependencies.DependencyManager;
 import org.bukkit.Bukkit;
@@ -64,7 +65,6 @@ public class Main extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new GUIListener(), this);
         Bukkit.getPluginManager().registerEvents(new InternalListener(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(this), this);
-        Bukkit.getPluginManager().registerEvents(new PlayerQuitListener(), this);
         Bukkit.getPluginManager().registerEvents(new SignListener(), this);
 
         if (getConfig().getBoolean("Vault.Use", false)) {
@@ -84,6 +84,12 @@ public class Main extends JavaPlugin {
                 CoinsAPI.createPlayer(p.getName(), p.getUniqueId());
             });
         }, 30);
+        core.debug("Starting cache cleanup task");
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+            CacheManager.getPlayersData().keySet().stream().filter(uuid-> !core.getMethods().isOnline(uuid)).forEachOrdered(uuid -> {
+                CacheManager.removePlayer(uuid);
+            });
+        }, 100, 6000);
     }
 
     @Override

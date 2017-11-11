@@ -172,7 +172,7 @@ public class MySQL implements Database {
     }
 
     @Override
-    public synchronized void createPlayer(String player, UUID uuid) {
+    public void createPlayer(String player, UUID uuid) {
         try (Connection c = getConnection()) {
             core.debug("A database connection was opened.");
             ResultSet res = null;
@@ -182,7 +182,7 @@ public class MySQL implements Database {
                     core.debug("Preparing to create or update an entry for online mode.");
                     res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, uuid).executeQuery();
                     if (!res.next()) {
-                        Utils.generatePreparedStatement(c, SQLQuery.CREATE_USER, uuid, player, 0.0, System.currentTimeMillis()).executeUpdate();
+                        Utils.generatePreparedStatement(c, SQLQuery.CREATE_USER, uuid, player, core.getConfig().getDouble("General.Starting Coins"), System.currentTimeMillis()).executeUpdate();
                         core.debug("An entry in the database was created for: " + player);
                     } else {
                         Utils.generatePreparedStatement(c, SQLQuery.UPDATE_USER_ONLINE, player, System.currentTimeMillis(), uuid).executeUpdate();
@@ -192,7 +192,7 @@ public class MySQL implements Database {
                     core.debug("Preparing to create or update an entry for offline mode.");
                     res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();
                     if (!res.next()) {
-                        Utils.generatePreparedStatement(c, SQLQuery.CREATE_USER, uuid, player, 0.0, System.currentTimeMillis()).executeUpdate();
+                        Utils.generatePreparedStatement(c, SQLQuery.CREATE_USER, uuid, player, core.getConfig().getDouble("General.Starting Coins"), System.currentTimeMillis()).executeUpdate();
                         core.debug("An entry in the database was created for: " + player);
                     } else {
                         Utils.generatePreparedStatement(c, SQLQuery.UPDATE_USER_OFFLINE, uuid, System.currentTimeMillis(), player).executeUpdate();
@@ -249,8 +249,7 @@ public class MySQL implements Database {
                 if (isindb(player) && getCoins(player) >= 0) {
                     double oldCoins = getCoins(player);
                     Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, oldCoins + coins, player).executeUpdate();
-                    getCoins(player);
-                    core.updateCache(core.getUUID(player), coins);
+                    core.updateCache(core.getUUID(player), getCoins(player));
                     core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, oldCoins + coins);
                 }
             } finally {
@@ -273,8 +272,7 @@ public class MySQL implements Database {
                     core.updateCache(core.getUUID(player), 0D);
                 } else {
                     Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, beforeCoins - coins, player).executeUpdate();
-                    getCoins(player);
-                    core.updateCache(core.getUUID(player), coins);
+                    core.updateCache(core.getUUID(player), getCoins(player));
                 }
                 core.getMethods().callCoinsChangeEvent(core.getUUID(player), beforeCoins, beforeCoins - coins);
             } finally {
@@ -312,7 +310,7 @@ public class MySQL implements Database {
             try {
                 if (isindb(player)) {
                     double oldCoins = getCoins(player);
-                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, coins, player).executeUpdate();
+                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, coins, player).executeUpdate();
                     CacheManager.updateCoins(core.getUUID(player), coins);
                     core.updateCache(core.getUUID(player), coins);
                     core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, coins);
@@ -385,8 +383,7 @@ public class MySQL implements Database {
                 if (isindb(player) && getCoins(player) >= 0) {
                     double oldCoins = getCoins(player);
                     Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, oldCoins + coins, player).executeUpdate();
-                    getCoins(player);
-                    core.updateCache(player, coins);
+                    core.updateCache(player, getCoins(player));
                     core.getMethods().callCoinsChangeEvent(player, oldCoins, oldCoins + coins);
                 }
             } finally {
@@ -410,8 +407,7 @@ public class MySQL implements Database {
                     core.updateCache(player, 0D);
                 } else {
                     Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, beforeCoins - coins, player).executeUpdate();
-                    getCoins(player);
-                    core.updateCache(player, coins);
+                    core.updateCache(player, getCoins(player));
                 }
                 core.getMethods().callCoinsChangeEvent(player, beforeCoins, beforeCoins - coins);
             } finally {

@@ -86,7 +86,7 @@ public class SQLite implements Database {
     }
 
     @Override
-    public synchronized void createPlayer(String player, UUID uuid) {
+    public void createPlayer(String player, UUID uuid) {
         try {
             core.debug("A database connection was opened.");
             ResultSet res;

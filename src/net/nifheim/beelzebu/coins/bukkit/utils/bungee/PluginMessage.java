@@ -24,6 +24,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
@@ -89,10 +90,10 @@ public class PluginMessage implements PluginMessageListener {
                 for (int i = 0; i < 5; i++) {
                     multiplierData.add(in.readUTF());
                 }
-                Multiplier multiplier = new Multiplier(multiplierData.get(0), multiplierData.get(2), Boolean.valueOf(multiplierData.get(1)), Integer.valueOf(multiplierData.get(3)), System.currentTimeMillis() + Long.parseLong(multiplierData.get(4)));
-                if (multiplier.isEnabled() && !multiplier.getEnabler().equals(CoinsAPI.getMultiplier(multiplier.getServer()).getEnabler()) && multiplier.getAmount() != CoinsAPI.getMultiplier(multiplier.getServer()).getAmount()) {
+                Multiplier multiplier = new Multiplier(multiplierData.get(0), multiplierData.get(2), Boolean.valueOf(multiplierData.get(1)), Integer.valueOf(multiplierData.get(3)), Long.parseLong(multiplierData.get(4)));
+                if (multiplier.isEnabled() && !multiplier.getEnabler().equals(CoinsAPI.getMultiplier(multiplier.getServer()).getEnabler()) && !Objects.equals(multiplier.getAmount(), CoinsAPI.getMultiplier(multiplier.getServer()).getAmount())) {
                     CacheManager.addMultiplier(multiplierData.get(0), multiplier);
-                    core.getMethods().callMultiplierEnableEvent(null, multiplier.getData());
+                    core.getMethods().callMultiplierEnableEvent(core.getUUID(multiplier.getEnabler()), multiplier.getData());
                 }
                 break;
             default:

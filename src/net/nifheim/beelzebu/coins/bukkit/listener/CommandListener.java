@@ -21,9 +21,7 @@ package net.nifheim.beelzebu.coins.bukkit.listener;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.core.Core;
-
 import org.bukkit.configuration.file.FileConfiguration;
-
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -39,6 +37,7 @@ public class CommandListener implements Listener {
 
     @EventHandler
     public void onCommandEvent(PlayerCommandPreprocessEvent e) {
+        // TODO: may be log the commands of the plugin and the command costs.
         String msg = e.getMessage().toLowerCase();
         Core.getInstance().getMethods().runAsync(() -> {
             if (config.getDouble("Command Cost." + msg) != 0) {

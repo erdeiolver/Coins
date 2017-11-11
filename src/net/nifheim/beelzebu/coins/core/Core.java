@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -263,6 +264,11 @@ public class Core {
         if (!isBungee()) {
             PluginMessage pm = new PluginMessage();
             pm.sendToBungeeCord("Update", "updateCache " + player + " " + coins);
+        } else {
+            ProxyServer.getInstance().getServers().keySet().forEach(server -> {
+                PluginMessageListener pml = new PluginMessageListener();
+                pml.sendToBukkit("Update", Arrays.asList(player + " " + coins), ProxyServer.getInstance().getServerInfo(server), false);
+            });
         }
     }
 
@@ -272,7 +278,7 @@ public class Core {
         message.add(String.valueOf(multiplier.isEnabled()));
         message.add(multiplier.getEnabler());
         message.add(String.valueOf(multiplier.getAmount()));
-        message.add(String.valueOf(multiplier.checkTime()));
+        message.add(String.valueOf(System.currentTimeMillis() + multiplier.checkTime()));
         if (!isBungee()) {
             PluginMessage pm = new PluginMessage();
             pm.sendToBungeeCord("Multiplier", message);
