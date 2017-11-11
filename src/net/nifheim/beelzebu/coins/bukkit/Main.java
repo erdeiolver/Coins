@@ -62,40 +62,11 @@ public class Main extends JavaPlugin {
         core.start();
         commandManager = new CommandManager();
         loadManagers();
-
-        Bukkit.getPluginManager().registerEvents(new CommandListener(), this);
-        Bukkit.getPluginManager().registerEvents(new GUIListener(), this);
-        Bukkit.getPluginManager().registerEvents(new InternalListener(), this);
-        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(this), this);
-        Bukkit.getPluginManager().registerEvents(new SignListener(), this);
-
-        if (getConfig().getBoolean("Vault.Use", false)) {
-            new CoinsEconomy(this).setup();
-        }
-
+        startListeners();
         getConfig().getConfigurationSection("Command executor").getKeys(false).forEach((id) -> {
             core.getExecutorManager().addExecutor(new Executor(id, getConfig().getString("Command executor." + id + ".Displayname", id), getConfig().getDouble("Command executor." + id + ".Cost", 0), getConfig().getStringList("Command executor." + id + ".Command")));
         });
-        PluginMessage pmsg = new PluginMessage();
-        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "Coins");
-        Bukkit.getMessenger().registerIncomingPluginChannel(this, "Coins", pmsg);
-        Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
-            pmsg.sendToBungeeCord("Multiplier", "getAllMultipliers");
-            pmsg.sendToBungeeCord("Coins", "getExecutors");
-            Bukkit.getOnlinePlayers().forEach((p) -> {
-                CoinsAPI.createPlayer(p.getName(), p.getUniqueId());
-            });
-        }, 30);
-        core.debug("Starting cache cleanup task");
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
-            Iterator<UUID> it = CacheManager.getPlayersData().keySet().iterator();
-            while (it.hasNext()) {
-                UUID uuid = it.next();
-                if (!core.getMethods().isOnline(uuid)) {
-                    CacheManager.removePlayer(uuid);
-                }
-            }
-        }, 100, 6000);
+        startTasks();
     }
 
     @Override
@@ -119,6 +90,44 @@ public class Main extends JavaPlugin {
             multipliers = new Multipliers(this);
             multipliers.hook();
         }
+        if (getConfig().getBoolean("Vault.Use", false)) {
+            if (Bukkit.getPluginManager().isPluginEnabled("Vaylt")) {
+                new CoinsEconomy(this).setup();
+            } else {
+                core.log("You enabled Vault in the config, but the plugin Vault can't be found.");
+            }
+        }
+    }
+
+    private void startListeners() {
+        Bukkit.getPluginManager().registerEvents(new CommandListener(), this);
+        Bukkit.getPluginManager().registerEvents(new GUIListener(), this);
+        Bukkit.getPluginManager().registerEvents(new InternalListener(), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new SignListener(), this);
+    }
+
+    private void startTasks() {
+        PluginMessage pmsg = new PluginMessage();
+        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "Coins");
+        Bukkit.getMessenger().registerIncomingPluginChannel(this, "Coins", pmsg);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
+            pmsg.sendToBungeeCord("Multiplier", "getAllMultipliers");
+            pmsg.sendToBungeeCord("Coins", "getExecutors");
+            Bukkit.getOnlinePlayers().forEach((p) -> {
+                CoinsAPI.createPlayer(p.getName(), p.getUniqueId());
+            });
+        }, 30);
+        core.debug("Starting cache cleanup task");
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+            Iterator<UUID> it = CacheManager.getPlayersData().keySet().iterator();
+            while (it.hasNext()) {
+                UUID uuid = it.next();
+                if (!core.getMethods().isOnline(uuid)) {
+                    CacheManager.removePlayer(uuid);
+                }
+            }
+        }, 100, 12000);
     }
 
     public CoinsConfig getConfiguration() {
