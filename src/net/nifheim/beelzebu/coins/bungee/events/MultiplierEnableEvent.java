@@ -39,7 +39,7 @@ public class MultiplierEnableEvent extends Event {
     }
 
     public String getEnabler() {
-        return core.getNick(enabler);
+        return data.getEnabler();
     }
     
     public UUID getEnablerUUID() {

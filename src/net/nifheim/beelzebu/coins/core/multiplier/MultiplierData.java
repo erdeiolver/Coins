@@ -18,10 +18,13 @@
  */
 package net.nifheim.beelzebu.coins.core.multiplier;
 
+import lombok.Getter;
+
 /**
  *
  * @author Beelzebu
  */
+@Getter
 public abstract class MultiplierData {
 
     private final String server;
@@ -29,7 +32,7 @@ public abstract class MultiplierData {
     private final boolean enabled;
     private final int amount;
     private final int minutes;
-    private final int id;
+    private final int ID;
     private final boolean queue;
 
     MultiplierData(String server, String enabler, boolean enabled, int amount, int minutes, int id, boolean queue) {
@@ -38,35 +41,7 @@ public abstract class MultiplierData {
         this.enabled = enabled;
         this.amount = amount;
         this.minutes = minutes;
-        this.id = id;
+        this.ID = id;
         this.queue = queue;
-    }
-
-    public String getServer() {
-        return server;
-    }
-
-    public String getEnabler() {
-        return enabler;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public int getAmount() {
-        return amount;
-    }
-
-    public int getMinutes() {
-        return minutes;
-    }
-
-    public int getID() {
-        return id;
-    }
-
-    public boolean isQueue() {
-        return queue;
     }
 }
