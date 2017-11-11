@@ -31,7 +31,7 @@ public abstract class CoinsConfig implements IConfiguration {
 
     private final Set<Executor> executors = new HashSet<>();
 
-    public CoinsConfig() {
+    public void loadExecutors() {
         getConfigurationSection("Command executor").forEach((id) -> {
             executors.add(new Executor(id, getString("Command executor." + id + ".Displayname", id), getDouble("Command executor." + id + ".Cost", 0), getStringList("Command executor." + id + ".Command")));
         });
