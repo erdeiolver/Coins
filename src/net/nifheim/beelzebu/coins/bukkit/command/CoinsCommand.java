@@ -33,7 +33,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.PermissionAttachmentInfo;
 
 /**
  *
@@ -164,22 +163,12 @@ public class CoinsCommand extends BukkitCommand {
         if (args.length == 3 || args.length == 4) {
             double coins = Double.parseDouble(args[2]);
             if (core.isOnline(core.getUUID(args[1])) && args.length == 4 && args[3].equalsIgnoreCase("true")) {
-                Player target = Bukkit.getPlayer(core.getUUID(args[1]));
+                multiply = true;
+                Player target = Bukkit.getPlayer(args[1]);
                 int amount = CoinsAPI.getMultiplier().getAmount();
                 if (amount > 1) {
                     multiplier = core.getString("Multipliers.Format", target.spigot().getLocale()).replaceAll("%multiplier%", String.valueOf(amount)).replaceAll("%enabler%", CoinsAPI.getMultiplier().getEnabler());
                 }
-                for (PermissionAttachmentInfo perm : target.getEffectivePermissions()) {
-                    if (perm.getPermission().startsWith("coins.multiplier.x")) {
-                        try {
-                            int i = Integer.parseInt(perm.getPermission().split("coins.multiplier.x")[1]);
-                            coins *= i;
-                            break;
-                        } catch (NumberFormatException ignore) {
-                        }
-                    }
-                }
-                coins *= amount;
             }
             if (core.isOnline(core.getUUID(args[1]))) {
                 Player target = Bukkit.getPlayer(core.getUUID(args[1]));

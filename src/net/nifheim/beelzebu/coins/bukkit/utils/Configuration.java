@@ -19,15 +19,16 @@
 package net.nifheim.beelzebu.coins.bukkit.utils;
 
 import java.util.List;
+import java.util.Set;
 import net.nifheim.beelzebu.coins.bukkit.Main;
-import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
+import net.nifheim.beelzebu.coins.core.utils.CoinsConfig;
 import org.bukkit.configuration.file.FileConfiguration;
 
 /**
  *
  * @author Beelzebu
  */
-public class Configuration implements IConfiguration {
+public class Configuration extends CoinsConfig {
 
     private final Main plugin;
     private final FileConfiguration config;
@@ -103,8 +104,8 @@ public class Configuration implements IConfiguration {
     }
 
     @Override
-    public Object getConfigurationSection(String path) {
-        return config.getConfigurationSection(path);
+    public Set<String> getConfigurationSection(String path) {
+        return config.getConfigurationSection(path).getKeys(false);
     }
 
     @Override

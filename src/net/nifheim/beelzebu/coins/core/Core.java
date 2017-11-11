@@ -41,8 +41,8 @@ import net.nifheim.beelzebu.coins.core.executor.ExecutorManager;
 import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
 import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
 import net.nifheim.beelzebu.coins.core.utils.CacheManager;
+import net.nifheim.beelzebu.coins.core.utils.CoinsConfig;
 import net.nifheim.beelzebu.coins.core.utils.FileManager;
-import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 import net.nifheim.beelzebu.coins.core.utils.IMethods;
 import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
 
@@ -217,7 +217,7 @@ public class Core {
         return ChatColor.stripColor(rep(str)).replaceAll("Debug: ", "");
     }
 
-    public IConfiguration getConfig() {
+    public CoinsConfig getConfig() {
         return mi.getConfig();
     }
 

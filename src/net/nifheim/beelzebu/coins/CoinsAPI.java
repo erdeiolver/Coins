@@ -125,30 +125,50 @@ public class CoinsAPI {
      * Add coins to a player by his name, selecting if the multipliers should be
      * used to calculate the coins.
      *
-     * @param p The player to add the coins.
+     * @param player The player to add the coins.
      * @param coins The coins to add.
      * @param multiply Multiply coins if there are any active multipliers
      */
-    public static void addCoins(String p, Double coins, Boolean multiply) {
+    public static void addCoins(String player, Double coins, Boolean multiply) {
         if (multiply) {
             coins *= getMultiplier().getAmount();
+            for (String perm : core.getMethods().getPermissions(core.getUUID(player))) {
+                if (perm.startsWith("coins.multiplier.x")) {
+                    try {
+                        int i = Integer.parseInt(perm.split("coins.multiplier.x")[1]);
+                        coins *= i;
+                        break;
+                    } catch (NumberFormatException ignore) {
+                    }
+                }
+            }
         }
-        core.getDatabase().addCoins(p, coins);
+        core.getDatabase().addCoins(player, coins);
     }
 
     /**
      * Add coins to a player by his UUID, selecting if the multipliers should be
      * used to calculate the coins.
      *
-     * @param p The player to add the coins.
+     * @param uuid The player to add the coins.
      * @param coins The coins to add.
      * @param multiply Multiply coins if there are any active multipliers
      */
-    public static void addCoins(UUID p, Double coins, Boolean multiply) {
+    public static void addCoins(UUID uuid, Double coins, Boolean multiply) {
         if (multiply) {
             coins *= getMultiplier().getAmount();
+            for (String perm : core.getMethods().getPermissions(uuid)) {
+                if (perm.startsWith("coins.multiplier.x")) {
+                    try {
+                        int i = Integer.parseInt(perm.split("coins.multiplier.x")[1]);
+                        coins *= i;
+                        break;
+                    } catch (NumberFormatException ignore) {
+                    }
+                }
+            }
         }
-        core.getDatabase().addCoins(p, coins);
+        core.getDatabase().addCoins(uuid, coins);
     }
 
     /**

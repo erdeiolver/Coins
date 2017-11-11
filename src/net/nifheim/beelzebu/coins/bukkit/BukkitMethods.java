@@ -20,12 +20,14 @@ package net.nifheim.beelzebu.coins.bukkit;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import net.nifheim.beelzebu.coins.bukkit.events.*;
 import net.nifheim.beelzebu.coins.bukkit.utils.Messages;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
-import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
+import net.nifheim.beelzebu.coins.core.utils.CoinsConfig;
 import net.nifheim.beelzebu.coins.core.utils.IMethods;
 import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
 import org.bukkit.Bukkit;
@@ -47,7 +49,7 @@ public class BukkitMethods implements IMethods {
     }
 
     @Override
-    public IConfiguration getConfig() {
+    public CoinsConfig getConfig() {
         return plugin.getConfiguration();
     }
 
@@ -133,5 +135,16 @@ public class BukkitMethods implements IMethods {
         Bukkit.getScheduler().runTask(plugin, () -> {
             Bukkit.getPluginManager().callEvent(new MultiplierEnableEvent(uuid, multiplierData));
         });
+    }
+
+    @Override
+    public List<String> getPermissions(UUID uuid) {
+        List<String> permissions = new ArrayList<>();
+        if (isOnline(uuid)) {
+            Bukkit.getPlayer(uuid).getEffectivePermissions().forEach(perm -> {
+                permissions.add(perm.getPermission());
+            });
+        }
+        return permissions;
     }
 }

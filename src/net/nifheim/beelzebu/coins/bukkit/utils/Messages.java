@@ -20,6 +20,7 @@ package net.nifheim.beelzebu.coins.bukkit.utils;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -108,8 +109,8 @@ public class Messages extends MessagesManager {
     }
 
     @Override
-    public Object getConfigurationSection(String path) {
-        return messages.getConfigurationSection(path);
+    public Set<String> getConfigurationSection(String path) {
+        return messages.getConfigurationSection(path).getKeys(false);
     }
 
     @Override

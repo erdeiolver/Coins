@@ -18,6 +18,8 @@
  */
 package net.nifheim.beelzebu.coins.bukkit;
 
+import java.util.Iterator;
+import java.util.UUID;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.command.CommandManager;
 import net.nifheim.beelzebu.coins.bukkit.listener.*;
@@ -28,20 +30,20 @@ import net.nifheim.beelzebu.coins.bukkit.utils.placeholders.*;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.executor.Executor;
 import net.nifheim.beelzebu.coins.core.utils.CacheManager;
-import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
+import net.nifheim.beelzebu.coins.core.utils.CoinsConfig;
 import net.nifheim.beelzebu.coins.core.utils.dependencies.DependencyManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
 
+    private final Core core = Core.getInstance();
     private static Main instance;
     private CommandManager commandManager;
 
     private PlaceholderAPI placeholderAPI;
     private Multipliers multipliers;
     private Configuration configuration;
-    private final Core core = Core.getInstance();
 
     public static Main getInstance() {
         return instance;
@@ -86,9 +88,13 @@ public class Main extends JavaPlugin {
         }, 30);
         core.debug("Starting cache cleanup task");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
-            CacheManager.getPlayersData().keySet().stream().filter(uuid-> !core.getMethods().isOnline(uuid)).forEachOrdered(uuid -> {
-                CacheManager.removePlayer(uuid);
-            });
+            Iterator<UUID> it = CacheManager.getPlayersData().keySet().iterator();
+            while (it.hasNext()) {
+                UUID uuid = it.next();
+                if (!core.getMethods().isOnline(uuid)) {
+                    CacheManager.removePlayer(uuid);
+                }
+            }
         }, 100, 6000);
     }
 
@@ -115,7 +121,7 @@ public class Main extends JavaPlugin {
         }
     }
 
-    public IConfiguration getConfiguration() {
+    public CoinsConfig getConfiguration() {
         return configuration;
     }
 }

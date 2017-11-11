@@ -20,6 +20,7 @@ package net.nifheim.beelzebu.coins.core.utils;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.List;
 import java.util.UUID;
 import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
 
@@ -30,8 +31,8 @@ import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
 public interface IMethods {
 
     Object getPlugin();
-
-    IConfiguration getConfig();
+    
+    CoinsConfig getConfig();
 
     MessagesManager getMessages(String lang);
 
@@ -78,4 +79,6 @@ public interface IMethods {
     void callCoinsChangeEvent(UUID uuid, double oldCoins, double newCoins);
     
     void callMultiplierEnableEvent(UUID uuid, MultiplierData multiplierData);
+    
+    List<String> getPermissions(UUID uuid);
 }

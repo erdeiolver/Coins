@@ -21,6 +21,7 @@ package net.nifheim.beelzebu.coins.bungee.utils;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.md_5.bungee.config.ConfigurationProvider;
@@ -113,8 +114,8 @@ public class Messages extends MessagesManager {
     }
 
     @Override
-    public Object getConfigurationSection(String path) {
-        return messages.getSection(path);
+    public Set<String> getConfigurationSection(String path) {
+        return (Set<String>) messages.getSection(path).getKeys();
     }
 
     @Override

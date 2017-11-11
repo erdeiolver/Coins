@@ -21,18 +21,19 @@ package net.nifheim.beelzebu.coins.bungee.utils;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
-import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
+import net.nifheim.beelzebu.coins.core.utils.CoinsConfig;
 
 /**
  *
  * @author Beelzebu
  */
-public class Configuration implements IConfiguration {
+public class Configuration extends CoinsConfig {
 
     private final File configFile = new File(ProxyServer.getInstance().getPluginsFolder() + "/Coins", "config.yml");
     private net.md_5.bungee.config.Configuration config;
@@ -107,8 +108,8 @@ public class Configuration implements IConfiguration {
     }
 
     @Override
-    public Object getConfigurationSection(String path) {
-        return config.getSection(path);
+    public Set<String> getConfigurationSection(String path) {
+        return (Set<String>) config.getSection(path).getKeys();
     }
 
     @Override

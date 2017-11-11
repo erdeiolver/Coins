@@ -41,7 +41,7 @@ public abstract class CoinsBungeeListener {
     final List<String> message = Collections.synchronizedList(new ArrayList<>());
 
     public void sendExecutors(ServerInfo server) {
-        ((net.md_5.bungee.config.Configuration) config.getConfigurationSection("Command executor")).getKeys().forEach((String id) -> {
+        config.getConfigurationSection("Command executor").forEach((String id) -> {
             synchronized (message) {
                 message.clear();
                 List<String> commands = config.getStringList("Command executor." + id + ".Command");

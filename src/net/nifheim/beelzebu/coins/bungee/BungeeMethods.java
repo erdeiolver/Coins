@@ -21,6 +21,8 @@ package net.nifheim.beelzebu.coins.bungee;
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import net.md_5.bungee.api.CommandSender;
@@ -31,7 +33,7 @@ import net.nifheim.beelzebu.coins.bungee.events.*;
 import net.nifheim.beelzebu.coins.bungee.utils.Messages;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
-import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
+import net.nifheim.beelzebu.coins.core.utils.CoinsConfig;
 import net.nifheim.beelzebu.coins.core.utils.IMethods;
 import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
 
@@ -50,7 +52,7 @@ public class BungeeMethods implements IMethods {
     }
 
     @Override
-    public IConfiguration getConfig() {
+    public CoinsConfig getConfig() {
         return plugin.getConfiguration();
     }
 
@@ -141,5 +143,14 @@ public class BungeeMethods implements IMethods {
     @Override
     public void callMultiplierEnableEvent(UUID uuid, MultiplierData multiplierData) {
         ProxyServer.getInstance().getPluginManager().callEvent(new MultiplierEnableEvent(uuid, multiplierData));
+    }
+
+    @Override
+    public List<String> getPermissions(UUID uuid) {
+        List<String> permissions = new ArrayList<>();
+        if (isOnline(uuid)) {
+            permissions.addAll(ProxyServer.getInstance().getPlayer(uuid).getPermissions());
+        }
+        return permissions;
     }
 }

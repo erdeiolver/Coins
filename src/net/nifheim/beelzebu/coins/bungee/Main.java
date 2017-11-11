@@ -26,7 +26,7 @@ import net.nifheim.beelzebu.coins.bungee.listener.PluginMessageListener;
 import net.nifheim.beelzebu.coins.bungee.listener.PubSubMessageListener;
 import net.nifheim.beelzebu.coins.bungee.utils.Configuration;
 import net.nifheim.beelzebu.coins.core.Core;
-import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
+import net.nifheim.beelzebu.coins.core.utils.CoinsConfig;
 import net.nifheim.beelzebu.coins.core.utils.dependencies.DependencyManager;
 
 /**
@@ -37,7 +37,7 @@ public class Main extends Plugin {
 
     private static Main instance;
     private final Core core = Core.getInstance();
-    private IConfiguration config;
+    private Configuration config;
     private static Boolean useRedis = false;
 
     public static Main getInstance() {
@@ -74,7 +74,7 @@ public class Main extends Plugin {
         // TODO: finish command executors for bungeecord and command cost
     }
 
-    public IConfiguration getConfiguration() {
+    public CoinsConfig getConfiguration() {
         return config;
     }
 

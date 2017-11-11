@@ -19,6 +19,7 @@
 package net.nifheim.beelzebu.coins.core.utils;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -52,7 +53,7 @@ public interface IConfiguration {
 
     void set(String path, Object value);
 
-    Object getConfigurationSection(String path);
+    Set<String> getConfigurationSection(String path);
 
     void reload();
 }

@@ -186,25 +186,25 @@ public class CoinsEconomy implements Economy {
 
     @Override
     public EconomyResponse depositPlayer(String string, double d) {
-        CoinsAPI.addCoins(string, d, false);
+        CoinsAPI.addCoins(string, d, plugin.getConfiguration().vaultMultipliers());
         return new EconomyResponse(d, getBalance(string), ResponseType.SUCCESS, "");
     }
 
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer op, double d) {
-        CoinsAPI.addCoins(op.getUniqueId(), d, false);
+        CoinsAPI.addCoins(op.getUniqueId(), d, plugin.getConfiguration().vaultMultipliers());
         return new EconomyResponse(d, getBalance(op), ResponseType.SUCCESS, "");
     }
 
     @Override
     public EconomyResponse depositPlayer(String string, String string1, double d) {
-        CoinsAPI.addCoins(string, d, false);
+        CoinsAPI.addCoins(string, d, plugin.getConfiguration().vaultMultipliers());
         return new EconomyResponse(d, getBalance(string), ResponseType.SUCCESS, "");
     }
 
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer op, String string, double d) {
-        CoinsAPI.addCoins(op.getUniqueId(), d, false);
+        CoinsAPI.addCoins(op.getUniqueId(), d, plugin.getConfiguration().vaultMultipliers());
         return new EconomyResponse(d, getBalance(op), ResponseType.SUCCESS, "");
     }
 
