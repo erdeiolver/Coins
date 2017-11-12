@@ -120,11 +120,10 @@ public class Main extends JavaPlugin {
         }, 30);
         core.debug("Starting cache cleanup task");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
-            Iterator<UUID> it = CacheManager.getPlayersData().keySet().iterator();
-            while (it.hasNext()) {
+            for (Iterator<UUID> it = CacheManager.getPlayersData().keySet().iterator(); it.hasNext(); ) {
                 UUID uuid = it.next();
                 if (!core.getMethods().isOnline(uuid)) {
-                    CacheManager.removePlayer(uuid);
+		    it.remove();
                 }
             }
         }, 100, 12000);

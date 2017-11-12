@@ -51,14 +51,6 @@ public class CacheManager {
         }
     }
 
-    public static void removePlayer(UUID uuid) {
-        synchronized (playersData) {
-            if (playersData.containsKey(uuid)) {
-                playersData.remove(uuid);
-            }
-        }
-    }
-
     public static void addMultiplier(String server, Multiplier multiplier) {
         synchronized (multipliersData) {
             multipliersData.put(server, multiplier);
