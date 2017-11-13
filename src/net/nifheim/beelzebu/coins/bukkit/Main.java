@@ -91,7 +91,7 @@ public class Main extends JavaPlugin {
             multipliers.hook();
         }
         if (getConfig().getBoolean("Vault.Use", false)) {
-            if (Bukkit.getPluginManager().isPluginEnabled("Vaylt")) {
+            if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
                 new CoinsEconomy(this).setup();
             } else {
                 core.log("You enabled Vault in the config, but the plugin Vault can't be found.");
