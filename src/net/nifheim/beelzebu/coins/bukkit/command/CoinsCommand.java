@@ -191,7 +191,7 @@ public class CoinsCommand extends BukkitCommand {
             Player target = Bukkit.getPlayer(args[1]);
             if (args[0].equalsIgnoreCase("take")) {
                 double coins = Double.parseDouble(args[2]);
-                double finalcoins = coins - Double.parseDouble(args[2]);
+                double finalcoins = CoinsAPI.getCoins(args[1]) - coins;
                 if (target == null) {
                     if (CoinsAPI.getCoins(args[1]) < coins) {
                         sender.sendMessage(core.getString("Errors.No Negative", lang));
@@ -199,8 +199,9 @@ public class CoinsCommand extends BukkitCommand {
                         if (CoinsAPI.isindb(args[1])) {
                             CoinsAPI.takeCoins(args[1], coins);
                             sender.sendMessage(core.getString("Coins.Take target", lang).replaceAll("%coins%", String.valueOf(finalcoins)).replaceAll("%target%", args[1]));
+                        } else {
+                            sender.sendMessage(core.getString("Errors.Unknow player", lang).replaceAll("%target%", args[1]));
                         }
-                        sender.sendMessage(core.getString("Errors.Unknow player", lang).replaceAll("%target%", args[1]));
                     }
                 } else {
                     if (CoinsAPI.getCoins(args[1]) < coins) {
@@ -208,7 +209,7 @@ public class CoinsCommand extends BukkitCommand {
                     }
                     if (CoinsAPI.getCoins(args[1]) >= coins) {
                         CoinsAPI.takeCoins(args[1], coins);
-                        sender.sendMessage(core.getString("Coins.Take", lang).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%target%", target.getName()).replaceAll("%newcoins%", String.valueOf(finalcoins)));
+                        sender.sendMessage(core.getString("Coins.Take", lang).replaceAll("%target%", target.getName()).replaceAll("%newcoins%", String.valueOf(finalcoins)));
                         target.sendMessage(core.getString("Coins.Take target", target.spigot().getLocale()).replaceAll("%coins%", String.valueOf(finalcoins)));
                     }
                 }
