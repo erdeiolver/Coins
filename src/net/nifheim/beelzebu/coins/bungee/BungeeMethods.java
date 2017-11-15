@@ -68,7 +68,7 @@ public class BungeeMethods implements IMethods {
 
     @Override
     public void runAsync(Runnable rn, Long timer) {
-        ProxyServer.getInstance().getScheduler().schedule((Plugin) getPlugin(), rn, timer, TimeUnit.SECONDS);
+        ProxyServer.getInstance().getScheduler().schedule((Plugin) getPlugin(), rn, 0, timer / 20, TimeUnit.SECONDS);
     }
 
     @Override
