@@ -70,6 +70,7 @@ public class DependencyManager {
         }
         if (classExists("org.slf4j.Logger") && classExists("org.slf4j.LoggerFactory")) {
             dependencies.remove(Dependency.SLF4J_API);
+            dependencies.remove(Dependency.SLF4J_SIMPLE);
         }
         if (classExists("org.apache.commons.io.FileUtils")) {
             dependencies.remove(Dependency.COMMONS_IO);
