@@ -33,11 +33,11 @@ public interface IConfiguration {
 
     List<String> getStringList(String path);
 
-    Boolean getBoolean(String path);
+    boolean getBoolean(String path);
 
-    Integer getInt(String path);
+    int getInt(String path);
 
-    Double getDouble(String path);
+    double getDouble(String path);
 
     Object get(String path, Object def);
 
@@ -45,11 +45,11 @@ public interface IConfiguration {
 
     List<String> getStringList(String path, List<String> def);
 
-    Boolean getBoolean(String path, boolean def);
+    boolean getBoolean(String path, boolean def);
 
-    Integer getInt(String path, int def);
+    int getInt(String path, int def);
 
-    Double getDouble(String path, double def);
+    double getDouble(String path, double def);
 
     void set(String path, Object value);
 

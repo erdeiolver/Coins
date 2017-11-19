@@ -64,17 +64,17 @@ public class Messages extends MessagesManager {
     }
 
     @Override
-    public Boolean getBoolean(String path) {
+    public boolean getBoolean(String path) {
         return messages.getBoolean(path);
     }
 
     @Override
-    public Integer getInt(String path) {
+    public int getInt(String path) {
         return messages.getInt(path);
     }
 
     @Override
-    public Double getDouble(String path) {
+    public double getDouble(String path) {
         return messages.getDouble(path);
     }
 
@@ -94,17 +94,17 @@ public class Messages extends MessagesManager {
     }
 
     @Override
-    public Boolean getBoolean(String path, boolean def) {
+    public boolean getBoolean(String path, boolean def) {
         return (messages.get(path) == null ? def : messages.getBoolean(path));
     }
 
     @Override
-    public Integer getInt(String path, int def) {
+    public int getInt(String path, int def) {
         return (messages.get(path) == null ? def : messages.getInt(path));
     }
 
     @Override
-    public Double getDouble(String path, double def) {
+    public double getDouble(String path, double def) {
         return (messages.get(path) == null ? def : messages.getDouble(path));
     }
 

@@ -54,17 +54,17 @@ public class Configuration extends CoinsConfig {
     }
 
     @Override
-    public Boolean getBoolean(String path) {
+    public boolean getBoolean(String path) {
         return config.getBoolean(path);
     }
 
     @Override
-    public Integer getInt(String path) {
+    public int getInt(String path) {
         return config.getInt(path);
     }
 
     @Override
-    public Double getDouble(String path) {
+    public double getDouble(String path) {
         return config.getDouble(path);
     }
 
@@ -84,17 +84,17 @@ public class Configuration extends CoinsConfig {
     }
 
     @Override
-    public Boolean getBoolean(String path, boolean def) {
+    public boolean getBoolean(String path, boolean def) {
         return (config.get(path) == null ? def : config.getBoolean(path));
     }
 
     @Override
-    public Integer getInt(String path, int def) {
+    public int getInt(String path, int def) {
         return (config.get(path) == null ? def : config.getInt(path));
     }
 
     @Override
-    public Double getDouble(String path, double def) {
+    public double getDouble(String path, double def) {
         return (config.get(path) == null ? def : config.getDouble(path));
     }
 

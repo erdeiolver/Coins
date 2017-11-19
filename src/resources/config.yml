@@ -3,7 +3,7 @@
 # the official github repo https://github.com/Beelzebu/Coins/issues/
 
 # The version of the config, don't touch!
-version: 10
+version: 11
 
 # This is the prefix used in all the messages.
 Prefix: '&c&lCoins &6&l>&7'
@@ -102,6 +102,12 @@ Multipliers:
   # Here you can configure some aspects of the GUI of multipliers
   GUI:
     Close:
+      # To see all possible values check https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
+      Material: REDSTONE_BLOCK
+      Name: '&c&lClose'
+      Lore:
+      - ''
+      - '&7Click me to close this gui'
       # If you're using 1.8 please check http://docs.codelanx.com/Bukkit/1.8/org/bukkit/Sound.html
       # If you're using 1.9+ use https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html
       Sound: 'UI_BUTTON_CLICK'

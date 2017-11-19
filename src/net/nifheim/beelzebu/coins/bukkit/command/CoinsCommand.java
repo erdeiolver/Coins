@@ -23,7 +23,7 @@ import java.util.Map;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.bukkit.utils.CoinsEconomy;
-import net.nifheim.beelzebu.coins.bukkit.utils.MultipliersGUI;
+import net.nifheim.beelzebu.coins.bukkit.utils.gui.MultipliersGUI;
 import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.executor.Executor;

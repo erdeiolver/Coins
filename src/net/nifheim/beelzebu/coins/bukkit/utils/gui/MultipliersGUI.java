@@ -16,12 +16,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins.bukkit.utils;
+package net.nifheim.beelzebu.coins.bukkit.utils.gui;
 
 import java.util.ArrayList;
 import java.util.List;
 import net.nifheim.beelzebu.coins.CoinsAPI;
-import net.nifheim.beelzebu.coins.bukkit.utils.gui.BaseGUI;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
 import org.bukkit.Material;
@@ -92,7 +91,7 @@ public class MultipliersGUI extends BaseGUI {
         for (int i = 36; i < 45; i++) {
             setItem(i, glass);
         }
-        setItem(49, new ItemStack(Material.REDSTONE_BLOCK), player -> {
+        setItem(49, getItem(core.getConfig(), "Multipliers.GUI.Close"), player -> {
             try {
                 // try to play the sound for 1.9
                 player.playSound(player.getLocation(), Sound.valueOf(core.getConfig().getString("Multipliers.GUI.Close.Sound")), 10, core.getConfig().getInt("Multipliers.GUI.Close.Pitch", 1));

@@ -21,10 +21,14 @@ package net.nifheim.beelzebu.coins.bukkit.utils.gui;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.core.utils.IConfiguration;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 /**
  *
@@ -32,6 +36,7 @@ import org.bukkit.inventory.ItemStack;
  */
 public abstract class BaseGUI {
 
+    private final Core core = Core.getInstance();
     private final Inventory inv;
     private final Map<Integer, GUIAction> actions;
     private static final Map<UUID, BaseGUI> inventoriesByUUID = new HashMap<>();
@@ -95,5 +100,33 @@ public abstract class BaseGUI {
             }
         });
         inventoriesByUUID.remove(getUUID());
+    }
+
+    public ItemStack getItem(IConfiguration config, String path) {
+        Material mat;
+        try {
+            mat = Material.valueOf(config.getString(path + ".Material").toUpperCase());
+        } catch (Exception ex) {
+            core.log("The material '" + config.getString(path + ".Material").toUpperCase() + "' is invalid, it will be set as STONE.");
+            mat = Material.STONE;
+        }
+        ItemStack is = new ItemStack(mat);
+        ItemMeta meta = is.getItemMeta();
+        config.getConfigurationSection(path).forEach(data -> {
+            if (data.equals("Name")) {
+                meta.setDisplayName(core.rep(config.getString(path + ".Name")));
+            }
+            if (data.equals("Lore")) {
+                meta.setLore(core.rep(config.getStringList(path  + ".Lore")));
+            }
+            if (data.equals("Amount")) {
+                is.setAmount(config.getInt(path + ".Amount"));
+            }
+            if (data.equals("Damage")) {
+                is.setDurability((short) config.getInt(path + ".Damage"));
+            }
+        });
+        is.setItemMeta(meta);
+        return is;
     }
 }

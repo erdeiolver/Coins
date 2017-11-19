@@ -81,7 +81,7 @@ public interface Database {
         static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
             return map.entrySet().stream().sorted(Map.Entry.comparingByValue(Collections.reverseOrder())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
         }
-
+        
         static PreparedStatement generatePreparedStatement(Connection c, SQLQuery query, Object... parameters) throws SQLException {
             PreparedStatement ps = c.prepareStatement(query.name);
             try {
@@ -113,7 +113,7 @@ public interface Database {
         }
     }
 
-    public enum SQLQuery {
+    enum SQLQuery {
         SEARCH_USER_ONLINE("SELECT * FROM `" + prefix + "Data` WHERE uuid = ?;"),
         SEARCH_USER_OFFLINE("SELECT * FROM `" + prefix + "Data` WHERE nick = ?;"),
         CREATE_USER("INSERT INTO `" + prefix + "Data` (`uuid`, `nick`, `balance`, `lastlogin`) VALUES (?, ?, ?, ?);"),

@@ -123,6 +123,20 @@ public class FileManager {
                         lines.set(index, "version: 10");
                         core.log("Configuraton file updated to v10");
                         break;
+                    case 10:
+                        index = lines.indexOf("    Close:") + 1;
+                        lines.addAll(index, Arrays.asList(
+                                "      # To see all possible values check https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html",
+                                "      Material: REDSTONE_BLOCK",
+                                "      Name: '&c&lClose'",
+                                "      Lore:",
+                                "      - ''",
+                                "      - '&7Click me to close this gui'"
+                        ));
+                        index = lines.indexOf("version: 10");
+                        lines.set(index, "version: 11");
+                        core.log("Configuraton file updated to v11");
+                        break;
                     default:
                         core.log("Seems that you hava a too old version of the config or you canged this to another number >:(");
                         core.log("We can't update it, if is a old version you should try to update it slow and not jump from a version to another, keep in mind that we keep track of the last 3 versions of the config to update.");
