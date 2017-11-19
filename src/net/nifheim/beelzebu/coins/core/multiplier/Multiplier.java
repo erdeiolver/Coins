@@ -279,6 +279,7 @@ public final class Multiplier {
                     res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + server + "' ORDER BY queue DESC;").executeQuery();
                     if (res.next()) {
                         c.prepareStatement("UPDATE " + prefix + "Multipliers SET queue = " + (res.getInt("queue") + 1) + " WHERE id = " + id + ";").executeUpdate();
+                        sendMultiplier();
                         return false;
                     }
                 }
