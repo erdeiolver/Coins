@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 
@@ -68,7 +69,7 @@ public class MySQL implements Database {
         updateDatabase();
         core.getMethods().runAsync(() -> {
             core.log("Checking the database connection ...");
-            try (Connection c = getConnection()) {
+            try (Connection c = ds.getConnection()) {
                 try {
                     if (c == null || c.isClosed()) {
                         core.log("The database connection is null, check your MySQL settings!");
@@ -110,7 +111,7 @@ public class MySQL implements Database {
         hc.validate();
         ds = new HikariDataSource(hc);
 
-        try (Connection c = getConnection()) {
+        try (Connection c = ds.getConnection()) {
             try {
                 if (!c.isClosed()) {
                     core.log("Plugin conected sucesful to the MySQL.");
@@ -126,7 +127,7 @@ public class MySQL implements Database {
     }
 
     public void updateDatabase() {
-        try (Connection c = getConnection(); Statement st = c.createStatement()) {
+        try (Connection c = ds.getConnection(); Statement st = c.createStatement()) {
             core.debug("A database connection was opened.");
             try {
                 DatabaseMetaData md = c.getMetaData();
@@ -171,7 +172,7 @@ public class MySQL implements Database {
 
     @Override
     public void createPlayer(String player, UUID uuid) {
-        try (Connection c = getConnection()) {
+        try (Connection c = ds.getConnection()) {
             core.debug("A database connection was opened.");
             ResultSet res = null;
             try {
@@ -212,8 +213,8 @@ public class MySQL implements Database {
 
     @Override
     public Double getCoins(String player) {
-        try (Connection c = getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();) {
-            if (isindb(player) && res.next()) {
+        try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();) {
+            if (CoinsAPI.isindb(player) && res.next()) {
                 double coins = res.getDouble("balance");
                 CacheManager.updateCoins(core.getUUID(player), coins);
                 return coins;
@@ -231,8 +232,8 @@ public class MySQL implements Database {
 
     @Override
     public void addCoins(String player, Double coins) {
-        try (Connection c = getConnection()) {
-            if (isindb(player)) {
+        try (Connection c = ds.getConnection()) {
+            if (CoinsAPI.isindb(player)) {
                 double oldCoins = getCoins(player);
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, oldCoins + coins, player).executeUpdate();
                 core.updateCache(core.getUUID(player), getCoins(player));
@@ -246,7 +247,7 @@ public class MySQL implements Database {
 
     @Override
     public void takeCoins(String player, Double coins) {
-        try (Connection c = getConnection()) {
+        try (Connection c = ds.getConnection()) {
             double beforeCoins = getCoins(player);
             if ((beforeCoins - coins) < 0 || beforeCoins == coins) {
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, 0, player).executeUpdate();
@@ -265,8 +266,8 @@ public class MySQL implements Database {
 
     @Override
     public void resetCoins(String player) {
-        try (Connection c = getConnection()) {
-            if (isindb(player)) {
+        try (Connection c = ds.getConnection()) {
+            if (CoinsAPI.isindb(player)) {
                 double oldCoins = getCoins(player);
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, core.getConfig().getDouble("General.Starting Coins", 0), player).executeUpdate();
                 CacheManager.updateCoins(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
@@ -281,8 +282,8 @@ public class MySQL implements Database {
 
     @Override
     public void setCoins(String player, Double coins) {
-        try (Connection c = getConnection()) {
-            if (isindb(player)) {
+        try (Connection c = ds.getConnection()) {
+            if (CoinsAPI.isindb(player)) {
                 double oldCoins = getCoins(player);
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, coins, player).executeUpdate();
                 CacheManager.updateCoins(core.getUUID(player), coins);
@@ -297,7 +298,7 @@ public class MySQL implements Database {
 
     @Override
     public boolean isindb(String player) {
-        try (Connection c = getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery()) {
+        try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery()) {
             if (res.next()) {
                 return res.getString("nick") != null;
             }
@@ -310,8 +311,8 @@ public class MySQL implements Database {
 
     @Override
     public Double getCoins(UUID player) {
-        try (Connection c = getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, player).executeQuery()) {
-            if (isindb(player) && res.next()) {
+        try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, player).executeQuery()) {
+            if (CoinsAPI.isindb(player) && res.next()) {
                 double coins = res.getDouble("balance");
                 CacheManager.updateCoins(player, coins);
                 return coins;
@@ -329,8 +330,8 @@ public class MySQL implements Database {
 
     @Override
     public void addCoins(UUID player, Double coins) {
-        try (Connection c = getConnection()) {
-            if (isindb(player)) {
+        try (Connection c = ds.getConnection()) {
+            if (CoinsAPI.isindb(player)) {
                 double oldCoins = getCoins(player);
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, oldCoins + coins, player).executeUpdate();
                 core.updateCache(player, getCoins(player));
@@ -344,7 +345,7 @@ public class MySQL implements Database {
 
     @Override
     public void takeCoins(UUID player, Double coins) {
-        try (Connection c = getConnection()) {
+        try (Connection c = ds.getConnection()) {
             double beforeCoins = getCoins(player);
             if ((beforeCoins - coins) < 0 || beforeCoins == coins) {
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, 0, player).executeUpdate();
@@ -363,8 +364,8 @@ public class MySQL implements Database {
 
     @Override
     public void resetCoins(UUID player) {
-        try (Connection c = getConnection()) {
-            if (isindb(player)) {
+        try (Connection c = ds.getConnection()) {
+            if (CoinsAPI.isindb(player)) {
                 double oldCoins = getCoins(player);
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, core.getConfig().getDouble("General.Starting Coins", 0), player).executeUpdate();
                 CacheManager.updateCoins(player, core.getConfig().getDouble("General.Starting Coins"));
@@ -379,8 +380,8 @@ public class MySQL implements Database {
 
     @Override
     public void setCoins(UUID player, Double coins) {
-        try (Connection c = getConnection()) {
-            if (isindb(player)) {
+        try (Connection c = ds.getConnection()) {
+            if (CoinsAPI.isindb(player)) {
                 double oldCoins = getCoins(player);
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, coins, player).executeUpdate();
                 CacheManager.updateCoins(player, coins);
@@ -395,7 +396,7 @@ public class MySQL implements Database {
 
     @Override
     public boolean isindb(UUID player) {
-        try (Connection c = getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, player).executeQuery()) {
+        try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, player).executeQuery()) {
             if (res.next()) {
                 return res.getString("nick") != null;
             }
@@ -409,7 +410,7 @@ public class MySQL implements Database {
     @Override
     public List<String> getTop(int top) {
         List<String> toplist = new ArrayList<>();
-        try (Connection c = getConnection()) {
+        try (Connection c = ds.getConnection()) {
             ResultSet res = null;
             try {
                 res = Utils.generatePreparedStatement(c, SQLQuery.SELECT_TOP, top).executeQuery();
@@ -434,7 +435,7 @@ public class MySQL implements Database {
     @Override
     public Map<String, Double> getTopPlayers(int top) {
         Map<String, Double> topplayers = new HashMap<>();
-        try (Connection c = getConnection()) {
+        try (Connection c = ds.getConnection()) {
             ResultSet res = null;
             try {
                 res = Utils.generatePreparedStatement(c, SQLQuery.SELECT_TOP, top).executeQuery();
@@ -464,7 +465,7 @@ public class MySQL implements Database {
 
     @Override
     public String getNick(UUID uuid) {
-        try (Connection c = getConnection()) {
+        try (Connection c = ds.getConnection()) {
             ResultSet res = null;
             try {
                 res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, uuid).executeQuery();
@@ -486,7 +487,7 @@ public class MySQL implements Database {
 
     @Override
     public UUID getUUID(String nick) {
-        try (Connection c = getConnection()) {
+        try (Connection c = ds.getConnection()) {
             ResultSet res = null;
             try {
                 res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, nick).executeQuery();

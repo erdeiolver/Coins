@@ -42,7 +42,13 @@ public class PlaceholderAPI extends EZPlaceholderHook {
         }
         switch (coins) {
             case "amount":
-                return CoinsAPI.getCoinsString(p.getName());
+                String coinsS;
+                try {
+                    coinsS = CoinsAPI.getCoinsString(p.getName());
+                } catch (NullPointerException ex) {
+                    coinsS = "Loading...";
+                }
+                return coinsS;
             case "amount_formatted":
                 return fix(CoinsAPI.getCoins(p.getName()));
             default:

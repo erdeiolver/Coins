@@ -28,8 +28,10 @@ import java.util.List;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
 import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 
@@ -127,5 +129,10 @@ public class PluginMessageListener extends CoinsBungeeListener implements Listen
             default:
                 break;
         }
+    }
+    
+    @EventHandler
+    public void onServerSwitch(ServerSwitchEvent e) {
+        core.updateCache(e.getPlayer().getUniqueId(), CoinsAPI.getCoins(e.getPlayer().getUniqueId()));
     }
 }
