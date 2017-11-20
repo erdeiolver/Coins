@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -130,6 +131,13 @@ public class Core {
             mi.sendMessage(mi.getConsole(), (rep("&8[&cCoins&8] &cDebug: &7" + msg)));
         }
         logToFile(msg);
+    }
+
+    public void debug(SQLException ex) {
+        debug("SQLException: ");
+        debug("   Database state: " + ex.getSQLState());
+        debug("   Error code: " + ex.getErrorCode());
+        debug("   Error message: " + ex.getMessage());
     }
 
     public void log(Object msg) {

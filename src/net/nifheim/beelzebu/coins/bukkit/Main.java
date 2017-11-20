@@ -124,6 +124,7 @@ public class Main extends JavaPlugin {
                 UUID uuid = it.next();
                 if (!core.getMethods().isOnline(uuid)) {
 		    it.remove();
+                    core.debug("Removed '" + uuid + "' from the cache.");
                 }
             }
         }, 100, 12000);

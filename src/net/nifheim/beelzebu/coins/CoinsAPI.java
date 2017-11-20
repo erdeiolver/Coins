@@ -42,12 +42,10 @@ public class CoinsAPI {
      * @return
      */
     public static Double getCoins(String player) {
-        if (CacheManager.getCoins(core.getUUID(player)) > -1) {
-            return CacheManager.getCoins(core.getUUID(player));
-        } else {
+        if (CacheManager.getCoins(core.getUUID(player)) == -1) {
             CacheManager.updateCoins(core.getUUID(player), core.getDatabase().getCoins(player));
         }
-        return core.getDatabase().getCoins(player);
+        return CacheManager.getCoins(core.getUUID(player));
     }
 
     /**
@@ -57,12 +55,10 @@ public class CoinsAPI {
      * @return
      */
     public static Double getCoins(UUID player) {
-        if (CacheManager.getCoins(player) > -1) {
-            return CacheManager.getCoins(player);
-        } else {
+        if (CacheManager.getCoins(player) == -1) {
             CacheManager.updateCoins(player, core.getDatabase().getCoins(player));
         }
-        return core.getDatabase().getCoins(player);
+        return CacheManager.getCoins(player);
     }
 
     /**

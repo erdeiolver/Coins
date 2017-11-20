@@ -18,11 +18,9 @@
  */
 package net.nifheim.beelzebu.coins.bukkit.listener;
 
-import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -43,7 +41,6 @@ public class PlayerJoinListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent e) {
-        Player p = e.getPlayer();
         PluginMessage pmsg = new PluginMessage();
         if (first) {
             Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(plugin, () -> {
@@ -52,9 +49,5 @@ public class PlayerJoinListener implements Listener {
             }, 30);
             first = false;
         }
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            CoinsAPI.createPlayer(p.getName(), p.getUniqueId());
-            CoinsAPI.getCoins(p.getUniqueId());
-        });
     }
 }

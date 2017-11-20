@@ -84,8 +84,7 @@ public class MySQL implements Database {
                 }
             } catch (SQLException ex) {
                 core.log("The database connection is null, check your MySQL settings!");
-                core.debug("The error code is: " + ex.getErrorCode());
-                core.debug(ex.getMessage());
+                core.debug(ex);
             }
         }, (long) core.getConfig().getInt("MySQL.Connection Interval") * 1200);
     }
@@ -106,7 +105,7 @@ public class MySQL implements Database {
         hc.setMaxLifetime(180000L);
         hc.setMinimumIdle(4);
         hc.setIdleTimeout(30000);
-        hc.setConnectionTimeout(30000);
+        hc.setConnectionTimeout(10000);
         hc.setMaximumPoolSize(10);
         hc.validate();
         ds = new HikariDataSource(hc);
@@ -120,13 +119,13 @@ public class MySQL implements Database {
                 c.close();
             }
         } catch (SQLException ex) {
-            core.debug(String.format("Something was wrong with the connection, the error code is: %s", ex.getErrorCode()));
             core.log("Can't connect to the database...");
             core.log("Check your settings and restart the server.");
+            core.debug(ex);
         }
     }
 
-    public synchronized void updateDatabase() {
+    public void updateDatabase() {
         try (Connection c = getConnection(); Statement st = c.createStatement()) {
             core.debug("A database connection was opened.");
             try {
@@ -166,8 +165,7 @@ public class MySQL implements Database {
             }
         } catch (SQLException ex) {
             core.log("Something was wrong creating the default databases. Please check the debug log.");
-            core.debug("The error code is: " + ex.getErrorCode());
-            core.debug(ex.getMessage());
+            core.debug(ex);
         }
     }
 
@@ -208,36 +206,25 @@ public class MySQL implements Database {
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the player: " + player + " in the database.");
-            core.debug("&cThe error code is: " + ex.getErrorCode());
-            core.debug(ex.getMessage());
+            core.debug(ex);
         }
     }
 
     @Override
     public Double getCoins(String player) {
-        try (Connection c = getConnection()) {
-            ResultSet res = null;
-            try {
-                res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();
-                if (res.next() && res.getString("uuid") != null) {
-                    double coins = res.getDouble("balance");
-                    CacheManager.updateCoins(core.getUUID(player), coins);
-                    return coins;
-                } else {
-                    CacheManager.updateCoins(core.getUUID(player), 0D);
-                    createPlayer(player, core.getUUID(player));
-                    return 0D;
-                }
-            } finally {
-                if (res != null) {
-                    res.close();
-                }
-                c.close();
+        try (Connection c = getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();) {
+            if (isindb(player)) {
+                double coins = res.getDouble("balance");
+                CacheManager.updateCoins(core.getUUID(player), coins);
+                return coins;
+            } else {
+                CacheManager.updateCoins(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins", 0));
+                createPlayer(player, core.getUUID(player));
+                return core.getConfig().getDouble("General.Starting Coins", 0);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the data for player: " + player);
-            core.debug("&cThe error code is: " + ex.getErrorCode());
-            core.debug(ex.getMessage());
+            core.debug(ex);
         }
         return 0D;
     }
@@ -245,133 +232,97 @@ public class MySQL implements Database {
     @Override
     public void addCoins(String player, Double coins) {
         try (Connection c = getConnection()) {
-            try {
-                if (isindb(player) && getCoins(player) >= 0) {
-                    double oldCoins = getCoins(player);
-                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, oldCoins + coins, player).executeUpdate();
-                    core.updateCache(core.getUUID(player), getCoins(player));
-                    core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, oldCoins + coins);
-                }
-            } finally {
-                c.close();
+            if (isindb(player)) {
+                double oldCoins = getCoins(player);
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, oldCoins + coins, player).executeUpdate();
+                core.updateCache(core.getUUID(player), getCoins(player));
+                core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, oldCoins + coins);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred adding coins to the player: " + player);
-            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex);
         }
     }
 
     @Override
     public void takeCoins(String player, Double coins) {
         try (Connection c = getConnection()) {
-            try {
-                double beforeCoins = getCoins(player);
-                if ((beforeCoins - coins) < 0 || beforeCoins == coins) {
-                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, 0, player).executeUpdate();
-                    CacheManager.updateCoins(core.getUUID(player), 0D);
-                    core.updateCache(core.getUUID(player), 0D);
-                } else {
-                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, beforeCoins - coins, player).executeUpdate();
-                    core.updateCache(core.getUUID(player), getCoins(player));
-                }
-                core.getMethods().callCoinsChangeEvent(core.getUUID(player), beforeCoins, beforeCoins - coins);
-            } finally {
-                c.close();
+            double beforeCoins = getCoins(player);
+            if ((beforeCoins - coins) < 0 || beforeCoins == coins) {
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, 0, player).executeUpdate();
+                CacheManager.updateCoins(core.getUUID(player), 0D);
+                core.updateCache(core.getUUID(player), 0D);
+            } else {
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, beforeCoins - coins, player).executeUpdate();
+                core.updateCache(core.getUUID(player), getCoins(player));
             }
+            core.getMethods().callCoinsChangeEvent(core.getUUID(player), beforeCoins, beforeCoins - coins);
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred taking coins to the player: " + player);
-            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex);
         }
     }
 
     @Override
     public void resetCoins(String player) {
         try (Connection c = getConnection()) {
-            try {
-                if (isindb(player)) {
-                    double oldCoins = getCoins(player);
-                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, core.getConfig().getDouble("General.Starting Coins", 0), player).executeUpdate();
-                    CacheManager.updateCoins(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
-                    core.updateCache(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
-                    core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, core.getConfig().getDouble("General.Starting Coins"));
-                }
-            } finally {
-                c.close();
+            if (isindb(player)) {
+                double oldCoins = getCoins(player);
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, core.getConfig().getDouble("General.Starting Coins", 0), player).executeUpdate();
+                CacheManager.updateCoins(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
+                core.updateCache(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
+                core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, core.getConfig().getDouble("General.Starting Coins"));
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred reseting the coins of player: " + player);
-            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex);
         }
     }
 
     @Override
     public void setCoins(String player, Double coins) {
         try (Connection c = getConnection()) {
-            try {
-                if (isindb(player)) {
-                    double oldCoins = getCoins(player);
-                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, coins, player).executeUpdate();
-                    CacheManager.updateCoins(core.getUUID(player), coins);
-                    core.updateCache(core.getUUID(player), coins);
-                    core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, coins);
-                }
-            } finally {
-                c.close();
+            if (isindb(player)) {
+                double oldCoins = getCoins(player);
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, coins, player).executeUpdate();
+                CacheManager.updateCoins(core.getUUID(player), coins);
+                core.updateCache(core.getUUID(player), coins);
+                core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, coins);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred setting the coins of player: " + player);
-            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex);
         }
     }
 
     @Override
     public boolean isindb(String player) {
-        try (Connection c = getConnection()) {
-            ResultSet res = null;
-            try {
-                res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();
-                if (res.next()) {
-                    return res.getString("nick") != null;
-                }
-            } finally {
-                if (res != null) {
-                    res.close();
-                }
-                c.close();
+        try (Connection c = getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery()) {
+            if (res.next()) {
+                return res.getString("nick") != null;
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred cheking if the player: " + player + " exists in the database.");
-            core.debug("&cThe error code is: " + ex.getErrorCode());
-            core.debug(ex.getMessage());
+            core.debug(ex);
         }
         return false;
     }
 
     @Override
     public Double getCoins(UUID player) {
-        try (Connection c = getConnection()) {
-            ResultSet res = null;
-            try {
-                res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, player).executeQuery();
-                if (res.next() && res.getString("uuid") != null) {
-                    double coins = res.getDouble("balance");
-                    CacheManager.updateCoins(player, coins);
-                    return coins;
-                } else {
-                    CacheManager.updateCoins(player, 0D);
-                    createPlayer(core.getNick(player), player);
-                    return 0D;
-                }
-            } finally {
-                if (res != null) {
-                    res.close();
-                }
-                c.close();
+        try (Connection c = getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, player).executeQuery()) {
+            if (isindb(player)) {
+                double coins = res.getDouble("balance");
+                CacheManager.updateCoins(player, coins);
+                return coins;
+            } else {
+                CacheManager.updateCoins(player, core.getConfig().getDouble("General.Starting Coins", 0));
+                createPlayer(core.getNick(player), player);
+                return core.getConfig().getDouble("General.Starting Coins", 0);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the data for player: " + core.getNick(player));
-            core.debug("&cThe error code is: " + ex.getErrorCode());
-            core.debug(ex.getMessage());
+            core.debug(ex);
         }
         return 0D;
     }
@@ -379,105 +330,78 @@ public class MySQL implements Database {
     @Override
     public void addCoins(UUID player, Double coins) {
         try (Connection c = getConnection()) {
-            try {
-                if (isindb(player) && getCoins(player) >= 0) {
-                    double oldCoins = getCoins(player);
-                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, oldCoins + coins, player).executeUpdate();
-                    core.updateCache(player, getCoins(player));
-                    core.getMethods().callCoinsChangeEvent(player, oldCoins, oldCoins + coins);
-                }
-            } finally {
-                c.close();
+            if (isindb(player)) {
+                double oldCoins = getCoins(player);
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, oldCoins + coins, player).executeUpdate();
+                core.updateCache(player, getCoins(player));
+                core.getMethods().callCoinsChangeEvent(player, oldCoins, oldCoins + coins);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred adding coins to the player: " + core.getNick(player));
-            core.debug("&cThe error code is: " + ex.getErrorCode());
-            core.debug(ex.getMessage());
+            core.debug(ex);
         }
     }
 
     @Override
     public void takeCoins(UUID player, Double coins) {
         try (Connection c = getConnection()) {
-            try {
-                double beforeCoins = getCoins(player);
-                if ((beforeCoins - coins) < 0 || beforeCoins == coins) {
-                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, 0, player).executeUpdate();
-                    CacheManager.updateCoins(player, 0D);
-                    core.updateCache(player, 0D);
-                } else {
-                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, beforeCoins - coins, player).executeUpdate();
-                    core.updateCache(player, getCoins(player));
-                }
-                core.getMethods().callCoinsChangeEvent(player, beforeCoins, beforeCoins - coins);
-            } finally {
-                c.close();
+            double beforeCoins = getCoins(player);
+            if ((beforeCoins - coins) < 0 || beforeCoins == coins) {
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, 0, player).executeUpdate();
+                CacheManager.updateCoins(player, 0D);
+                core.updateCache(player, 0D);
+            } else {
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, beforeCoins - coins, player).executeUpdate();
+                core.updateCache(player, getCoins(player));
             }
+            core.getMethods().callCoinsChangeEvent(player, beforeCoins, beforeCoins - coins);
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred taking coins to the player: " + core.getNick(player));
-            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex);
         }
     }
 
     @Override
     public void resetCoins(UUID player) {
         try (Connection c = getConnection()) {
-            try {
-                if (isindb(player)) {
-                    double oldCoins = getCoins(player);
-                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, core.getConfig().getDouble("General.Starting Coins", 0), player).executeUpdate();
-                    CacheManager.updateCoins(player, core.getConfig().getDouble("General.Starting Coins"));
-                    core.updateCache(player, core.getConfig().getDouble("General.Starting Coins"));
-                    core.getMethods().callCoinsChangeEvent(player, oldCoins, core.getConfig().getDouble("General.Starting Coins"));
-                }
-            } finally {
-                c.close();
+            if (isindb(player)) {
+                double oldCoins = getCoins(player);
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, core.getConfig().getDouble("General.Starting Coins", 0), player).executeUpdate();
+                CacheManager.updateCoins(player, core.getConfig().getDouble("General.Starting Coins"));
+                core.updateCache(player, core.getConfig().getDouble("General.Starting Coins"));
+                core.getMethods().callCoinsChangeEvent(player, oldCoins, core.getConfig().getDouble("General.Starting Coins"));
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred reseting the coins of player: " + core.getNick(player));
-            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex);
         }
     }
 
     @Override
     public void setCoins(UUID player, Double coins) {
         try (Connection c = getConnection()) {
-            try {
-                if (isindb(player)) {
-                    double oldCoins = getCoins(player);
-                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, coins, player).executeUpdate();
-                    CacheManager.updateCoins(player, coins);
-                    core.updateCache(player, coins);
-                    core.getMethods().callCoinsChangeEvent(player, oldCoins, coins);
-                }
-            } finally {
-                c.close();
+            if (isindb(player)) {
+                double oldCoins = getCoins(player);
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, coins, player).executeUpdate();
+                CacheManager.updateCoins(player, coins);
+                core.updateCache(player, coins);
+                core.getMethods().callCoinsChangeEvent(player, oldCoins, coins);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred setting the coins of player: " + core.getNick(player));
-            core.debug("&cThe error code is: " + ex.getErrorCode());
+            core.debug(ex);
         }
     }
 
     @Override
     public boolean isindb(UUID player) {
-        try (Connection c = getConnection()) {
-            ResultSet res = null;
-            try {
-                res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, player).executeQuery();
-                if (res.next()) {
-                    return res.getString("nick") != null;
-                }
-            } finally {
-                if (res != null) {
-                    res.close();
-                }
-                c.close();
+        try (Connection c = getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, player).executeQuery()) {
+            if (res.next()) {
+                return res.getString("nick") != null;
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred cheking if the player: " + player + " exists in the database.");
-            core.debug("&cThe error code is: " + ex.getErrorCode());
-            core.debug(ex.getMessage());
+            core.debug(ex);
         }
         return false;
     }
@@ -502,8 +426,7 @@ public class MySQL implements Database {
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred generating the toplist");
-            core.debug("&cThe error code is: " + ex.getErrorCode());
-            core.debug(ex.getMessage());
+            core.debug(ex);
         }
         return toplist;
     }
@@ -528,8 +451,7 @@ public class MySQL implements Database {
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred generating the toplist");
-            core.debug("&cThe error code is: " + ex.getErrorCode());
-            core.debug(ex.getMessage());
+            core.debug(ex);
         }
         return Utils.sortByValue(topplayers);
     }
@@ -557,8 +479,7 @@ public class MySQL implements Database {
             }
         } catch (SQLException ex) {
             core.log("Something was wrong getting the nick for the uuid '" + uuid + "'");
-            core.debug("The error code is: " + ex.getErrorCode());
-            core.debug(ex.getMessage());
+            core.debug(ex);
         }
         return null;
     }
@@ -580,8 +501,7 @@ public class MySQL implements Database {
             }
         } catch (SQLException ex) {
             core.log("Something was wrong getting the uuid for the nick '" + nick + "'");
-            core.debug("The error code is: " + ex.getErrorCode());
-            core.debug(ex.getMessage());
+            core.debug(ex);
         }
         return null;
     }
