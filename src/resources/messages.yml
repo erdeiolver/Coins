@@ -60,7 +60,7 @@ Coins:
   Own coins: '%prefix% You have &f%coins%&7 coins.'
   Pay: '%prefix% You paid &f%coins%&7 coins to &f%target%&7.'
   Pay target: '%prefix% &f%from%&7 paid you &f%coins%&7 coins.'
-  Give: '%prefix% You gived &f%coins%&7 coins to &f%target%&7.'
+  Give: '%prefix% You gave &f%coins%&7 coins to &f%target%&7.'
   Give target: '%prefix% You recived &f%coins%&7. %multiplier_format%'
   Take: '%prefix% You removed &f%coins%&7 from &f%target%&7, new balance: &f%newcoins%&7.'
   Take target: '%prefix% Your coins has been modified to &f%coins%&7.'
