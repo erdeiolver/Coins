@@ -107,7 +107,7 @@ public class MySQL implements Database {
         hc.setMinimumIdle(4);
         hc.setIdleTimeout(30000);
         hc.setConnectionTimeout(10000);
-        hc.setMaximumPoolSize(10);
+        hc.setMaximumPoolSize(20);
         hc.validate();
         ds = new HikariDataSource(hc);
 
@@ -214,7 +214,8 @@ public class MySQL implements Database {
     @Override
     public Double getCoins(String player) {
         try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();) {
-            if (CoinsAPI.isindb(player) && res.next()) {
+            if (CoinsAPI.isindb(player)) {
+                res.next();
                 double coins = res.getDouble("balance");
                 CacheManager.updateCoins(core.getUUID(player), coins);
                 return coins;
@@ -299,9 +300,7 @@ public class MySQL implements Database {
     @Override
     public boolean isindb(String player) {
         try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery()) {
-            if (res.next()) {
-                return res.getString("nick") != null;
-            }
+            return res.next();
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred cheking if the player: " + player + " exists in the database.");
             core.debug(ex);
@@ -312,7 +311,8 @@ public class MySQL implements Database {
     @Override
     public Double getCoins(UUID player) {
         try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, player).executeQuery()) {
-            if (CoinsAPI.isindb(player) && res.next()) {
+            if (CoinsAPI.isindb(player)) {
+                res.next();
                 double coins = res.getDouble("balance");
                 CacheManager.updateCoins(player, coins);
                 return coins;
@@ -397,9 +397,7 @@ public class MySQL implements Database {
     @Override
     public boolean isindb(UUID player) {
         try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, player).executeQuery()) {
-            if (res.next()) {
-                return res.getString("nick") != null;
-            }
+            return res.next();
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred cheking if the player: " + player + " exists in the database.");
             core.debug(ex);
