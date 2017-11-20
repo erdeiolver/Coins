@@ -41,7 +41,7 @@ public class CommandListener implements Listener {
         String msg = e.getMessage().toLowerCase();
         Core.getInstance().getMethods().runAsync(() -> {
             if (config.getDouble("Command Cost." + msg) != 0) {
-                if (CoinsAPI.getCoins(e.getPlayer().getName()) < config.getDouble("Command Cost." + msg)) {
+                if (CoinsAPI.getCoins(e.getPlayer().getUniqueId()) < config.getDouble("Command Cost." + msg)) {
                     e.setCancelled(true);
                     e.getPlayer().sendMessage(Core.getInstance().rep(Core.getInstance().getMessages(e.getPlayer().spigot().getLocale()).getString("Errors.No Coins")));
                 } else {

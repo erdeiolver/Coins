@@ -96,6 +96,7 @@ public class MySQL implements Database {
         hc.setDriverClassName("com.mysql.jdbc.Driver");
         hc.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + name + "?autoReconnect=true");
         hc.addDataSourceProperty("cachePrepStmts", "true");
+        hc.addDataSourceProperty("useServerPrepStmts", "true");
         hc.addDataSourceProperty("prepStmtCacheSize", "250");
         hc.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         hc.addDataSourceProperty("characterEncoding", "utf8");
@@ -103,21 +104,18 @@ public class MySQL implements Database {
         hc.addDataSourceProperty("useUnicode", "true");
         hc.setUsername(user);
         hc.setPassword(passwd);
-        hc.setMaxLifetime(180000L);
+        hc.setMaxLifetime(60000);
         hc.setMinimumIdle(4);
         hc.setIdleTimeout(30000);
         hc.setConnectionTimeout(10000);
-        hc.setMaximumPoolSize(20);
+        hc.setMaximumPoolSize(10);
+        hc.setLeakDetectionThreshold(30000);
         hc.validate();
         ds = new HikariDataSource(hc);
 
         try (Connection c = ds.getConnection()) {
-            try {
-                if (!c.isClosed()) {
-                    core.log("Plugin conected sucesful to the MySQL.");
-                }
-            } finally {
-                c.close();
+            if (!c.isClosed()) {
+                core.log("Plugin conected sucesful to the MySQL.");
             }
         } catch (SQLException ex) {
             core.log("Can't connect to the database...");
@@ -213,22 +211,22 @@ public class MySQL implements Database {
 
     @Override
     public Double getCoins(String player) {
+        double coins = 0D;
         try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();) {
             if (CoinsAPI.isindb(player)) {
                 res.next();
-                double coins = res.getDouble("balance");
+                coins = res.getDouble("balance");
                 CacheManager.updateCoins(core.getUUID(player), coins);
-                return coins;
             } else {
                 CacheManager.updateCoins(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins", 0));
                 createPlayer(player, core.getUUID(player));
-                return core.getConfig().getDouble("General.Starting Coins", 0);
+                coins = core.getConfig().getDouble("General.Starting Coins", 0);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the data for player: " + player);
             core.debug(ex);
         }
-        return 0D;
+        return coins;
     }
 
     @Override
@@ -310,22 +308,22 @@ public class MySQL implements Database {
 
     @Override
     public Double getCoins(UUID player) {
+        double coins = 0D;
         try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, player).executeQuery()) {
             if (CoinsAPI.isindb(player)) {
                 res.next();
-                double coins = res.getDouble("balance");
+                coins = res.getDouble("balance");
                 CacheManager.updateCoins(player, coins);
-                return coins;
             } else {
                 CacheManager.updateCoins(player, core.getConfig().getDouble("General.Starting Coins", 0));
                 createPlayer(core.getNick(player), player);
-                return core.getConfig().getDouble("General.Starting Coins", 0);
+                coins = core.getConfig().getDouble("General.Starting Coins", 0);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the data for player: " + core.getNick(player));
             core.debug(ex);
         }
-        return 0D;
+        return coins;
     }
 
     @Override

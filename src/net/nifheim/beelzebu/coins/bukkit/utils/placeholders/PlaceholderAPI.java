@@ -44,13 +44,13 @@ public class PlaceholderAPI extends EZPlaceholderHook {
             case "amount":
                 String coinsS;
                 try {
-                    coinsS = CoinsAPI.getCoinsString(p.getName());
+                    coinsS = CoinsAPI.getCoinsString(p.getUniqueId());
                 } catch (NullPointerException ex) {
                     coinsS = "Loading...";
                 }
                 return coinsS;
             case "amount_formatted":
-                return fix(CoinsAPI.getCoins(p.getName()));
+                return fix(CoinsAPI.getCoins(p.getUniqueId()));
             default:
                 break;
         }

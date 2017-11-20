@@ -124,7 +124,7 @@ public class CoinsCommand extends BukkitCommand {
             if (CoinsAPI.isindb(args[1])) {
                 double coins = Double.parseDouble(args[2]);
                 if (coins > 0) {
-                    if (CoinsAPI.getCoins(sender.getName()) >= coins) {
+                    if (CoinsAPI.getCoins(((Player) sender).getUniqueId()) >= coins) {
                         if (target != null) {
                             CoinsAPI.takeCoins(sender.getName(), coins);
                             sender.sendMessage(core.getString("Coins.Pay", lang).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%target%", target.getName()));
@@ -203,10 +203,10 @@ public class CoinsCommand extends BukkitCommand {
                         }
                     }
                 } else {
-                    if (CoinsAPI.getCoins(args[1]) < coins) {
+                    if (CoinsAPI.getCoins(target.getUniqueId()) < coins) {
                         sender.sendMessage(core.getString("Errors.No Negative", lang));
                     }
-                    if (CoinsAPI.getCoins(args[1]) >= coins) {
+                    if (CoinsAPI.getCoins(target.getUniqueId()) >= coins) {
                         CoinsAPI.takeCoins(args[1], coins);
                         sender.sendMessage(core.getString("Coins.Take", lang).replaceAll("%target%", target.getName()).replaceAll("%newcoins%", String.valueOf(finalcoins)));
                         target.sendMessage(core.getString("Coins.Take target", target.spigot().getLocale()).replaceAll("%coins%", String.valueOf(finalcoins)));
@@ -350,8 +350,8 @@ public class CoinsCommand extends BukkitCommand {
                 sender.sendMessage(core.getString("Errors.No Execute", lang));
             } else {
                 if (ex.getCost() > 0) {
-                    if (CoinsAPI.getCoins(sender.getName()) >= ex.getCost()) {
-                        CoinsAPI.takeCoins(sender.getName(), ex.getCost());
+                    if (CoinsAPI.getCoins(((Player) sender).getUniqueId()) >= ex.getCost()) {
+                        CoinsAPI.takeCoins(((Player) sender).getUniqueId(), ex.getCost());
                     } else {
                         sender.sendMessage(core.getString("Errors.No Coins", lang));
                         return true;

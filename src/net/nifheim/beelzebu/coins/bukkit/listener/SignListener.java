@@ -124,7 +124,7 @@ public class SignListener implements Listener {
                         p.sendMessage(core.getString("Errors.No Execute", p.spigot().getLocale()));
                     } else {
                         if (ex.getCost() > 0) {
-                            if (CoinsAPI.getCoins(p.getName()) >= ex.getCost()) {
+                            if (CoinsAPI.getCoins(p.getUniqueId()) >= ex.getCost()) {
                                 CoinsAPI.takeCoins(p.getName(), ex.getCost());
                             } else {
                                 p.sendMessage(core.getString("Errors.No Coins", p.spigot().getLocale()));
