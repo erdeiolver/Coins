@@ -23,8 +23,8 @@ import java.util.Map;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.bukkit.utils.CoinsEconomy;
-import net.nifheim.beelzebu.coins.bukkit.utils.gui.MultipliersGUI;
 import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
+import net.nifheim.beelzebu.coins.bukkit.utils.gui.MultipliersGUI;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.executor.Executor;
 import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
@@ -119,29 +119,28 @@ public class CoinsCommand extends BukkitCommand {
             sender.sendMessage(core.getString("Help.Pay Usage", lang));
             return true;
         }
-        if (sender instanceof Player) {
-            if (args.length == 3 && !args[1].equalsIgnoreCase(sender.getName())) {
-                Player target = Bukkit.getPlayer(args[1]);
-                if (CoinsAPI.isindb(args[1])) {
-                    double coins = Double.parseDouble(args[2]);
-                    if (coins > 0) {
-                        if (CoinsAPI.getCoins(sender.getName()) >= coins) {
-                            if (target != null) {
-                                CoinsAPI.takeCoins(sender.getName(), coins);
-                                sender.sendMessage(core.getString("Coins.Pay", lang).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%target%", target.getName()));
-                                CoinsAPI.addCoins(args[1], coins, false);
-                                target.sendMessage(core.getString("Coins.Pay target", target.spigot().getLocale()).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%from%", sender.getName()));
-                            } else {
-                                sender.sendMessage(core.getString("Errors.Unknow Player", lang));
-                            }
+        if (sender instanceof Player && args.length == 3 && !args[1].equalsIgnoreCase(sender.getName())) {
+            Player target = Bukkit.getPlayer(args[1]);
+            if (CoinsAPI.isindb(args[1])) {
+                double coins = Double.parseDouble(args[2]);
+                if (coins > 0) {
+                    if (CoinsAPI.getCoins(sender.getName()) >= coins) {
+                        if (target != null) {
+                            CoinsAPI.takeCoins(sender.getName(), coins);
+                            sender.sendMessage(core.getString("Coins.Pay", lang).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%target%", target.getName()));
+                            CoinsAPI.addCoins(args[1], coins, false);
+                            target.sendMessage(core.getString("Coins.Pay target", target.spigot().getLocale()).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%from%", sender.getName()));
                         } else {
-                            sender.sendMessage(core.getString("Errors.No Coins", lang));
+                            sender.sendMessage(core.getString("Errors.Unknow Player", lang));
                         }
                     } else {
-                        sender.sendMessage(core.getString("Errors.No Zero", lang));
+                        sender.sendMessage(core.getString("Errors.No Coins", lang));
                     }
+                } else {
+                    sender.sendMessage(core.getString("Errors.No Zero", lang));
                 }
             }
+            return true;
         }
         if (!(sender instanceof Player)) {
             sender.sendMessage(core.getString("Errors.Console", lang));
@@ -282,57 +281,55 @@ public class CoinsCommand extends BukkitCommand {
 
     private boolean multiplier(CommandSender sender, String[] args) {
         // TODO: add a command to get all multipliers for a player and a command to enable any multiplier by the ID.
-        if (sender.hasPermission("coins.admin")) {
-            if (args.length >= 2) {
-                if (args[1].equalsIgnoreCase("help")) {
-                    core.getMessages(lang).getStringList("Help.Multiplier").forEach(line -> {
-                        sender.sendMessage(core.rep(line));
-                    });
-                }
-                if (args[1].equalsIgnoreCase("create")) {
-                    if (args.length >= 5 && CoinsAPI.isindb(args[2])) {
-                        try {
-                            int multiplier = Integer.parseInt(args[3]);
-                            int minutes = Integer.parseInt(args[4]);
-                            CoinsAPI.getMultiplier().createMultiplier(Bukkit.getPlayer(args[2]).getUniqueId(), multiplier, minutes, ((args.length == 6 && !args[5].equals("")) ? args[5] : null));
-                            sender.sendMessage(core.getString("Multipliers.Created", lang).replaceAll("%player%", Bukkit.getPlayer(args[2]).getName()));
-                        } catch (NumberFormatException e) {
-                            sender.sendMessage(core.rep(String.valueOf(e.getCause().getMessage())));
-                        }
-                    } else {
-                        sender.sendMessage(core.getString("Help.Multiplier Create", lang));
+        if (sender.hasPermission("coins.admin") && args.length >= 2) {
+            if (args[1].equalsIgnoreCase("help")) {
+                core.getMessages(lang).getStringList("Help.Multiplier").forEach(line -> {
+                    sender.sendMessage(core.rep(line));
+                });
+            }
+            if (args[1].equalsIgnoreCase("create")) {
+                if (args.length >= 5 && CoinsAPI.isindb(args[2])) {
+                    try {
+                        int multiplier = Integer.parseInt(args[3]);
+                        int minutes = Integer.parseInt(args[4]);
+                        CoinsAPI.getMultiplier().createMultiplier(Bukkit.getPlayer(args[2]).getUniqueId(), multiplier, minutes, ((args.length == 6 && !args[5].equals("")) ? args[5] : null));
+                        sender.sendMessage(core.getString("Multipliers.Created", lang).replaceAll("%player%", Bukkit.getPlayer(args[2]).getName()));
+                    } catch (NumberFormatException e) {
+                        sender.sendMessage(core.rep(String.valueOf(e.getCause().getMessage())));
                     }
+                } else {
+                    sender.sendMessage(core.getString("Help.Multiplier Create", lang));
                 }
-                if (args[1].equalsIgnoreCase("get")) {
-                    sender.sendMessage(CoinsAPI.getMultiplier().getMultiplierTimeFormated());
-                }
-                if (args[1].equalsIgnoreCase("set")) {
-                    if (args.length >= 5) {
-                        try {
-                            Multiplier multiplier;
-                            if (args.length == 6) {
-                                multiplier = new Multiplier(args[5], args[3].replaceAll("_", " "), true, Integer.valueOf(args[2]), System.currentTimeMillis() + Long.valueOf(args[4]) * 60000);
-                            } else {
-                                multiplier = CoinsAPI.getMultiplier();
-                                multiplier.setEnabled(true);
-                                multiplier.setAmount(Integer.valueOf(args[2]));
-                                multiplier.setEnabler(args[3].replaceAll("_", " "));
-                                multiplier.setEndTime(System.currentTimeMillis() + Long.valueOf(args[4]) * 60000);
-                            }
-                            multiplier.sendMultiplier();
-                            core.getMethods().callMultiplierEnableEvent(null, multiplier.getData());
-                            core.rep(core.getMessages(lang).getStringList("Multipliers.Set"), multiplier.getData()).forEach(msg -> {
-                                sender.sendMessage(msg);
-                            });
-                        } catch (NullPointerException | NumberFormatException ex) {
-                            sender.sendMessage(core.getString("Help.Multiplier Set", lang));
+            }
+            if (args[1].equalsIgnoreCase("get")) {
+                sender.sendMessage(CoinsAPI.getMultiplier().getMultiplierTimeFormated());
+            }
+            if (args[1].equalsIgnoreCase("set")) {
+                if (args.length >= 5) {
+                    try {
+                        Multiplier multiplier;
+                        if (args.length == 6) {
+                            multiplier = new Multiplier(args[5], args[3].replaceAll("_", " "), true, Integer.valueOf(args[2]), System.currentTimeMillis() + Long.valueOf(args[4]) * 60000);
+                        } else {
+                            multiplier = CoinsAPI.getMultiplier();
+                            multiplier.setEnabled(true);
+                            multiplier.setAmount(Integer.valueOf(args[2]));
+                            multiplier.setEnabler(args[3].replaceAll("_", " "));
+                            multiplier.setEndTime(System.currentTimeMillis() + Long.valueOf(args[4]) * 60000);
                         }
-                    } else {
+                        multiplier.sendMultiplier();
+                        core.getMethods().callMultiplierEnableEvent(null, multiplier.getData());
+                        core.rep(core.getMessages(lang).getStringList("Multipliers.Set"), multiplier.getData()).forEach(msg -> {
+                            sender.sendMessage(msg);
+                        });
+                    } catch (NullPointerException | NumberFormatException ex) {
                         sender.sendMessage(core.getString("Help.Multiplier Set", lang));
                     }
+                } else {
+                    sender.sendMessage(core.getString("Help.Multiplier Set", lang));
                 }
-                return true;
             }
+            return true;
         }
         if (args.length == 1) {
             if (sender instanceof Player) {

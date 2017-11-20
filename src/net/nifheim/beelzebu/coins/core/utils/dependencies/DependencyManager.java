@@ -80,7 +80,7 @@ public class DependencyManager {
         }
     }
 
-    public static void loadDependencies(Set<Dependency> dependencies) {
+    public static void loadDependencies(Set<Dependency> dependencies) throws RuntimeException {
         core.getMethods().log("Identified the following dependencies: " + dependencies.toString());
 
         File libDir = new File(core.getDataFolder(), "lib");
@@ -131,7 +131,7 @@ public class DependencyManager {
         }
     }
 
-    private static void loadJar(File file) {
+    private static void loadJar(File file) throws RuntimeException {
         // get the classloader to load into
         ClassLoader classLoader = core.getMethods().getPlugin().getClass().getClassLoader();
 

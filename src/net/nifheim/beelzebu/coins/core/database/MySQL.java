@@ -55,7 +55,7 @@ public class MySQL implements Database {
         name = core.getConfig().getString("MySQL.Database");
         user = core.getConfig().getString("MySQL.User");
         passwd = core.getConfig().getString("MySQL.Password");
-        SQLConnection();
+        start();
     }
 
     @Override
@@ -63,8 +63,8 @@ public class MySQL implements Database {
         return ds.getConnection();
     }
 
-    private void SQLConnection() {
-        Connect();
+    private void start() {
+        setupDatabase();
         updateDatabase();
         core.getMethods().runAsync(() -> {
             core.log("Checking the database connection ...");
@@ -75,7 +75,7 @@ public class MySQL implements Database {
                         if (ds != null) {
                             ds.close();
                         }
-                        Connect();
+                        setupDatabase();
                     } else {
                         core.log("The connection to the database is still active.");
                     }
@@ -89,7 +89,7 @@ public class MySQL implements Database {
         }, (long) core.getConfig().getInt("MySQL.Connection Interval") * 1200);
     }
 
-    private void Connect() {
+    private void setupDatabase() {
         HikariConfig hc = new HikariConfig();
         hc.setPoolName("Coins MySQL");
         hc.setDriverClassName("com.mysql.jdbc.Driver");
