@@ -169,7 +169,7 @@ public class MySQL implements Database {
     }
 
     @Override
-    public void createPlayer(Connection c, String player, UUID uuid) {
+    public void createPlayer(Connection c, String player, UUID uuid, double balance) {
         try {
             core.debug("A database connection was opened.");
             ResultSet res = null;
@@ -179,7 +179,7 @@ public class MySQL implements Database {
                     core.debug("Preparing to create or update an entry for online mode.");
                     res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, uuid).executeQuery();
                     if (!res.next()) {
-                        Utils.generatePreparedStatement(c, SQLQuery.CREATE_USER, uuid, player, core.getConfig().getDouble("General.Starting Coins"), System.currentTimeMillis()).executeUpdate();
+                        Utils.generatePreparedStatement(c, SQLQuery.CREATE_USER, uuid, player, balance, System.currentTimeMillis()).executeUpdate();
                         core.debug("An entry in the database was created for: " + player);
                     } else {
                         Utils.generatePreparedStatement(c, SQLQuery.UPDATE_USER_ONLINE, player, System.currentTimeMillis(), uuid).executeUpdate();
@@ -189,7 +189,7 @@ public class MySQL implements Database {
                     core.debug("Preparing to create or update an entry for offline mode.");
                     res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();
                     if (!res.next()) {
-                        Utils.generatePreparedStatement(c, SQLQuery.CREATE_USER, uuid, player, core.getConfig().getDouble("General.Starting Coins"), System.currentTimeMillis()).executeUpdate();
+                        Utils.generatePreparedStatement(c, SQLQuery.CREATE_USER, uuid, player, balance, System.currentTimeMillis()).executeUpdate();
                         core.debug("An entry in the database was created for: " + player);
                     } else {
                         Utils.generatePreparedStatement(c, SQLQuery.UPDATE_USER_OFFLINE, uuid, System.currentTimeMillis(), player).executeUpdate();
@@ -219,7 +219,7 @@ public class MySQL implements Database {
                 CacheManager.updateCoins(core.getUUID(player), coins);
             } else {
                 CacheManager.updateCoins(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins", 0));
-                createPlayer(c, player, core.getUUID(player));
+                createPlayer(c, player, core.getUUID(player), core.getConfig().getDouble("General.Starting Coins", 0));
                 coins = core.getConfig().getDouble("General.Starting Coins", 0);
             }
         } catch (SQLException ex) {
@@ -317,7 +317,7 @@ public class MySQL implements Database {
                 CacheManager.updateCoins(player, coins);
             } else {
                 CacheManager.updateCoins(player, core.getConfig().getDouble("General.Starting Coins", 0));
-                createPlayer(c, core.getNick(player), player);
+                createPlayer(c, core.getNick(player), player, core.getConfig().getDouble("General.Starting Coins", 0));
                 coins = core.getConfig().getDouble("General.Starting Coins", 0);
             }
         } catch (SQLException ex) {
@@ -504,5 +504,20 @@ public class MySQL implements Database {
             core.debug(ex);
         }
         return null;
+    }
+
+    @Override
+    public Map<String, Double> getAllPlayers() {
+        Map<String, Double> data = new HashMap<>();
+        try (Connection c = ds.getConnection(); ResultSet res = c.prepareStatement("SELECT * FROM " + prefix + "Data;").executeQuery()) {
+            while (res.next()) {
+                data.put(res.getString("nick") + "," + res.getString("uuid"), res.getDouble("balance"));
+            }
+            ds.close();
+        } catch (SQLException ex) {
+            core.debug("An error has ocurred getting all the players from the database.");
+            core.debug(ex);
+        }
+        return data;
     }
 }

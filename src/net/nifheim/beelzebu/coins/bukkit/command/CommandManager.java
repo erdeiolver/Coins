@@ -36,9 +36,6 @@ public class CommandManager {
 
     public void registerCommand() {
         try {
-
-            //Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-            //bukkitCommandMap.setAccessible(true);
             CommandMap commandMap = (CommandMap) getPrivateField(Bukkit.getPluginManager(), "commandMap");
 
             String commandDescription = core.getConfig().getString("General.Command.Description", "Base command of the Coins plugin");

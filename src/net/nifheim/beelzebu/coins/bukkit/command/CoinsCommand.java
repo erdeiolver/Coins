@@ -18,6 +18,7 @@
  */
 package net.nifheim.beelzebu.coins.bukkit.command;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import net.nifheim.beelzebu.coins.CoinsAPI;
@@ -27,6 +28,7 @@ import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
 import net.nifheim.beelzebu.coins.bukkit.utils.gui.MultipliersGUI;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.executor.Executor;
+import net.nifheim.beelzebu.coins.core.importer.ImportManager;
 import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
 import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 import org.bukkit.Bukkit;
@@ -84,10 +86,14 @@ public class CoinsCommand extends BukkitCommand {
                 multiplier(sender, args);
             } else if (args[0].equalsIgnoreCase("top") && args.length == 1) {
                 top(sender, args);
+            } else if (args[0].equalsIgnoreCase("import")) {
+                imporT(sender, args);
+            } else if (args[0].equalsIgnoreCase("importdb")) {
+                importDB(sender, args);
             } else if (args[0].equalsIgnoreCase("reload")) {
-                reload(sender, args);
+                reload(sender);
             } else if (args[0].equalsIgnoreCase("about")) {
-                about(sender, args);
+                about(sender);
             } else if (args.length == 1 && CoinsAPI.isindb(args[0])) {
                 target(sender, args);
             } else {
@@ -379,7 +385,61 @@ public class CoinsCommand extends BukkitCommand {
         return true;
     }
 
-    private boolean reload(CommandSender sender, String[] args) {
+    private boolean imporT(CommandSender sender, String[] args) {
+        if (sender instanceof Player) {
+            sender.sendMessage(core.rep("%prefix% &cThis command must be executed from the console."));
+            return true;
+        }
+        if (args.length == 2) {
+            boolean worked = false;
+            ImportManager importManager = new ImportManager(core);
+            for (ImportManager.PluginToImport pluginToImport : ImportManager.PluginToImport.values()) {
+                if (pluginToImport.toString().equals(args[1].toUpperCase())) {
+                    worked = true;
+                    importManager.importFrom(pluginToImport);
+                    break;
+                }
+            }
+            if (!worked) {
+                sender.sendMessage(core.rep("%prefix% You specified an invalid plugin to import, possible values:"));
+                sender.sendMessage(Arrays.toString(ImportManager.PluginToImport.values()));
+            }
+            return true;
+        } else {
+            sender.sendMessage(core.rep("%prefix% Command usage: /coins import <plugin>"));
+            sender.sendMessage(core.rep("&cCurrently supported plugins to import: " + Arrays.toString(ImportManager.PluginToImport.values())));
+        }
+        return true;
+    }
+
+    private boolean importDB(CommandSender sender, String[] args) {
+        if (sender instanceof Player) {
+            sender.sendMessage(core.rep("%prefix% &cThis command must be executed from the console."));
+            return true;
+        }
+        if (args.length == 2) {
+            boolean worked = false;
+            ImportManager importManager = new ImportManager(core);
+            for (ImportManager.StorageType storage : ImportManager.StorageType.values()) {
+                if (storage.toString().equals(args[1].toUpperCase())) {
+                    worked = true;
+                    importManager.importFromStorage(storage);
+                    break;
+                }
+            }
+            if (!worked) {
+                sender.sendMessage(core.rep("%prefix% You specified an invalid storage to import, possible values:"));
+                sender.sendMessage(Arrays.toString(ImportManager.StorageType.values()));
+            }
+            return true;
+        } else {
+            sender.sendMessage(core.rep("%prefix% Command usage: /coins importdb <plugin>"));
+            sender.sendMessage(core.rep("&cCurrently supported storages to import: " + Arrays.toString(ImportManager.StorageType.values())));
+        }
+        return true;
+    }
+
+    private boolean reload(CommandSender sender) {
         if (sender.hasPermission("coins.admin")) {
             if (plugin.getConfig().getBoolean("Vault.Use", false)) {
                 new CoinsEconomy(plugin).shutdown();
@@ -401,7 +461,7 @@ public class CoinsCommand extends BukkitCommand {
         return true;
     }
 
-    private boolean about(CommandSender sender, String[] args) {
+    private boolean about(CommandSender sender) {
         if (sender.hasPermission("coins.admin") || sender.getName().equals("Beelzebu")) {
             sender.sendMessage(core.rep("%prefix% Plugin info:"));
             sender.sendMessage("");
