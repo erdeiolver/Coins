@@ -66,15 +66,13 @@ public interface Database {
 
     Map<String, Double> getTopPlayers(int top);
 
-    void createPlayer(String player, UUID uuid);
+    void createPlayer(Connection c, String player, UUID uuid);
 
     Connection getConnection() throws SQLException;
 
     String getNick(UUID uuid);
 
     UUID getUUID(String nick);
-
-    void shutdown();
 
     class Utils {
 

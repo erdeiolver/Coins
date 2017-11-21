@@ -86,7 +86,7 @@ public class SQLite implements Database {
     }
 
     @Override
-    public void createPlayer(String player, UUID uuid) {
+    public void createPlayer(Connection c, String player, UUID uuid) {
         try {
             core.debug("A database connection was opened.");
             ResultSet res;
@@ -129,7 +129,7 @@ public class SQLite implements Database {
                 return coins;
             } else {
                 CacheManager.updateCoins(core.getUUID(player), 0D);
-                createPlayer(player, core.getUUID(player));
+                createPlayer(getConnection(), player, core.getUUID(player));
                 return 0D;
             }
         } catch (SQLException ex) {
@@ -232,7 +232,7 @@ public class SQLite implements Database {
                 return coins;
             } else {
                 CacheManager.updateCoins(player, 0D);
-                createPlayer(core.getNick(player), player);
+                createPlayer(getConnection(), core.getNick(player), player);
                 return 0D;
             }
         } catch (SQLException ex) {
@@ -389,10 +389,5 @@ public class SQLite implements Database {
             core.debug(ex.getMessage());
         }
         return null;
-    }
-
-    @Override
-    public void shutdown() {
-        // nothing (?)
     }
 }

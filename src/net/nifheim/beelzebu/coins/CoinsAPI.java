@@ -18,6 +18,7 @@
  */
 package net.nifheim.beelzebu.coins;
 
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
@@ -318,7 +319,11 @@ public class CoinsAPI {
      * @param uuid The uuid of the player
      */
     public static void createPlayer(String p, UUID uuid) {
-        core.getDatabase().createPlayer(p, uuid);
+        try {
+            core.getDatabase().createPlayer(core.getDatabase().getConnection(), p, uuid);
+        } catch (SQLException ex) {
+            core.log("An error has ocurred while creating a player in the database from the API.");
+        }
     }
 
     /**

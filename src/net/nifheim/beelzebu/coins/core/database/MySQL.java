@@ -169,8 +169,8 @@ public class MySQL implements Database {
     }
 
     @Override
-    public void createPlayer(String player, UUID uuid) {
-        try (Connection c = ds.getConnection()) {
+    public void createPlayer(Connection c, String player, UUID uuid) {
+        try {
             core.debug("A database connection was opened.");
             ResultSet res = null;
             try {
@@ -219,7 +219,7 @@ public class MySQL implements Database {
                 CacheManager.updateCoins(core.getUUID(player), coins);
             } else {
                 CacheManager.updateCoins(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins", 0));
-                createPlayer(player, core.getUUID(player));
+                createPlayer(c, player, core.getUUID(player));
                 coins = core.getConfig().getDouble("General.Starting Coins", 0);
             }
         } catch (SQLException ex) {
@@ -298,7 +298,9 @@ public class MySQL implements Database {
     @Override
     public boolean isindb(String player) {
         try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery()) {
-            return res.next();
+            if (res.next()) {
+                return res.getString("nick") != null;
+            }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred cheking if the player: " + player + " exists in the database.");
             core.debug(ex);
@@ -310,13 +312,12 @@ public class MySQL implements Database {
     public Double getCoins(UUID player) {
         double coins = 0D;
         try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, player).executeQuery()) {
-            if (CoinsAPI.isindb(player)) {
-                res.next();
+            if (res.next()) {
                 coins = res.getDouble("balance");
                 CacheManager.updateCoins(player, coins);
             } else {
                 CacheManager.updateCoins(player, core.getConfig().getDouble("General.Starting Coins", 0));
-                createPlayer(core.getNick(player), player);
+                createPlayer(c, core.getNick(player), player);
                 coins = core.getConfig().getDouble("General.Starting Coins", 0);
             }
         } catch (SQLException ex) {
@@ -395,7 +396,9 @@ public class MySQL implements Database {
     @Override
     public boolean isindb(UUID player) {
         try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, player).executeQuery()) {
-            return res.next();
+            if (res.next()) {
+                return res.getString("uuid") != null;
+            }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred cheking if the player: " + player + " exists in the database.");
             core.debug(ex);
@@ -501,9 +504,5 @@ public class MySQL implements Database {
             core.debug(ex);
         }
         return null;
-    }
-
-    @Override
-    public void shutdown() {
     }
 }

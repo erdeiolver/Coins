@@ -73,7 +73,6 @@ public class Core {
     }
 
     public void shutdown() {
-        getDatabase().shutdown();
         motd(false);
     }
 
