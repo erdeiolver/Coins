@@ -44,7 +44,8 @@ public class CoinsAPI {
      */
     public static Double getCoins(String player) {
         if (CacheManager.getCoins(core.getUUID(player)) == -1) {
-            CacheManager.updateCoins(core.getUUID(player), core.getDatabase().getCoins(player));
+            double coins = core.getDatabase().getCoins(player);
+            CacheManager.updateCoins(core.getUUID(player), coins);
         }
         return CacheManager.getCoins(core.getUUID(player));
     }
@@ -52,14 +53,15 @@ public class CoinsAPI {
     /**
      * Get the coins of a Player by his UUID.
      *
-     * @param player Player to get the coins.
+     * @param uuid Player to get the coins.
      * @return
      */
-    public static Double getCoins(UUID player) {
-        if (CacheManager.getCoins(player) == -1) {
-            CacheManager.updateCoins(player, core.getDatabase().getCoins(player));
+    public static Double getCoins(UUID uuid) {
+        if (CacheManager.getCoins(uuid) == -1) {
+            double coins = core.getDatabase().getCoins(uuid);
+            CacheManager.updateCoins(uuid, coins);
         }
-        return CacheManager.getCoins(player);
+        return CacheManager.getCoins(uuid);
     }
 
     /**

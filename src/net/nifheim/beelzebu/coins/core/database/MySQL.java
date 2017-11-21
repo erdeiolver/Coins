@@ -218,8 +218,8 @@ public class MySQL implements Database {
                 coins = res.getDouble("balance");
                 CacheManager.updateCoins(core.getUUID(player), coins);
             } else {
-                CacheManager.updateCoins(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins", 0));
                 createPlayer(c, player, core.getUUID(player));
+                CacheManager.updateCoins(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins", 0));
                 coins = core.getConfig().getDouble("General.Starting Coins", 0);
             }
         } catch (SQLException ex) {
@@ -316,8 +316,8 @@ public class MySQL implements Database {
                 coins = res.getDouble("balance");
                 CacheManager.updateCoins(player, coins);
             } else {
-                CacheManager.updateCoins(player, core.getConfig().getDouble("General.Starting Coins", 0));
                 createPlayer(c, core.getNick(player), player);
+                CacheManager.updateCoins(player, core.getConfig().getDouble("General.Starting Coins", 0));
                 coins = core.getConfig().getDouble("General.Starting Coins", 0);
             }
         } catch (SQLException ex) {
