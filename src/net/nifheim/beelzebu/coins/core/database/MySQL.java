@@ -211,7 +211,7 @@ public class MySQL implements Database {
 
     @Override
     public Double getCoins(String player) {
-        double coins = 0D;
+        double coins = -1;
         try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();) {
             if (CoinsAPI.isindb(player)) {
                 res.next();
@@ -308,7 +308,7 @@ public class MySQL implements Database {
 
     @Override
     public Double getCoins(UUID player) {
-        double coins = 0D;
+        double coins = -1;
         try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, player).executeQuery()) {
             if (CoinsAPI.isindb(player)) {
                 res.next();

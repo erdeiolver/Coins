@@ -71,8 +71,9 @@ public class CoinsAPI {
      * @return
      */
     public static String getCoinsString(String p) {
-        if (isindb(p)) {
-            return (DF.format(getCoins(p)));
+        double coins = getCoins(p);
+        if (coins > -1 && isindb(p)) {
+            return (DF.format(coins));
         } else {
             return "This player isn't in the database";
         }
@@ -85,8 +86,9 @@ public class CoinsAPI {
      * @return
      */
     public static String getCoinsString(UUID p) {
-        if (isindb(p)) {
-            return (DF.format(getCoins(p)));
+        double coins = getCoins(p);
+        if (coins > -1 && isindb(p)) {
+            return (DF.format(coins));
         } else {
             return "This player isn't in the database";
         }
