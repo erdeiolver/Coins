@@ -39,14 +39,15 @@ public class CoinsAPI {
     /**
      * Get the coins of a Player by his name.
      *
-     * @param nick Player to get the coins.
+     * @param player Player to get the coins.
      * @return
      */
-    public static Double getCoins(String nick) {
-        if (CacheManager.getCoins(core.getUUID(nick)) == -1) {
-            CacheManager.updateCoins(core.getUUID(nick), core.getDatabase().getCoins(nick));
+    public static Double getCoins(String player) {
+        if (CacheManager.getCoins(core.getUUID(player)) == -1) {
+            double coins = core.getDatabase().getCoins(player);
+            CacheManager.updateCoins(core.getUUID(player), coins);
         }
-        return CacheManager.getCoins(core.getUUID(nick));
+        return CacheManager.getCoins(core.getUUID(player));
     }
 
     /**
@@ -57,7 +58,8 @@ public class CoinsAPI {
      */
     public static Double getCoins(UUID uuid) {
         if (CacheManager.getCoins(uuid) == -1) {
-            CacheManager.updateCoins(uuid, core.getDatabase().getCoins(uuid));
+            double coins = core.getDatabase().getCoins(uuid);
+            CacheManager.updateCoins(uuid, coins);
         }
         return CacheManager.getCoins(uuid);
     }
@@ -65,12 +67,13 @@ public class CoinsAPI {
     /**
      * Get the coins String of a player by his name.
      *
-     * @param nick Player to get the coins string.
+     * @param p Player to get the coins string.
      * @return
      */
-    public static String getCoinsString(String nick) {
-        if (isindb(nick)) {
-            return (DF.format(getCoins(nick)));
+    public static String getCoinsString(String p) {
+        double coins = getCoins(p);
+        if (coins > -1 && isindb(p)) {
+            return (DF.format(coins));
         } else {
             return "This player isn't in the database";
         }
@@ -79,12 +82,13 @@ public class CoinsAPI {
     /**
      * Get the coins String of a player by his name.
      *
-     * @param uuid Player to get the coins string.
+     * @param p Player to get the coins string.
      * @return
      */
-    public static String getCoinsString(UUID uuid) {
-        if (isindb(uuid)) {
-            return (DF.format(getCoins(uuid)));
+    public static String getCoinsString(UUID p) {
+        double coins = getCoins(p);
+        if (coins > -1 && isindb(p)) {
+            return (DF.format(coins));
         } else {
             return "This player isn't in the database";
         }
@@ -93,43 +97,43 @@ public class CoinsAPI {
     /**
      * Add coins to a player by his name.
      *
-     * @param nick The player to add the coins.
+     * @param p The player to add the coins.
      * @param coins The coins to add.
      * @deprecated This should not be used.
      * @see
      * {@link CoinsAPI#addCoins(java.lang.String, java.lang.Double, java.lang.Boolean)}
      */
     @Deprecated
-    public static void addCoins(String nick, Double coins) {
-        addCoins(nick, coins, false);
+    public static void addCoins(String p, Double coins) {
+        addCoins(p, coins, false);
     }
 
     /**
      * Add coins to a player by his UUID.
      *
-     * @param uuid The player to add the coins.
+     * @param p The player to add the coins.
      * @param coins The coins to add.
      * @deprecated This should not be used.
      * @see
      * {@link CoinsAPI#addCoins(java.util.UUID, java.lang.Double, java.lang.Boolean)}
      */
     @Deprecated
-    public static void addCoins(UUID uuid, Double coins) {
-        addCoins(uuid, coins, false);
+    public static void addCoins(UUID p, Double coins) {
+        addCoins(p, coins, false);
     }
 
     /**
      * Add coins to a player by his name, selecting if the multipliers should be
      * used to calculate the coins.
      *
-     * @param nick The player to add the coins.
+     * @param player The player to add the coins.
      * @param coins The coins to add.
      * @param multiply Multiply coins if there are any active multipliers
      */
-    public static void addCoins(String nick, Double coins, Boolean multiply) {
+    public static void addCoins(String player, Double coins, Boolean multiply) {
         if (multiply) {
             coins *= getMultiplier().getAmount();
-            for (String perm : core.getMethods().getPermissions(core.getUUID(nick))) {
+            for (String perm : core.getMethods().getPermissions(core.getUUID(player))) {
                 if (perm.startsWith("coins.multiplier.x")) {
                     try {
                         int i = Integer.parseInt(perm.split("coins.multiplier.x")[1]);
@@ -140,7 +144,7 @@ public class CoinsAPI {
                 }
             }
         }
-        core.getDatabase().addCoins(nick, coins);
+        core.getDatabase().addCoins(player, coins);
     }
 
     /**
@@ -171,59 +175,59 @@ public class CoinsAPI {
     /**
      * Take coins of a player by his name.
      *
-     * @param nick
+     * @param p
      * @param coins
      */
-    public static void takeCoins(String nick, Double coins) {
-        core.getDatabase().takeCoins(nick, coins);
+    public static void takeCoins(String p, Double coins) {
+        core.getDatabase().takeCoins(p, coins);
     }
 
     /**
      * Take coins of a player by his UUID.
      *
-     * @param uuid
+     * @param p
      * @param coins
      */
-    public static void takeCoins(UUID uuid, Double coins) {
-        core.getDatabase().takeCoins(uuid, coins);
+    public static void takeCoins(UUID p, Double coins) {
+        core.getDatabase().takeCoins(p, coins);
     }
 
     /**
      * Reset the coins of a player by his name.
      *
-     * @param nick
+     * @param p
      */
-    public static void resetCoins(String nick) {
-        core.getDatabase().resetCoins(nick);
+    public static void resetCoins(String p) {
+        core.getDatabase().resetCoins(p);
     }
 
     /**
      * Reset the coins of a player by his UUID.
      *
-     * @param uuid
+     * @param p
      */
-    public static void resetCoins(UUID uuid) {
-        core.getDatabase().resetCoins(uuid);
+    public static void resetCoins(UUID p) {
+        core.getDatabase().resetCoins(p);
     }
 
     /**
      * Set the coins of a player by his name.
      *
-     * @param nick
+     * @param p
      * @param coins
      */
-    public static void setCoins(String nick, Double coins) {
-        core.getDatabase().setCoins(nick, coins);
+    public static void setCoins(String p, Double coins) {
+        core.getDatabase().setCoins(p, coins);
     }
 
     /**
      * Set the coins of a player by his name.
      *
-     * @param uuid
+     * @param p
      * @param coins
      */
-    public static void setCoins(UUID uuid, Double coins) {
-        core.getDatabase().setCoins(uuid, coins);
+    public static void setCoins(UUID p, Double coins) {
+        core.getDatabase().setCoins(p, coins);
     }
 
     /**
@@ -264,14 +268,14 @@ public class CoinsAPI {
      * Get if a player with the specified name exists in the database. Is not
      * recommended check a player by his name because it can change.
      *
-     * @param nick The name to look for in the database.
+     * @param player The name to look for in the database.
      * @return true if the player exists in the database or false if not.
      */
-    public static boolean isindb(String nick) {
-        if (CacheManager.getCoins(core.getUUID(nick)) > -1) { // If the player is in the cache it should be in the database.
+    public static boolean isindb(String player) {
+        if (CacheManager.getCoins(core.getUUID(player)) > -1) { // If the player is in the cache it should be in the database.
             return true;
         }
-        return core.getDatabase().isindb(nick);
+        return core.getDatabase().isindb(player);
     }
 
     /**
@@ -324,7 +328,7 @@ public class CoinsAPI {
 
     /**
      * Register a user in the database with the specified balance.
-     * 
+     *
      * @param nick The name of the user that will be registered.
      * @param uuid The uuid of the user.
      * @param balance The balance of the user.

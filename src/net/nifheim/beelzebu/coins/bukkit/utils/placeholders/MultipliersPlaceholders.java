@@ -28,11 +28,11 @@ import org.bukkit.entity.Player;
  *
  * @author Beelzebu
  */
-public class Multipliers extends EZPlaceholderHook {
+public class MultipliersPlaceholders extends EZPlaceholderHook {
 
     private final Core core = Core.getInstance();
 
-    public Multipliers(Main plugin) {
+    public MultipliersPlaceholders(Main plugin) {
         super(plugin, "coins-multipliers");
     }
 

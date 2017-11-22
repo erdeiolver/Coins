@@ -203,6 +203,7 @@ public class MySQL implements Database {
                 c.close();
                 core.debug("The connection was closed.");
             }
+            CacheManager.updateCoins(uuid, balance);
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the player: " + player + " in the database.");
             core.debug(ex);
@@ -211,16 +212,14 @@ public class MySQL implements Database {
 
     @Override
     public Double getCoins(String player) {
-        double coins = 0D;
+        double coins = -1;
         try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();) {
             if (CoinsAPI.isindb(player)) {
                 res.next();
                 coins = res.getDouble("balance");
-                CacheManager.updateCoins(core.getUUID(player), coins);
             } else {
-                CacheManager.updateCoins(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins", 0));
-                createPlayer(c, player, core.getUUID(player), core.getConfig().getDouble("General.Starting Coins", 0));
                 coins = core.getConfig().getDouble("General.Starting Coins", 0);
+                createPlayer(c, player, core.getUUID(player), coins);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the data for player: " + player);
@@ -310,15 +309,14 @@ public class MySQL implements Database {
 
     @Override
     public Double getCoins(UUID player) {
-        double coins = 0D;
+        double coins = -1;
         try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, player).executeQuery()) {
-            if (res.next()) {
+            if (CoinsAPI.isindb(player)) {
+                res.next();
                 coins = res.getDouble("balance");
-                CacheManager.updateCoins(player, coins);
             } else {
-                CacheManager.updateCoins(player, core.getConfig().getDouble("General.Starting Coins", 0));
-                createPlayer(c, core.getNick(player), player, core.getConfig().getDouble("General.Starting Coins", 0));
                 coins = core.getConfig().getDouble("General.Starting Coins", 0);
+                createPlayer(c, core.getNick(player), player, coins);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the data for player: " + core.getNick(player));

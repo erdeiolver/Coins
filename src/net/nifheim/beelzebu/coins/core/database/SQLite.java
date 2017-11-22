@@ -112,6 +112,7 @@ public class SQLite implements Database {
                     core.debug("The uuid of: " + core.getNick(uuid) + " was updated in the database.");
                 }
             }
+            CacheManager.updateCoins(uuid, balance);
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the player: " + player + " in the database.");
             core.debug("The error code is: " + ex.getErrorCode());
@@ -121,23 +122,21 @@ public class SQLite implements Database {
 
     @Override
     public Double getCoins(String player) {
+        double coins = -1;
         try {
             ResultSet res = Utils.generatePreparedStatement(getConnection(), SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();
             if (res.next() && res.getString("uuid") != null) {
-                double coins = res.getDouble("balance");
-                CacheManager.updateCoins(core.getUUID(player), coins);
-                return coins;
+                coins = res.getDouble("balance");
             } else {
-                CacheManager.updateCoins(core.getUUID(player), 0D);
-                createPlayer(getConnection(), player, core.getUUID(player), core.getConfig().getDouble("General.Starting Coins", 0));
-                return 0D;
+                coins = core.getConfig().getDouble("General.Starting Coins", 0);
+                createPlayer(getConnection(), player, core.getUUID(player), coins);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the data for player: " + player);
             core.debug("The error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
-        return 0D;
+        return coins;
     }
 
     @Override
@@ -224,23 +223,21 @@ public class SQLite implements Database {
 
     @Override
     public Double getCoins(UUID player) {
+        double coins = -1;
         try {
             ResultSet res = Utils.generatePreparedStatement(getConnection(), SQLQuery.SEARCH_USER_ONLINE, player).executeQuery();
             if (res.next() && res.getString("uuid") != null) {
-                double coins = res.getDouble("balance");
-                CacheManager.updateCoins(player, coins);
-                return coins;
+                coins = res.getDouble("balance");
             } else {
-                CacheManager.updateCoins(player, 0D);
-                createPlayer(getConnection(), core.getNick(player), player, core.getConfig().getDouble("General.Starting Coins", 0));
-                return 0D;
+                coins = core.getConfig().getDouble("General.Starting Coins", 0);
+                createPlayer(getConnection(), core.getNick(player), player, coins);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the data for player: " + core.getNick(player));
             core.debug("&cThe error code is: " + ex.getErrorCode());
             core.debug(ex.getMessage());
         }
-        return 0D;
+        return coins;
     }
 
     @Override

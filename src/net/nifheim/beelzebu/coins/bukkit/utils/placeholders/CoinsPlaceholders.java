@@ -29,9 +29,9 @@ import org.bukkit.entity.Player;
  *
  * @author Beelzebu
  */
-public class PlaceholderAPI extends EZPlaceholderHook {
+public class CoinsPlaceholders extends EZPlaceholderHook {
 
-    public PlaceholderAPI(Main main) {
+    public CoinsPlaceholders(Main main) {
         super(main, "coins");
     }
 

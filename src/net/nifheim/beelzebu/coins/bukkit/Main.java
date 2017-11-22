@@ -40,9 +40,6 @@ public class Main extends JavaPlugin {
     private final Core core = Core.getInstance();
     private static Main instance;
     private CommandManager commandManager;
-
-    private PlaceholderAPI placeholderAPI;
-    private Multipliers multipliers;
     private Configuration configuration;
 
     public static Main getInstance() {
@@ -85,10 +82,8 @@ public class Main extends JavaPlugin {
         // Hook placeholders
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             core.getMethods().log("PlaceholderAPI found, hooking in ");
-            placeholderAPI = new PlaceholderAPI(this);
-            placeholderAPI.hook();
-            multipliers = new Multipliers(this);
-            multipliers.hook();
+            new CoinsPlaceholders(this).hook();
+            new MultipliersPlaceholders(this).hook();
         }
         if (getConfig().getBoolean("Vault.Use", false)) {
             if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {

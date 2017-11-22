@@ -82,7 +82,9 @@ public class PluginMessage implements PluginMessageListener {
                 String data = in.readUTF();
                 if (data.split(" ").length == 2) {
                     UUID puuid = UUID.fromString(data.split(" ")[0]);
-                    CacheManager.updateCoins(puuid, Double.valueOf(data.split(" ")[1]));
+                    if (CacheManager.getCoins(puuid) > -1) {
+                        CacheManager.updateCoins(puuid, Double.valueOf(data.split(" ")[1]));
+                    }
                 }
                 break;
             case "Multiplier":
