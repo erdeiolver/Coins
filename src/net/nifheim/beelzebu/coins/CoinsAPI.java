@@ -317,16 +317,28 @@ public class CoinsAPI {
     }
 
     /**
-     * Register a player in the database.
+     * Register a user in the database with the default starting balance.
      *
-     * @param p The player to register.
-     * @param uuid The uuid of the player
+     * @param nick The name of the user that will be registered.
+     * @param uuid The uuid of the user.
      */
-    public static void createPlayer(String p, UUID uuid) {
+    public static void createPlayer(String nick, UUID uuid) {
+        createPlayer(nick, uuid, core.getConfig().getDouble("General.Starting Coins", 0));
+    }
+
+    /**
+     * Register a user in the database with the specified balance.
+     *
+     * @param nick The name of the user that will be registered.
+     * @param uuid The uuid of the user.
+     * @param balance The balance of the user.
+     */
+    public static void createPlayer(String nick, UUID uuid, double balance) {
         try {
-            core.getDatabase().createPlayer(core.getDatabase().getConnection(), p, uuid);
+            core.getDatabase().createPlayer(core.getDatabase().getConnection(), nick, uuid, balance);
         } catch (SQLException ex) {
             core.log("An error has ocurred while creating a player in the database from the API.");
+            core.debug(ex);
         }
     }
 

@@ -8,7 +8,12 @@ version: 11
 # This is the prefix used in all the messages.
 Prefix: '&c&lCoins &6&l>&7'
 
-# Set this to true to use the player uuid or set to false to use player name.
+# For most servers, leaving this option in true is fine, especially if your server
+# is part of a bungeecord network, only set this to false if:
+# 1) Your server is connected to a bungeecord server and for any reason you don't
+# have ip_forward enabled in the bungeecord config.
+# 2) Your server is connected to the same database as another server on which users
+# can have another uuid (that the other server is cracked)
 Online Mode: true
 
 # Here you can enable Vault to make this plugin manage all the Vault transactions.

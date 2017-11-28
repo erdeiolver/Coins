@@ -86,7 +86,7 @@ public class SQLite implements Database {
     }
 
     @Override
-    public void createPlayer(Connection c, String player, UUID uuid) {
+    public void createPlayer(Connection c, String player, UUID uuid, double balance) {
         try {
             core.debug("A database connection was opened.");
             ResultSet res;
@@ -95,7 +95,7 @@ public class SQLite implements Database {
                 core.debug("Preparing to create or update an entry for online mode.");
                 res = Utils.generatePreparedStatement(getConnection(), SQLQuery.SEARCH_USER_ONLINE, uuid).executeQuery();
                 if (!res.next()) {
-                    Utils.generatePreparedStatement(getConnection(), SQLQuery.CREATE_USER, uuid, player, 0.0, System.currentTimeMillis()).executeUpdate();
+                    Utils.generatePreparedStatement(getConnection(), SQLQuery.CREATE_USER, uuid, player, balance, System.currentTimeMillis()).executeUpdate();
                     core.debug("An entry in the database was created for: " + player);
                 } else {
                     Utils.generatePreparedStatement(getConnection(), SQLQuery.UPDATE_USER_ONLINE, player, System.currentTimeMillis(), uuid).executeUpdate();
@@ -105,13 +105,14 @@ public class SQLite implements Database {
                 core.debug("Preparing to create or update an entry for offline mode.");
                 res = Utils.generatePreparedStatement(getConnection(), SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();
                 if (!res.next()) {
-                    Utils.generatePreparedStatement(getConnection(), SQLQuery.CREATE_USER, uuid, player, 0.0, System.currentTimeMillis()).executeUpdate();
+                    Utils.generatePreparedStatement(getConnection(), SQLQuery.CREATE_USER, uuid, player, balance, System.currentTimeMillis()).executeUpdate();
                     core.debug("An entry in the database was created for: " + player);
                 } else {
                     Utils.generatePreparedStatement(getConnection(), SQLQuery.UPDATE_USER_OFFLINE, uuid, System.currentTimeMillis(), player).executeUpdate();
                     core.debug("The uuid of: " + core.getNick(uuid) + " was updated in the database.");
                 }
             }
+            CacheManager.updateCoins(uuid, balance);
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the player: " + player + " in the database.");
             core.debug("The error code is: " + ex.getErrorCode());
@@ -127,8 +128,8 @@ public class SQLite implements Database {
             if (res.next() && res.getString("uuid") != null) {
                 coins = res.getDouble("balance");
             } else {
-                createPlayer(getConnection(), player, core.getUUID(player));
                 coins = core.getConfig().getDouble("General.Starting Coins", 0);
+                createPlayer(getConnection(), player, core.getUUID(player), coins);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the data for player: " + player);
@@ -228,8 +229,8 @@ public class SQLite implements Database {
             if (res.next() && res.getString("uuid") != null) {
                 coins = res.getDouble("balance");
             } else {
-                createPlayer(getConnection(), core.getNick(player), player);
                 coins = core.getConfig().getDouble("General.Starting Coins", 0);
+                createPlayer(getConnection(), core.getNick(player), player, coins);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the data for player: " + core.getNick(player));
@@ -385,5 +386,20 @@ public class SQLite implements Database {
             core.debug(ex.getMessage());
         }
         return null;
+    }
+
+    @Override
+    public Map<String, Double> getAllPlayers() {
+        Map<String, Double> data = new HashMap<>();
+        try {
+            ResultSet res = getConnection().prepareStatement("SELECT * FROM Data;").executeQuery();
+            while (res.next()) {
+                data.put(res.getString("nick") + "," + res.getString("uuid"), res.getDouble("balance"));
+            }
+        } catch (SQLException ex) {
+            core.debug("An error has ocurred getting all the players from the database");
+            core.debug(ex);
+        }
+        return data;
     }
 }
