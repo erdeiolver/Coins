@@ -26,6 +26,7 @@ import net.nifheim.beelzebu.coins.bukkit.listener.*;
 import net.nifheim.beelzebu.coins.bukkit.utils.CoinsEconomy;
 import net.nifheim.beelzebu.coins.bukkit.utils.Configuration;
 import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
+import net.nifheim.beelzebu.coins.bukkit.utils.leaderheads.LeaderHeadsHook;
 import net.nifheim.beelzebu.coins.bukkit.utils.placeholders.*;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.executor.Executor;
@@ -81,7 +82,7 @@ public class Main extends JavaPlugin {
         commandManager.registerCommand();
         // Hook placeholders
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-            core.getMethods().log("PlaceholderAPI found, hooking in ");
+            core.getMethods().log("PlaceholderAPI found, hooking into it.");
             new CoinsPlaceholders(this).hook();
             new MultipliersPlaceholders(this).hook();
         }
@@ -91,6 +92,10 @@ public class Main extends JavaPlugin {
             } else {
                 core.log("You enabled Vault in the config, but the plugin Vault can't be found.");
             }
+        }
+        if (Bukkit.getPluginManager().isPluginEnabled("LeaderHeads")) {
+            core.getMethods().log("LeaderHeads found, hooking into it.");
+            new LeaderHeadsHook();
         }
     }
 

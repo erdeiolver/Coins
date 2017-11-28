@@ -9,6 +9,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <libsDir>${basedir}/lib</libsDir>
     </properties>
     <repositories>
         <repository>
@@ -83,6 +84,13 @@
             <artifactId>lombok</artifactId>
             <version>1.16.18</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>me.robin</groupId>
+            <artifactId>leaderheads</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>${libsDir}/LeaderHeadsAPI.jar</systemPath>
         </dependency>
     </dependencies>
     <build>
