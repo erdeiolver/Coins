@@ -57,6 +57,7 @@ public class FileManager {
         messagesFiles.put("es", new File(messagesFolder, "messages_es.yml"));
         messagesFiles.put("zh", new File(messagesFolder, "messages_zh.yml"));
         messagesFiles.put("cz", new File(messagesFolder, "messages_cz.yml"));
+        messagesFiles.put("hu", new File(messagesFolder, "messages_hu.yml"));
         configFile = new File(core.getDataFolder(), "config.yml");
         logsFolder = new File(core.getDataFolder(), "logs");
     }
@@ -80,20 +81,10 @@ public class FileManager {
         try {
             List<String> lines = FileUtils.readLines(configFile, Charsets.UTF_8);
             int index;
-            if (core.getConfig().getInt("version") == 10) {
+            if (core.getConfig().getInt("version") == 11) {
                 core.log("The config file is up to date.");
             } else {
                 switch (core.getConfig().getInt("version")) {
-                    case 7:
-                        index = lines.indexOf("  Purge:") + 3;
-                        lines.addAll(index, Arrays.asList(
-                                "    Logs:",
-                                "      Days: 10 # The days to keep plugin logs."
-                        ));
-                        index = lines.indexOf("version: 7");
-                        lines.set(index, "version: 8");
-                        core.log("Configuration file updated to v8");
-                        break;
                     case 8:
                         index = lines.indexOf("  Purge:") + 5;
                         lines.addAll(index, Arrays.asList(
