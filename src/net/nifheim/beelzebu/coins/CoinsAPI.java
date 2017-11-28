@@ -42,7 +42,7 @@ public class CoinsAPI {
      * @param player Player to get the coins.
      * @return
      */
-    public static Double getCoins(String player) {
+    public static double getCoins(String player) {
         if (CacheManager.getCoins(core.getUUID(player)) == -1) {
             double coins = core.getDatabase().getCoins(player);
             CacheManager.updateCoins(core.getUUID(player), coins);
@@ -56,7 +56,7 @@ public class CoinsAPI {
      * @param uuid Player to get the coins.
      * @return
      */
-    public static Double getCoins(UUID uuid) {
+    public static double getCoins(UUID uuid) {
         if (CacheManager.getCoins(uuid) == -1) {
             double coins = core.getDatabase().getCoins(uuid);
             CacheManager.updateCoins(uuid, coins);
@@ -104,7 +104,7 @@ public class CoinsAPI {
      * {@link CoinsAPI#addCoins(java.lang.String, java.lang.Double, java.lang.Boolean)}
      */
     @Deprecated
-    public static void addCoins(String p, Double coins) {
+    public static void addCoins(String p, double coins) {
         addCoins(p, coins, false);
     }
 
@@ -118,7 +118,7 @@ public class CoinsAPI {
      * {@link CoinsAPI#addCoins(java.util.UUID, java.lang.Double, java.lang.Boolean)}
      */
     @Deprecated
-    public static void addCoins(UUID p, Double coins) {
+    public static void addCoins(UUID p, double coins) {
         addCoins(p, coins, false);
     }
 
@@ -130,7 +130,7 @@ public class CoinsAPI {
      * @param coins The coins to add.
      * @param multiply Multiply coins if there are any active multipliers
      */
-    public static void addCoins(String player, Double coins, Boolean multiply) {
+    public static void addCoins(String player, double coins, boolean multiply) {
         if (multiply) {
             coins *= getMultiplier().getAmount();
             for (String perm : core.getMethods().getPermissions(core.getUUID(player))) {
@@ -155,7 +155,7 @@ public class CoinsAPI {
      * @param coins The coins to add.
      * @param multiply Multiply coins if there are any active multipliers
      */
-    public static void addCoins(UUID uuid, Double coins, Boolean multiply) {
+    public static void addCoins(UUID uuid, double coins, boolean multiply) {
         if (multiply) {
             coins *= getMultiplier().getAmount();
             for (String perm : core.getMethods().getPermissions(uuid)) {
@@ -178,7 +178,7 @@ public class CoinsAPI {
      * @param p
      * @param coins
      */
-    public static void takeCoins(String p, Double coins) {
+    public static void takeCoins(String p, double coins) {
         core.getDatabase().takeCoins(p, coins);
     }
 
@@ -188,7 +188,7 @@ public class CoinsAPI {
      * @param p
      * @param coins
      */
-    public static void takeCoins(UUID p, Double coins) {
+    public static void takeCoins(UUID p, double coins) {
         core.getDatabase().takeCoins(p, coins);
     }
 
@@ -216,7 +216,7 @@ public class CoinsAPI {
      * @param p
      * @param coins
      */
-    public static void setCoins(String p, Double coins) {
+    public static void setCoins(String p, double coins) {
         core.getDatabase().setCoins(p, coins);
     }
 
@@ -226,7 +226,7 @@ public class CoinsAPI {
      * @param p
      * @param coins
      */
-    public static void setCoins(UUID p, Double coins) {
+    public static void setCoins(UUID p, double coins) {
         core.getDatabase().setCoins(p, coins);
     }
 
@@ -238,7 +238,7 @@ public class CoinsAPI {
      * @param amount The amount of coins to pay.
      * @return true or false if the transaction is completed.
      */
-    public static boolean payCoins(String from, String to, Double amount) {
+    public static boolean payCoins(String from, String to, double amount) {
         if (getCoins(from) >= amount) {
             takeCoins(from, amount);
             addCoins(to, amount);
@@ -255,7 +255,7 @@ public class CoinsAPI {
      * @param amount The amount of coins to pay.
      * @return true or false if the transaction is completed.
      */
-    public static boolean payCoins(UUID from, UUID to, Double amount) {
+    public static boolean payCoins(UUID from, UUID to, double amount) {
         if (getCoins(from) >= amount) {
             takeCoins(from, amount);
             addCoins(to, amount);
