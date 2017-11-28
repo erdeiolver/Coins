@@ -75,6 +75,8 @@ public interface Database {
     UUID getUUID(String nick);
     
     Map<String, Double> getAllPlayers();
+    
+    void shutdown();
 
     class Utils {
 

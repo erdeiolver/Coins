@@ -433,7 +433,7 @@ public class CoinsCommand extends BukkitCommand {
             }
             return true;
         } else {
-            sender.sendMessage(core.rep("%prefix% Command usage: /coins importdb <plugin>"));
+            sender.sendMessage(core.rep("%prefix% Command usage: /coins importdb <storage>"));
             sender.sendMessage(core.rep("&cCurrently supported storages to import: " + Arrays.toString(ImportManager.StorageType.values())));
         }
         return true;

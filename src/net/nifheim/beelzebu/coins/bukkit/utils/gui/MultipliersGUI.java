@@ -86,7 +86,7 @@ public class MultipliersGUI extends BaseGUI {
         }
         ItemStack glass = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 2);
         ItemMeta meta = glass.getItemMeta();
-        meta.setDisplayName("");
+        meta.setDisplayName("§f");
         glass.setItemMeta(meta);
         for (int i = 36; i < 45; i++) {
             setItem(i, glass);

@@ -27,6 +27,9 @@ Help:
   - ' &c/coins set <nombre> <cantidad> &f- &7Establece las coins de un usuario.'
   - ' &c/coins reset <nombre> &f- &7Establece las coins de el usuario en 0.'
   - ' &c/coins reload &f- &7Recarga la configuración y los mensajes.'
+  - ' &c/coins about &f- &7Muestra información acerca del plugin.'
+  - ' &c/coins import &f- &7Importa información desde otros plugins.'
+  - ' &c/coins importdb &f- &7Importa información desde otro almacenamiento.'
   - ' &c/coins multiplier &f- &7Muestra los subcomandos de multiplicadores.'
   - ' &8&m+-------------------------------------------------+'
   Pay Usage: '%prefix% &cPor favor usa &f/coins pay <nombre> <coins>'
@@ -42,6 +45,7 @@ Help:
   - '%prefix% Sub comandos de multiplicador'
   - ' '
   - ' &ccreate <nombre> <cantidad> <minutos> (servidor) &f- &7Crea un multiplicador.'
+  - ' &cset <cantidad> <activador> <minutos> (servidor) &f- &7Establece un multiplicador.'
   - '&8&m+-------------------------------------------------+'
 Errors:
   No permissions: '%prefix% &cNo tienes permisos.'

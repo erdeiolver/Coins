@@ -92,7 +92,7 @@ public class MySQL implements Database {
 
     private void setupDatabase() {
         HikariConfig hc = new HikariConfig();
-        hc.setPoolName("Coins MySQL");
+        hc.setPoolName("Coins MySQL Connection Pool");
         hc.setDriverClassName("com.mysql.jdbc.Driver");
         hc.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + name + "?autoReconnect=true");
         hc.addDataSourceProperty("cachePrepStmts", "true");
@@ -507,15 +507,19 @@ public class MySQL implements Database {
     @Override
     public Map<String, Double> getAllPlayers() {
         Map<String, Double> data = new HashMap<>();
-        try (Connection c = ds.getConnection(); ResultSet res = c.prepareStatement("SELECT * FROM " + prefix + "Data;").executeQuery()) {
+        try (Connection c = ds.getConnection(); ResultSet res = c.prepareStatement("SELECT * FROM " + Core.getInstance().getConfig().getString("MySQL.Prefix") + "Data;").executeQuery()) {
             while (res.next()) {
                 data.put(res.getString("nick") + "," + res.getString("uuid"), res.getDouble("balance"));
             }
-            ds.close();
         } catch (SQLException ex) {
             core.debug("An error has ocurred getting all the players from the database.");
             core.debug(ex);
         }
         return data;
+    }
+
+    @Override
+    public void shutdown() {
+        ds.close();
     }
 }

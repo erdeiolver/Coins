@@ -18,8 +18,9 @@
  */
 package net.nifheim.beelzebu.coins.core.database;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -27,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.nifheim.beelzebu.coins.core.Core;
 import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 
@@ -40,20 +43,50 @@ import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 public class SQLite implements Database {
 
     private final Core core;
-    private static Connection connection;
+    private HikariDataSource ds;
+    private Connection connection;
 
     public SQLite(Core c) {
         core = c;
-        updateDatabase();
+        try {
+            setupDatabase();
+            updateDatabase();
+        } catch (SQLException ex) {
+            Logger.getLogger(SQLite.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
     public Connection getConnection() throws SQLException {
-        return (connection == null ? true : connection.isClosed()) ? connection = DriverManager.getConnection("jdbc:sqlite:" + core.getDataFolder() + "/database.db") : connection;
+        return ds.getConnection();
+    }
+
+    private void setupDatabase() throws SQLException {
+        HikariConfig hc = new HikariConfig();
+        hc.setPoolName("Coins SQLite Connection Pool");
+        hc.setJdbcUrl("jdbc:sqlite:plugins/Coins/database.db");
+        hc.setConnectionTestQuery("SELECT 1");
+        hc.setMaxLifetime(60000);
+        hc.setMinimumIdle(4);
+        hc.setIdleTimeout(30000);
+        hc.setConnectionTimeout(10000);
+        hc.setMaximumPoolSize(50);
+        hc.setLeakDetectionThreshold(30000);
+        hc.validate();
+        ds = new HikariDataSource(hc);
+
+        try (Connection c = ds.getConnection()) {
+            if (c.isClosed()) {
+                core.log("Can't connect to the database...");
+            }
+        } catch (SQLException ex) {
+            core.log("Can't connect to the database...");
+            core.debug(ex);
+        }
     }
 
     private void updateDatabase() {
-        try {
+        try (Connection c = ds.getConnection()) {
             core.debug("A database connection was opened.");
             String Data
                     = "CREATE TABLE IF NOT EXISTS `Data`"
@@ -70,12 +103,12 @@ public class SQLite implements Database {
                     + "`endtime` LONG,"
                     + "`server` VARCHAR(50),"
                     + "`enabled` BOOLEAN);";
-            getConnection().createStatement().executeUpdate(Data);
+            c.createStatement().executeUpdate(Data);
             core.debug("The data table was updated.");
-            getConnection().createStatement().executeUpdate(Multiplier);
+            c.createStatement().executeUpdate(Multiplier);
             core.debug("The multipliers table was updated");
             if (core.getConfig().getBoolean("General.Purge.Enabled", true)) {
-                getConnection().createStatement().executeUpdate("DELETE FROM Data WHERE lastlogin < " + (System.currentTimeMillis() - (core.getConfig().getInt("General.Purge.Days") * 86400000)) + ";");
+                c.createStatement().executeUpdate("DELETE FROM Data WHERE lastlogin < " + (System.currentTimeMillis() - (core.getConfig().getInt("General.Purge.Days") * 86400000)) + ";");
                 core.debug("Inactive users were removed from the database.");
             }
         } catch (SQLException ex) {
@@ -93,26 +126,27 @@ public class SQLite implements Database {
             core.debug("Trying to create or update data.");
             if (core.getConfig().getBoolean("Online Mode")) {
                 core.debug("Preparing to create or update an entry for online mode.");
-                res = Utils.generatePreparedStatement(getConnection(), SQLQuery.SEARCH_USER_ONLINE, uuid).executeQuery();
+                res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, uuid).executeQuery();
                 if (!res.next()) {
-                    Utils.generatePreparedStatement(getConnection(), SQLQuery.CREATE_USER, uuid, player, balance, System.currentTimeMillis()).executeUpdate();
+                    Utils.generatePreparedStatement(c, SQLQuery.CREATE_USER, uuid, player, balance, System.currentTimeMillis()).executeUpdate();
                     core.debug("An entry in the database was created for: " + player);
                 } else {
-                    Utils.generatePreparedStatement(getConnection(), SQLQuery.UPDATE_USER_ONLINE, player, System.currentTimeMillis(), uuid).executeUpdate();
+                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_USER_ONLINE, player, System.currentTimeMillis(), uuid).executeUpdate();
                     core.debug("The nickname of: " + player + " was updated in the database.");
                 }
             } else {
                 core.debug("Preparing to create or update an entry for offline mode.");
-                res = Utils.generatePreparedStatement(getConnection(), SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();
+                res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();
                 if (!res.next()) {
-                    Utils.generatePreparedStatement(getConnection(), SQLQuery.CREATE_USER, uuid, player, balance, System.currentTimeMillis()).executeUpdate();
+                    Utils.generatePreparedStatement(c, SQLQuery.CREATE_USER, uuid, player, balance, System.currentTimeMillis()).executeUpdate();
                     core.debug("An entry in the database was created for: " + player);
                 } else {
-                    Utils.generatePreparedStatement(getConnection(), SQLQuery.UPDATE_USER_OFFLINE, uuid, System.currentTimeMillis(), player).executeUpdate();
+                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_USER_OFFLINE, uuid, System.currentTimeMillis(), player).executeUpdate();
                     core.debug("The uuid of: " + core.getNick(uuid) + " was updated in the database.");
                 }
             }
             CacheManager.updateCoins(uuid, balance);
+            c.close();
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the player: " + player + " in the database.");
             core.debug("The error code is: " + ex.getErrorCode());
@@ -123,13 +157,13 @@ public class SQLite implements Database {
     @Override
     public Double getCoins(String player) {
         double coins = -1;
-        try {
-            ResultSet res = Utils.generatePreparedStatement(getConnection(), SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();
+        try (Connection c = ds.getConnection()) {
+            ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();
             if (res.next() && res.getString("uuid") != null) {
                 coins = res.getDouble("balance");
             } else {
                 coins = core.getConfig().getDouble("General.Starting Coins", 0);
-                createPlayer(getConnection(), player, core.getUUID(player), coins);
+                createPlayer(c, player, core.getUUID(player), coins);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the data for player: " + player);
@@ -141,10 +175,10 @@ public class SQLite implements Database {
 
     @Override
     public void addCoins(String player, Double coins) {
-        try {
+        try (Connection c = ds.getConnection()) {
             if (isindb(player) && getCoins(player) >= 0) {
                 double oldCoins = getCoins(player);
-                Utils.generatePreparedStatement(getConnection(), SQLQuery.UPDATE_COINS_OFFLINE, oldCoins + coins, player).executeUpdate();
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, oldCoins + coins, player).executeUpdate();
                 getCoins(player);
                 core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, oldCoins + coins);
             }
@@ -157,13 +191,13 @@ public class SQLite implements Database {
 
     @Override
     public void takeCoins(String player, Double coins) {
-        try {
+        try (Connection c = ds.getConnection()) {
             double beforeCoins = getCoins(player);
             if (beforeCoins - coins < 0 || beforeCoins == coins) {
-                Utils.generatePreparedStatement(getConnection(), SQLQuery.UPDATE_COINS_OFFLINE, 0, player).executeUpdate();
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, 0, player).executeUpdate();
                 CacheManager.updateCoins(core.getUUID(player), 0D);
             } else {
-                Utils.generatePreparedStatement(getConnection(), SQLQuery.UPDATE_COINS_OFFLINE, beforeCoins - coins, player).executeUpdate();
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, beforeCoins - coins, player).executeUpdate();
                 getCoins(player);
             }
             core.getMethods().callCoinsChangeEvent(core.getUUID(player), beforeCoins, beforeCoins - coins);
@@ -176,10 +210,10 @@ public class SQLite implements Database {
 
     @Override
     public void resetCoins(String player) {
-        try {
+        try (Connection c = ds.getConnection()) {
             if (isindb(player)) {
                 double oldCoins = getCoins(player);
-                Utils.generatePreparedStatement(getConnection(), SQLQuery.UPDATE_COINS_OFFLINE, core.getConfig().getDouble("General.Starting Coins", 0), player).executeUpdate();
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, core.getConfig().getDouble("General.Starting Coins", 0), player).executeUpdate();
                 CacheManager.updateCoins(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
                 core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, core.getConfig().getDouble("General.Starting Coins"));
             }
@@ -192,10 +226,10 @@ public class SQLite implements Database {
 
     @Override
     public void setCoins(String player, Double coins) {
-        try {
+        try (Connection c = ds.getConnection()) {
             if (isindb(player)) {
                 double oldCoins = getCoins(player);
-                Utils.generatePreparedStatement(getConnection(), SQLQuery.UPDATE_COINS_ONLINE, coins, player).executeUpdate();
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, coins, player).executeUpdate();
                 CacheManager.updateCoins(core.getUUID(player), coins);
                 core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, coins);
             }
@@ -208,8 +242,8 @@ public class SQLite implements Database {
 
     @Override
     public boolean isindb(String player) {
-        try {
-            ResultSet res = Utils.generatePreparedStatement(getConnection(), SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();
+        try (Connection c = ds.getConnection()) {
+            ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();
             if (res.next()) {
                 return res.getString("nick") != null;
             }
@@ -224,13 +258,12 @@ public class SQLite implements Database {
     @Override
     public Double getCoins(UUID player) {
         double coins = -1;
-        try {
-            ResultSet res = Utils.generatePreparedStatement(getConnection(), SQLQuery.SEARCH_USER_ONLINE, player).executeQuery();
+        try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, player).executeQuery()) {
             if (res.next() && res.getString("uuid") != null) {
                 coins = res.getDouble("balance");
             } else {
                 coins = core.getConfig().getDouble("General.Starting Coins", 0);
-                createPlayer(getConnection(), core.getNick(player), player, coins);
+                createPlayer(c, core.getNick(player), player, coins);
             }
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the data for player: " + core.getNick(player));
@@ -242,10 +275,10 @@ public class SQLite implements Database {
 
     @Override
     public void addCoins(UUID player, Double coins) {
-        try {
+        try (Connection c = ds.getConnection()) {
             if (isindb(player) && getCoins(player) >= 0) {
                 double oldCoins = getCoins(player);
-                Utils.generatePreparedStatement(getConnection(), SQLQuery.UPDATE_COINS_ONLINE, oldCoins + coins, player).executeUpdate();
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, oldCoins + coins, player).executeUpdate();
                 getCoins(player);
                 core.getMethods().callCoinsChangeEvent(player, oldCoins, oldCoins + coins);
             }
@@ -258,13 +291,13 @@ public class SQLite implements Database {
 
     @Override
     public void takeCoins(UUID player, Double coins) {
-        try {
+        try (Connection c = ds.getConnection()) {
             double beforeCoins = getCoins(player);
             if (beforeCoins - coins < 0 || beforeCoins == coins) {
-                Utils.generatePreparedStatement(getConnection(), SQLQuery.UPDATE_COINS_ONLINE, 0, player).executeUpdate();
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, 0, player).executeUpdate();
                 CacheManager.updateCoins(player, 0D);
             } else {
-                Utils.generatePreparedStatement(getConnection(), SQLQuery.UPDATE_COINS_ONLINE, beforeCoins - coins, player).executeUpdate();
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, beforeCoins - coins, player).executeUpdate();
                 getCoins(player);
             }
             core.getMethods().callCoinsChangeEvent(player, beforeCoins, beforeCoins - coins);
@@ -277,10 +310,10 @@ public class SQLite implements Database {
 
     @Override
     public void resetCoins(UUID player) {
-        try {
+        try (Connection c = ds.getConnection()) {
             if (isindb(player)) {
                 double oldCoins = getCoins(player);
-                Utils.generatePreparedStatement(getConnection(), SQLQuery.UPDATE_COINS_ONLINE, core.getConfig().getDouble("General.Starting Coins", 0), player).executeUpdate();
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, core.getConfig().getDouble("General.Starting Coins", 0), player).executeUpdate();
                 CacheManager.updateCoins(player, core.getConfig().getDouble("General.Starting Coins"));
                 core.getMethods().callCoinsChangeEvent(player, oldCoins, core.getConfig().getDouble("General.Starting Coins"));
             }
@@ -293,10 +326,10 @@ public class SQLite implements Database {
 
     @Override
     public void setCoins(UUID player, Double coins) {
-        try {
+        try (Connection c = ds.getConnection()) {
             if (isindb(player)) {
                 double oldCoins = getCoins(player);
-                Utils.generatePreparedStatement(getConnection(), SQLQuery.UPDATE_COINS_ONLINE, coins, player).executeUpdate();
+                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, coins, player).executeUpdate();
                 CacheManager.updateCoins(player, coins);
                 core.getMethods().callCoinsChangeEvent(player, oldCoins, coins);
             }
@@ -309,8 +342,7 @@ public class SQLite implements Database {
 
     @Override
     public boolean isindb(UUID player) {
-        try {
-            ResultSet res = Utils.generatePreparedStatement(getConnection(), SQLQuery.SEARCH_USER_ONLINE, player).executeQuery();
+        try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, player).executeQuery()) {
             if (res.next()) {
                 return res.getString("nick") != null;
             }
@@ -325,8 +357,7 @@ public class SQLite implements Database {
     @Override
     public List<String> getTop(int top) {
         List<String> toplist = new ArrayList<>();
-        try {
-            ResultSet res = Utils.generatePreparedStatement(getConnection(), SQLQuery.SELECT_TOP, top).executeQuery();
+        try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SELECT_TOP, top).executeQuery()) {
             while (res.next()) {
                 String playername = res.getString("nick");
                 int coins = (int) res.getDouble("balance");
@@ -343,8 +374,7 @@ public class SQLite implements Database {
     @Override
     public Map<String, Double> getTopPlayers(int top) {
         Map<String, Double> topplayers = new HashMap<>();
-        try {
-            ResultSet res = Utils.generatePreparedStatement(getConnection(), SQLQuery.SELECT_TOP, top).executeQuery();
+        try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SELECT_TOP, top).executeQuery()) {
             while (res.next()) {
                 String playername = res.getString("nick");
                 double coins = res.getDouble("balance");
@@ -360,8 +390,7 @@ public class SQLite implements Database {
 
     @Override
     public String getNick(UUID uuid) {
-        try {
-            ResultSet res = Utils.generatePreparedStatement(getConnection(), SQLQuery.SEARCH_USER_ONLINE, uuid).executeQuery();
+        try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, uuid).executeQuery()) {
             if (res.next()) {
                 return res.getString("nick");
             }
@@ -375,8 +404,7 @@ public class SQLite implements Database {
 
     @Override
     public UUID getUUID(String nick) {
-        try {
-            ResultSet res = Utils.generatePreparedStatement(getConnection(), SQLQuery.SEARCH_USER_OFFLINE, nick).executeQuery();
+        try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, nick).executeQuery()) {
             if (res.next()) {
                 return UUID.fromString(res.getString("uuid"));
             }
@@ -391,8 +419,7 @@ public class SQLite implements Database {
     @Override
     public Map<String, Double> getAllPlayers() {
         Map<String, Double> data = new HashMap<>();
-        try {
-            ResultSet res = getConnection().prepareStatement("SELECT * FROM Data;").executeQuery();
+        try (Connection c = ds.getConnection(); ResultSet res = c.prepareStatement("SELECT * FROM Data;").executeQuery()) {
             while (res.next()) {
                 data.put(res.getString("nick") + "," + res.getString("uuid"), res.getDouble("balance"));
             }
@@ -401,5 +428,10 @@ public class SQLite implements Database {
             core.debug(ex);
         }
         return data;
+    }
+
+    @Override
+    public void shutdown() {
+        ds.close();
     }
 }
