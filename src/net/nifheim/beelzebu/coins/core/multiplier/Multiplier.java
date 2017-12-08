@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import net.nifheim.beelzebu.coins.core.Core;
-import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 
 /**
  * Handle Coins multipliers.
@@ -40,9 +39,9 @@ public final class Multiplier {
     private final String server;
     private String enabler = null;
     private Boolean enabled = false;
-    private Integer amount = 1;
+    private int amount = 1;
     private Long endTime = 0L;
-    private Integer id;
+    private int id;
 
     private Connection getConnection() throws SQLException {
         return core.getDatabase().getConnection();
@@ -58,13 +57,13 @@ public final class Multiplier {
     }
 
     public Multiplier(String server, String enabler, boolean enabled, int amount, long endTime) {
-	this.server = server;
-	this.enabler = enabler;
-	this.enabled = enabled;
-	this.amount = amount;
-	this.id = -1;
-	this.endTime = endTime;
-	checkMultiplierTime(server);
+        this.server = server;
+        this.enabler = enabler;
+        this.enabled = enabled;
+        this.amount = amount;
+        this.id = -1;
+        this.endTime = endTime;
+        checkMultiplierTime(server);
     }
 
     /**
@@ -111,7 +110,7 @@ public final class Multiplier {
      *
      * @return
      */
-    public Integer getAmount() {
+    public int getAmount() {
         return amount;
     }
 
@@ -121,7 +120,7 @@ public final class Multiplier {
      *
      * @param amount The new amount for the multiplier.
      */
-    public void setAmount(Integer amount) {
+    public void setAmount(int amount) {
         if (amount < 2) {
             this.amount = 2;
         } else {
@@ -145,7 +144,7 @@ public final class Multiplier {
      *
      * @return
      */
-    public Integer getID() {
+    public int getID() {
         return id;
     }
 
@@ -196,10 +195,10 @@ public final class Multiplier {
      * @param minutes The time for the multiplier.
      * @deprecated
      * @see
-     * {@link #createMultiplier(java.util.UUID, java.lang.Integer, java.lang.Integer, java.lang.String)}
+     * {@link #createMultiplier(java.util.UUID, java.lang.int, java.lang.int, java.lang.String)}
      */
     @Deprecated
-    public void createMultiplier(UUID uuid, Integer multiplier, Integer minutes) {
+    public void createMultiplier(UUID uuid, int multiplier, int minutes) {
         createMultiplier(uuid, multiplier, minutes, server);
     }
 
@@ -212,7 +211,7 @@ public final class Multiplier {
      * @param server The server to create the multiplier, if is null, we use the
      * server specified in the config.
      */
-    public void createMultiplier(UUID uuid, Integer multiplier, Integer minutes, String server) {
+    public void createMultiplier(UUID uuid, int multiplier, int minutes, String server) {
         try (Connection c = getConnection()) {
             try {
                 c.prepareStatement("INSERT INTO " + prefix + "Multipliers VALUES(NULL, '" + uuid + "', " + multiplier + ", -1, " + minutes + ", 0, " + "'" + (server != null ? server : this.server) + "'" + ", false);").executeUpdate();
@@ -260,7 +259,7 @@ public final class Multiplier {
      * @return <i>true</i> if the multiplier was enabled and <i>false</i> if
      * not.
      */
-    public boolean useMultiplier(final Integer id, final MultiplierType type) {
+    public boolean useMultiplier(final int id, final MultiplierType type) {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
@@ -270,16 +269,17 @@ public final class Multiplier {
                         Long minutes = res.getLong("minutes");
                         Long endtime = System.currentTimeMillis() + (minutes * 60000);
                         c.prepareStatement("UPDATE " + prefix + "Multipliers SET endtime = " + endtime + ", enabled = true WHERE id = " + id + ";").executeUpdate();
+                        enabled = true;
                         amount = getAmount(res.getString("server"));
-                        CacheManager.addMultiplier(res.getString("server"), new Multiplier(res.getString("server")));
-                        core.getMethods().callMultiplierEnableEvent(UUID.fromString(res.getString("uuid")), getDataByID(id));
+                        enabler = core.getNick(UUID.fromString(res.getString("uuid")));
+                        endTime = endtime;
+                        core.updateMultiplier(new Multiplier(res.getString("server")));
                         return true;
                     }
                 } else {
                     res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE server = '" + server + "' ORDER BY queue DESC;").executeQuery();
                     if (res.next()) {
                         c.prepareStatement("UPDATE " + prefix + "Multipliers SET queue = " + (res.getInt("queue") + 1) + " WHERE id = " + id + ";").executeUpdate();
-                        sendMultiplier();
                         return false;
                     }
                 }
@@ -291,8 +291,7 @@ public final class Multiplier {
             }
         } catch (SQLException ex) {
             core.log("&cSomething was wrong when using a multiplier with the id: '" + id + "'");
-            core.debug("The error code is: " + ex.getErrorCode());
-            core.debug(ex.getMessage());
+            core.debug(ex);
         }
         return false;
     }
@@ -393,6 +392,7 @@ public final class Multiplier {
             try {
                 res = c.prepareStatement("SELECT * FROM " + prefix + "Multipliers WHERE enabled = true AND server = '" + server + "';").executeQuery();
                 if (res.next()) {
+                    core.log(core.getNick(UUID.fromString(res.getString("uuid"))));
                     return core.getNick(UUID.fromString(res.getString("uuid")));
                 }
             } finally {
@@ -431,7 +431,7 @@ public final class Multiplier {
         return false;
     }
 
-    private Integer getAmount(String server) {
+    private int getAmount(String server) {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {
@@ -453,7 +453,7 @@ public final class Multiplier {
         return 1;
     }
 
-    private Integer getID(String server) {
+    private int getID(String server) {
         try (Connection c = getConnection()) {
             ResultSet res = null;
             try {

@@ -449,13 +449,15 @@ public class CoinsCommand extends BukkitCommand {
             if (plugin.getConfig().getBoolean("Vault.Use", false)) {
                 new CoinsEconomy(plugin).setup();
             }
-            core.getExecutorManager().clear();
+            core.getExecutorManager().getExecutors().clear();
             plugin.getConfig().getConfigurationSection("Command executor").getKeys(false).forEach((id) -> {
-                core.getExecutorManager().addExecutor(new Executor(id, core.getConfig().getString("Command executor." + id + ".Displayname", id), core.getConfig().getDouble("Command executor." + id + ".Cost", 0), core.getConfig().getStringList("Command executor." + id + ".Command")));
+                core.getExecutorManager().addExecutor(new Executor(id, plugin.getConfig().getString("Command executor." + id + ".Displayname", id), plugin.getConfig().getDouble("Command executor." + id + ".Cost", 0), plugin.getConfig().getStringList("Command executor." + id + ".Command")));
             });
-            PluginMessage pm = new PluginMessage();
-            pm.sendToBungeeCord("Multiplier", "getAllMultipliers");
-            pm.sendToBungeeCord("Coins", "getExecutors");
+            if (core.getConfig().useBungee()) {
+                PluginMessage pm = new PluginMessage();
+                pm.sendToBungeeCord("Multiplier", "getAllMultipliers");
+                pm.sendToBungeeCord("Coins", "getExecutors");
+            }
             sender.sendMessage(core.rep("%prefix% Reloaded config and all loaded messages files. If you want reload the command, you need to restart the server."));
         }
         return true;

@@ -268,34 +268,35 @@ public class Core {
     }
 
     public void updateCache(UUID player, Double coins) {
-        if (!isBungee()) {
-            PluginMessage pm = new PluginMessage();
-            pm.sendToBungeeCord("Update", "updateCache " + player + " " + coins);
-        } else {
+        CacheManager.updateCoins(player, coins);
+        if (isBungee()) {
             ProxyServer.getInstance().getServers().keySet().forEach(server -> {
                 PluginMessageListener pml = new PluginMessageListener();
                 pml.sendToBukkit("Update", Arrays.asList(player + " " + coins), ProxyServer.getInstance().getServerInfo(server), false);
             });
+        } else if (getConfig().useBungee()) {
+            PluginMessage pm = new PluginMessage();
+            pm.sendToBungeeCord("Update", "updateCache " + player + " " + coins);
         }
     }
 
     public void updateMultiplier(Multiplier multiplier) {
+        CacheManager.addMultiplier(multiplier.getServer(), multiplier);
         List<String> message = new ArrayList<>();
         message.add(multiplier.getServer());
         message.add(String.valueOf(multiplier.isEnabled()));
         message.add(multiplier.getEnabler());
         message.add(String.valueOf(multiplier.getAmount()));
         message.add(String.valueOf(System.currentTimeMillis() + multiplier.checkTime()));
-        if (!isBungee()) {
-            PluginMessage pm = new PluginMessage();
-            pm.sendToBungeeCord("Multiplier", message);
-        } else {
+        if (isBungee()) {
             ProxyServer.getInstance().getServers().keySet().forEach(server -> {
                 PluginMessageListener pml = new PluginMessageListener();
                 pml.sendToBukkit("Multiplier", message, ProxyServer.getInstance().getServerInfo(server), false);
             });
+        } else if (getConfig().useBungee()) {
+            PluginMessage pm = new PluginMessage();
+            pm.sendToBungeeCord("Multiplier", message);
         }
-        CacheManager.addMultiplier(multiplier.getServer(), multiplier);
     }
 
     public void reloadMessages() {

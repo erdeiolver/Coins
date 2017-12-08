@@ -108,22 +108,26 @@ public class Main extends JavaPlugin {
     }
 
     private void startTasks() {
-        PluginMessage pmsg = new PluginMessage();
-        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "Coins");
-        Bukkit.getMessenger().registerIncomingPluginChannel(this, "Coins", pmsg);
+        if (core.getConfig().useBungee()) {
+            PluginMessage pmsg = new PluginMessage();
+            Bukkit.getMessenger().registerOutgoingPluginChannel(this, "Coins");
+            Bukkit.getMessenger().registerIncomingPluginChannel(this, "Coins", pmsg);
+            Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
+                pmsg.sendToBungeeCord("Multiplier", "getAllMultipliers");
+                pmsg.sendToBungeeCord("Coins", "getExecutors");
+            }, 20);
+        }
         Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
-            pmsg.sendToBungeeCord("Multiplier", "getAllMultipliers");
-            pmsg.sendToBungeeCord("Coins", "getExecutors");
             Bukkit.getOnlinePlayers().forEach((p) -> {
                 CoinsAPI.createPlayer(p.getName(), p.getUniqueId());
             });
         }, 30);
         core.debug("Starting cache cleanup task");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
-            for (Iterator<UUID> it = CacheManager.getPlayersData().keySet().iterator(); it.hasNext(); ) {
+            for (Iterator<UUID> it = CacheManager.getPlayersData().keySet().iterator(); it.hasNext();) {
                 UUID uuid = it.next();
                 if (!core.getMethods().isOnline(uuid)) {
-		    it.remove();
+                    it.remove();
                     core.debug("Removed '" + uuid + "' from the cache.");
                 }
             }

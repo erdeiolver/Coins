@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.UUID;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.core.Core;
-import net.nifheim.beelzebu.coins.core.utils.CacheManager;
 
 /**
  *
@@ -203,7 +202,6 @@ public class MySQL implements Database {
                 c.close();
                 core.debug("The connection was closed.");
             }
-            CacheManager.updateCoins(uuid, balance);
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the player: " + player + " in the database.");
             core.debug(ex);
@@ -234,7 +232,7 @@ public class MySQL implements Database {
             if (CoinsAPI.isindb(player)) {
                 double oldCoins = getCoins(player);
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, oldCoins + coins, player).executeUpdate();
-                core.updateCache(core.getUUID(player), getCoins(player));
+                core.updateCache(core.getUUID(player), oldCoins + coins);
                 core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, oldCoins + coins);
             }
         } catch (SQLException ex) {
@@ -249,7 +247,6 @@ public class MySQL implements Database {
             double beforeCoins = getCoins(player);
             if ((beforeCoins - coins) < 0 || beforeCoins == coins) {
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, 0, player).executeUpdate();
-                CacheManager.updateCoins(core.getUUID(player), 0D);
                 core.updateCache(core.getUUID(player), 0D);
             } else {
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, beforeCoins - coins, player).executeUpdate();
@@ -268,7 +265,6 @@ public class MySQL implements Database {
             if (CoinsAPI.isindb(player)) {
                 double oldCoins = getCoins(player);
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, core.getConfig().getDouble("General.Starting Coins", 0), player).executeUpdate();
-                CacheManager.updateCoins(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
                 core.updateCache(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
                 core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, core.getConfig().getDouble("General.Starting Coins"));
             }
@@ -284,7 +280,6 @@ public class MySQL implements Database {
             if (CoinsAPI.isindb(player)) {
                 double oldCoins = getCoins(player);
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, coins, player).executeUpdate();
-                CacheManager.updateCoins(core.getUUID(player), coins);
                 core.updateCache(core.getUUID(player), coins);
                 core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, coins);
             }
@@ -331,7 +326,7 @@ public class MySQL implements Database {
             if (CoinsAPI.isindb(player)) {
                 double oldCoins = getCoins(player);
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, oldCoins + coins, player).executeUpdate();
-                core.updateCache(player, getCoins(player));
+                core.updateCache(player, oldCoins + coins);
                 core.getMethods().callCoinsChangeEvent(player, oldCoins, oldCoins + coins);
             }
         } catch (SQLException ex) {
@@ -346,7 +341,6 @@ public class MySQL implements Database {
             double beforeCoins = getCoins(player);
             if ((beforeCoins - coins) < 0 || beforeCoins == coins) {
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, 0, player).executeUpdate();
-                CacheManager.updateCoins(player, 0D);
                 core.updateCache(player, 0D);
             } else {
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, beforeCoins - coins, player).executeUpdate();
@@ -365,7 +359,6 @@ public class MySQL implements Database {
             if (CoinsAPI.isindb(player)) {
                 double oldCoins = getCoins(player);
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, core.getConfig().getDouble("General.Starting Coins", 0), player).executeUpdate();
-                CacheManager.updateCoins(player, core.getConfig().getDouble("General.Starting Coins"));
                 core.updateCache(player, core.getConfig().getDouble("General.Starting Coins"));
                 core.getMethods().callCoinsChangeEvent(player, oldCoins, core.getConfig().getDouble("General.Starting Coins"));
             }
@@ -381,7 +374,6 @@ public class MySQL implements Database {
             if (CoinsAPI.isindb(player)) {
                 double oldCoins = getCoins(player);
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, coins, player).executeUpdate();
-                CacheManager.updateCoins(player, coins);
                 core.updateCache(player, coins);
                 core.getMethods().callCoinsChangeEvent(player, oldCoins, coins);
             }

@@ -46,8 +46,4 @@ public class ExecutorManager {
         }
         return null;
     }
-    
-    public synchronized void clear() {
-        executors.clear();
-    }
 }

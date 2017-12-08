@@ -20,6 +20,7 @@ package net.nifheim.beelzebu.coins.bukkit.listener;
 
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
+import net.nifheim.beelzebu.coins.core.Core;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -41,6 +42,9 @@ public class PlayerJoinListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent e) {
+        if (!Core.getInstance().getConfig().useBungee()) {
+            return;
+        }
         PluginMessage pmsg = new PluginMessage();
         if (first) {
             Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(plugin, () -> {

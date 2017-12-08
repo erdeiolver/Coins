@@ -58,6 +58,7 @@ public class FileManager {
         messagesFiles.put("zh", new File(messagesFolder, "messages_zh.yml"));
         messagesFiles.put("cz", new File(messagesFolder, "messages_cz.yml"));
         messagesFiles.put("hu", new File(messagesFolder, "messages_hu.yml"));
+        messagesFiles.put("ru", new File(messagesFolder, "messages_ru.yml"));
         configFile = new File(core.getDataFolder(), "config.yml");
         logsFolder = new File(core.getDataFolder(), "logs");
     }

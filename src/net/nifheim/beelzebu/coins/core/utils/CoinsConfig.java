@@ -22,6 +22,7 @@ package net.nifheim.beelzebu.coins.core.utils;
 import java.util.HashSet;
 import java.util.Set;
 import net.nifheim.beelzebu.coins.core.executor.Executor;
+import org.bukkit.Bukkit;
 
 /**
  *
@@ -44,5 +45,13 @@ public abstract class CoinsConfig implements IConfiguration {
     // #EasterEgg
     public boolean vaultMultipliers() {
         return getBoolean("Vault.Use Multipliers", false);
+    }
+
+    public boolean useBungee() {
+        try {
+            return Bukkit.spigot().getConfig().getBoolean("settings.bungeecord");
+        } catch (Exception ex) {
+            return false;
+        }
     }
 }

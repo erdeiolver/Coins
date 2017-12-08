@@ -1,4 +1,4 @@
-/**
+    /**
  * This file is part of Coins
  *
  * Copyright (C) 2017 Beelzebu
@@ -24,7 +24,6 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
@@ -93,7 +92,7 @@ public class PluginMessage implements PluginMessageListener {
                     multiplierData.add(in.readUTF());
                 }
                 Multiplier multiplier = new Multiplier(multiplierData.get(0), multiplierData.get(2), Boolean.valueOf(multiplierData.get(1)), Integer.valueOf(multiplierData.get(3)), Long.parseLong(multiplierData.get(4)));
-                if (multiplier.isEnabled() && !multiplier.getEnabler().equals(CoinsAPI.getMultiplier(multiplier.getServer()).getEnabler()) && !Objects.equals(multiplier.getAmount(), CoinsAPI.getMultiplier(multiplier.getServer()).getAmount())) {
+                if (multiplier.isEnabled() && multiplier.getID() != CoinsAPI.getMultiplier().getID()) {
                     CacheManager.addMultiplier(multiplierData.get(0), multiplier);
                     core.getMethods().callMultiplierEnableEvent(core.getUUID(multiplier.getEnabler()), multiplier.getData());
                 }
