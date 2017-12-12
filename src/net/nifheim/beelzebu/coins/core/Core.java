@@ -184,6 +184,9 @@ public class Core {
     }
 
     public String rep(String msg) {
+	if (msg == null) {
+	    return "";
+	}
         String message = msg;
         if (getConfig() != null) {
             message = message.replaceAll("%prefix%", getConfig().getString("Prefix"));
@@ -252,8 +255,7 @@ public class Core {
         try {
             return rep(getMessages(lang).getString(path));
         } catch (NullPointerException ex) {
-            mi.log("The string " + path + " does not exists in the messages_" + lang.split("_")[0] + ".yml file, please add this manually.");
-            mi.log("If you belive that this is an error please contact to the developer.");
+            mi.log("The string " + path + " does not exists in the messages_" + lang.split("_")[0] + ".yml file.");
             debug(ex);
             return rep(getMessages("").getString(path));
         }

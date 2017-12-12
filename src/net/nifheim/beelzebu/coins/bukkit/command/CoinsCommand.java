@@ -133,9 +133,13 @@ public class CoinsCommand extends BukkitCommand {
                     if (CoinsAPI.getCoins(((Player) sender).getUniqueId()) >= coins) {
                         if (target != null) {
                             CoinsAPI.takeCoins(sender.getName(), coins);
-                            sender.sendMessage(core.getString("Coins.Pay", lang).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%target%", target.getName()));
+                            if (!core.getString("Coins.Pay", lang).equals("")) {
+                                sender.sendMessage(core.getString("Coins.Pay", lang).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%target%", target.getName()));
+                            }
                             CoinsAPI.addCoins(args[1], coins, false);
-                            target.sendMessage(core.getString("Coins.Pay target", target.spigot().getLocale()).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%from%", sender.getName()));
+                            if (!core.getString("Coins.Pay target", target.spigot().getLocale()).equals("")) {
+                                target.sendMessage(core.getString("Coins.Pay target", target.spigot().getLocale()).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%from%", sender.getName()));
+                            }
                         } else {
                             sender.sendMessage(core.getString("Errors.Unknow Player", lang));
                         }
@@ -177,10 +181,14 @@ public class CoinsCommand extends BukkitCommand {
             }
             if (core.isOnline(core.getUUID(args[1]))) {
                 Player target = Bukkit.getPlayer(core.getUUID(args[1]));
-                target.sendMessage(core.getString("Coins.Give target", target.spigot().getLocale()).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%multiplier_format%", multiplier));
+                if (!core.getString("Coins.Give target", target.spigot().getLocale()).equals("")) {
+                    target.sendMessage(core.getString("Coins.Give target", target.spigot().getLocale()).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%multiplier_format%", multiplier));
+                }
             }
             CoinsAPI.addCoins(args[1], coins, multiply);
-            sender.sendMessage(core.getString("Coins.Give", lang).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%target%", args[1]));
+            if (!core.getString("Coins.Give", lang).equals("")) {
+                sender.sendMessage(core.getString("Coins.Give", lang).replaceAll("%coins%", String.valueOf(coins)).replaceAll("%target%", args[1]));
+            }
         } else {
             sender.sendMessage(core.getString("Errors.Unknow command", lang));
         }
@@ -203,7 +211,9 @@ public class CoinsCommand extends BukkitCommand {
                     } else if (CoinsAPI.getCoins(args[1]) >= coins) {
                         if (CoinsAPI.isindb(args[1])) {
                             CoinsAPI.takeCoins(args[1], coins);
-                            sender.sendMessage(core.getString("Coins.Take target", lang).replaceAll("%coins%", String.valueOf(finalcoins)).replaceAll("%target%", args[1]));
+                            if (!core.getString("Coins.Take", lang).equals("")) {
+                                sender.sendMessage(core.getString("Coins.Take", lang).replaceAll("%newcoins%", String.valueOf(finalcoins)).replaceAll("%target%", args[1]));
+                            }
                         } else {
                             sender.sendMessage(core.getString("Errors.Unknow player", lang).replaceAll("%target%", args[1]));
                         }
@@ -214,8 +224,12 @@ public class CoinsCommand extends BukkitCommand {
                     }
                     if (CoinsAPI.getCoins(target.getUniqueId()) >= coins) {
                         CoinsAPI.takeCoins(args[1], coins);
-                        sender.sendMessage(core.getString("Coins.Take", lang).replaceAll("%target%", target.getName()).replaceAll("%newcoins%", String.valueOf(finalcoins)));
-                        target.sendMessage(core.getString("Coins.Take target", target.spigot().getLocale()).replaceAll("%coins%", String.valueOf(finalcoins)));
+                        if (!core.getString("Coins.Take", lang).equals("")) {
+                            sender.sendMessage(core.getString("Coins.Take", lang).replaceAll("%target%", target.getName()).replaceAll("%newcoins%", String.valueOf(finalcoins)));
+                        }
+                        if (!core.getString("Coins.Take target", target.spigot().getLocale()).equals("")) {
+                            target.sendMessage(core.getString("Coins.Take target", target.spigot().getLocale()).replaceAll("%coins%", String.valueOf(finalcoins)));
+                        }
                     }
                 }
             }
@@ -232,17 +246,20 @@ public class CoinsCommand extends BukkitCommand {
             sender.sendMessage(core.getString("Help.Reset Usage", lang));
             return true;
         }
-        Player target = Bukkit.getPlayer(args[1]);
-        if (target == null) {
-            if (CoinsAPI.isindb(args[1])) {
-                CoinsAPI.resetCoins(args[1]);
-                sender.sendMessage(core.getString("Coins.Reset", lang).replaceAll("%target%", args[1]));
-            } else {
-                sender.sendMessage(core.getString("Errors.Unknow player", lang).replaceAll("%target%", args[1]));
-            }
-        } else if (target.isOnline()) {
+        if (CoinsAPI.isindb(args[1])) {
             CoinsAPI.resetCoins(args[1]);
-            sender.sendMessage(core.getString("Coins.Reset", lang).replaceAll("%target%", target.getName()));
+        } else {
+            sender.sendMessage(core.getString("Errors.Unknow player", lang).replaceAll("%target%", args[1]));
+            return true;
+        }
+
+        Player target = Bukkit.getPlayer(args[1]);
+        if (!core.getString("Coins.Reset", lang).equals("")) {
+            if (!core.getString("Coins.Reset", lang).equals("")) {
+                sender.sendMessage(core.getString("Coins.Reset", lang).replaceAll("%target%", args[1]));
+            }
+        }
+        if (target != null && !core.getString("Coins.Reset target", target.spigot().getLocale()).equals("")) {
             target.sendMessage(core.getString("Coins.Reset target", target.spigot().getLocale()));
         }
         return true;
@@ -254,19 +271,19 @@ public class CoinsCommand extends BukkitCommand {
             return true;
         }
         if (args.length == 3) {
-            Player target = Bukkit.getPlayer(args[1]);
             if (args[0].equalsIgnoreCase("set")) {
                 double coins = Double.parseDouble(args[2]);
-                if (target == null) {
-                    if (CoinsAPI.isindb(args[1])) {
-                        CoinsAPI.setCoins(args[1], coins);
-                        sender.sendMessage(core.getString("Coins.Set", lang).replaceAll("%target%", args[1]).replaceAll("%coins%", String.valueOf(coins)));
-                    } else {
-                        sender.sendMessage(core.getString("Errors.Unknow player", lang).replaceAll("%target%", args[1]));
-                    }
-                } else if (target.isOnline()) {
+                if (CoinsAPI.isindb(args[1])) {
                     CoinsAPI.setCoins(args[1], coins);
-                    sender.sendMessage(core.getString("Coins.Set", lang).replaceAll("%target%", target.getName()).replaceAll("%coins%", String.valueOf(coins)));
+                    if (!core.getString("Coins.Set", lang).equals("")) {
+                        sender.sendMessage(core.getString("Coins.Set", lang).replaceAll("%target%", args[1]).replaceAll("%coins%", String.valueOf(coins)));
+                    }
+                } else {
+                    sender.sendMessage(core.getString("Errors.Unknow player", lang).replaceAll("%target%", args[1]));
+                    return true;
+                }
+                Player target = Bukkit.getPlayer(args[1]);
+                if (target != null && !core.getString("Coins.Set target", target.spigot().getLocale()).equals("")) {
                     target.sendMessage(core.getString("Coins.Set target", target.spigot().getLocale()).replaceAll("%coins%", args[2]));
                 }
             }
