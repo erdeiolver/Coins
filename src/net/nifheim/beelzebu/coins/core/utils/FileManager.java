@@ -82,7 +82,7 @@ public class FileManager {
         try {
             List<String> lines = FileUtils.readLines(configFile, Charsets.UTF_8);
             int index;
-            if (core.getConfig().getInt("version") == 11) {
+            if (core.getConfig().getInt("version") == 12) {
                 core.log("The config file is up to date.");
             } else {
                 switch (core.getConfig().getInt("version")) {
@@ -128,6 +128,18 @@ public class FileManager {
                         index = lines.indexOf("version: 10");
                         lines.set(index, "version: 11");
                         core.log("Configuraton file updated to v11");
+                        break;
+                    case 11:
+                        index = lines.indexOf("  Executor Sign:") + 5;
+                        lines.addAll(index, Arrays.asList(
+                                "  # If you want the users to be created when they join to the server, enable this,",
+                                "  # otherwise the players will be created when his coins are modified or consulted",
+                                "  # to the database for the first time (recommended for big servers).",
+                                "  Create Join: false"
+                        ));
+                        index = lines.indexOf("version: 11");
+                        lines.set(index, "version: 12");
+                        core.log("Configuration file updated to v12");
                         break;
                     default:
                         core.log("Seems that you hava a too old version of the config or you canged this to another number >:(");

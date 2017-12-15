@@ -58,6 +58,7 @@ public interface IMethods {
 
     Boolean isOnline(UUID uuid);
 
+    Boolean isOnline(String name);
     /**
      * Get the UUID of a online player by his name.
      *

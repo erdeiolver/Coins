@@ -18,6 +18,7 @@
  */
 package net.nifheim.beelzebu.coins.bukkit.listener;
 
+import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
 import net.nifheim.beelzebu.coins.core.Core;
@@ -34,6 +35,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 public class PlayerJoinListener implements Listener {
 
     private final Main plugin;
+    private final Core core = Core.getInstance();
     private static boolean first = true;
 
     public PlayerJoinListener(Main main) {
@@ -42,7 +44,10 @@ public class PlayerJoinListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent e) {
-        if (!Core.getInstance().getConfig().useBungee()) {
+        if (core.getConfig().getBoolean("General.Create Join", false)) {
+            CoinsAPI.createPlayer(e.getPlayer().getName(), e.getPlayer().getUniqueId());
+        }
+        if (!core.getConfig().useBungee()) {
             return;
         }
         PluginMessage pmsg = new PluginMessage();

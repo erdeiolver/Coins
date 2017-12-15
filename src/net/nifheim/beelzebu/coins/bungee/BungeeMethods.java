@@ -116,7 +116,15 @@ public class BungeeMethods implements IMethods {
         if (plugin.useRedis()) {
             return RedisBungee.getApi().isPlayerOnline(uuid);
         }
-        return ProxyServer.getInstance().getPlayer(uuid).isConnected();
+        return ProxyServer.getInstance().getPlayer(uuid) != null && ProxyServer.getInstance().getPlayer(uuid).isConnected();
+    }
+    
+        @Override
+    public Boolean isOnline(String name) {
+        if (plugin.useRedis()) {
+            return RedisBungee.getApi().isPlayerOnline(RedisBungee.getApi().getUuidFromName(name));
+        }
+        return ProxyServer.getInstance().getPlayer(name) != null && ProxyServer.getInstance().getPlayer(name).isConnected();
     }
 
     @Override

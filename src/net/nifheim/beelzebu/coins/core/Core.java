@@ -159,8 +159,12 @@ public class Core {
         }
     }
 
-    public Boolean isOnline(UUID uuid) {
+    public boolean isOnline(UUID uuid) {
         return mi.isOnline(uuid);
+    }
+    
+    public boolean isOnline(String name) {
+        return mi.isOnline(name);
     }
 
     public String getNick(UUID uuid) {

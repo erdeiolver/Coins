@@ -165,10 +165,13 @@ public class SQLite implements Database {
             if (CoinsAPI.isindb(player)) {
                 res.next();
                 coins = res.getDouble("balance");
-            } else {
+            } else if (core.isOnline(player)) {
                 coins = core.getConfig().getDouble("General.Starting Coins", 0);
-                createPlayer(c, player, core.getUUID(player), coins);
+            } else {
+                core.debug("The user '" + player + "' isn't in the database or online.");
+                return coins;
             }
+            createPlayer(c, player, core.getUUID(player), coins);
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the data for player: " + player);
             core.debug(ex);
@@ -179,8 +182,8 @@ public class SQLite implements Database {
     @Override
     public void addCoins(String player, Double coins) {
         try (Connection c = ds.getConnection()) {
-            if (CoinsAPI.isindb(player)) {
-                double oldCoins = getCoins(player);
+            double oldCoins = CoinsAPI.getCoins(player);
+            if (oldCoins > -1) {
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, oldCoins + coins, player).executeUpdate();
                 core.updateCache(core.getUUID(player), oldCoins + coins);
                 core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, oldCoins + coins);
@@ -194,15 +197,17 @@ public class SQLite implements Database {
     @Override
     public void takeCoins(String player, Double coins) {
         try (Connection c = ds.getConnection()) {
-            double beforeCoins = getCoins(player);
-            if ((beforeCoins - coins) < 0 || beforeCoins == coins) {
-                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, 0, player).executeUpdate();
-                core.updateCache(core.getUUID(player), 0D);
-            } else {
-                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, beforeCoins - coins, player).executeUpdate();
-                core.updateCache(core.getUUID(player), getCoins(player));
+            double beforeCoins = CoinsAPI.getCoins(player);
+            if (beforeCoins > -1) {
+                if ((beforeCoins - coins) < 0 || beforeCoins == coins) {
+                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, 0, player).executeUpdate();
+                    core.updateCache(core.getUUID(player), 0D);
+                } else {
+                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, beforeCoins - coins, player).executeUpdate();
+                    core.updateCache(core.getUUID(player), getCoins(player));
+                }
+                core.getMethods().callCoinsChangeEvent(core.getUUID(player), beforeCoins, beforeCoins - coins);
             }
-            core.getMethods().callCoinsChangeEvent(core.getUUID(player), beforeCoins, beforeCoins - coins);
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred taking coins to the player: " + player);
             core.debug(ex);
@@ -212,8 +217,8 @@ public class SQLite implements Database {
     @Override
     public void resetCoins(String player) {
         try (Connection c = ds.getConnection()) {
-            if (CoinsAPI.isindb(player)) {
-                double oldCoins = getCoins(player);
+            double oldCoins = CoinsAPI.getCoins(player);
+            if (oldCoins > -1) {
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, core.getConfig().getDouble("General.Starting Coins", 0), player).executeUpdate();
                 core.updateCache(core.getUUID(player), core.getConfig().getDouble("General.Starting Coins"));
                 core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, core.getConfig().getDouble("General.Starting Coins"));
@@ -227,8 +232,8 @@ public class SQLite implements Database {
     @Override
     public void setCoins(String player, Double coins) {
         try (Connection c = ds.getConnection()) {
-            if (CoinsAPI.isindb(player)) {
-                double oldCoins = getCoins(player);
+            double oldCoins = CoinsAPI.getCoins(player);
+            if (oldCoins > -1) {
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_OFFLINE, coins, player).executeUpdate();
                 core.updateCache(core.getUUID(player), coins);
                 core.getMethods().callCoinsChangeEvent(core.getUUID(player), oldCoins, coins);
@@ -259,10 +264,13 @@ public class SQLite implements Database {
             if (CoinsAPI.isindb(player)) {
                 res.next();
                 coins = res.getDouble("balance");
-            } else {
+            } else if (core.isOnline(player)) {
                 coins = core.getConfig().getDouble("General.Starting Coins", 0);
-                createPlayer(c, core.getNick(player), player, coins);
+            } else {
+                core.debug("The user '" + player + "' isn't in the database or online.");
+                return coins;
             }
+            createPlayer(c, core.getNick(player), player, coins);
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred creating the data for player: " + core.getNick(player));
             core.debug(ex);
@@ -273,8 +281,8 @@ public class SQLite implements Database {
     @Override
     public void addCoins(UUID player, Double coins) {
         try (Connection c = ds.getConnection()) {
-            if (CoinsAPI.isindb(player)) {
-                double oldCoins = getCoins(player);
+            double oldCoins = CoinsAPI.getCoins(player);
+            if (oldCoins > -1) {
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, oldCoins + coins, player).executeUpdate();
                 core.updateCache(player, oldCoins + coins);
                 core.getMethods().callCoinsChangeEvent(player, oldCoins, oldCoins + coins);
@@ -288,15 +296,17 @@ public class SQLite implements Database {
     @Override
     public void takeCoins(UUID player, Double coins) {
         try (Connection c = ds.getConnection()) {
-            double beforeCoins = getCoins(player);
-            if ((beforeCoins - coins) < 0 || beforeCoins == coins) {
-                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, 0, player).executeUpdate();
-                core.updateCache(player, 0D);
-            } else {
-                Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, beforeCoins - coins, player).executeUpdate();
-                core.updateCache(player, getCoins(player));
+            double beforeCoins = CoinsAPI.getCoins(player);
+            if (beforeCoins > -1) {
+                if ((beforeCoins - coins) < 0 || beforeCoins == coins) {
+                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, 0, player).executeUpdate();
+                    core.updateCache(player, 0D);
+                } else {
+                    Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, beforeCoins - coins, player).executeUpdate();
+                    core.updateCache(player, getCoins(player));
+                }
+                core.getMethods().callCoinsChangeEvent(player, beforeCoins, beforeCoins - coins);
             }
-            core.getMethods().callCoinsChangeEvent(player, beforeCoins, beforeCoins - coins);
         } catch (SQLException ex) {
             core.log("&cAn internal error has occurred taking coins to the player: " + core.getNick(player));
             core.debug(ex);
@@ -306,8 +316,8 @@ public class SQLite implements Database {
     @Override
     public void resetCoins(UUID player) {
         try (Connection c = ds.getConnection()) {
-            if (CoinsAPI.isindb(player)) {
-                double oldCoins = getCoins(player);
+            double oldCoins = CoinsAPI.getCoins(player);
+            if (oldCoins > -1) {
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, core.getConfig().getDouble("General.Starting Coins", 0), player).executeUpdate();
                 core.updateCache(player, core.getConfig().getDouble("General.Starting Coins"));
                 core.getMethods().callCoinsChangeEvent(player, oldCoins, core.getConfig().getDouble("General.Starting Coins"));
@@ -321,8 +331,8 @@ public class SQLite implements Database {
     @Override
     public void setCoins(UUID player, Double coins) {
         try (Connection c = ds.getConnection()) {
-            if (CoinsAPI.isindb(player)) {
-                double oldCoins = getCoins(player);
+            double oldCoins = CoinsAPI.getCoins(player);
+            if (oldCoins > -1) {
                 Utils.generatePreparedStatement(c, SQLQuery.UPDATE_COINS_ONLINE, coins, player).executeUpdate();
                 core.updateCache(player, coins);
                 core.getMethods().callCoinsChangeEvent(player, oldCoins, coins);

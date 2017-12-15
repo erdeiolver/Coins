@@ -84,12 +84,15 @@ public interface Database {
             return map.entrySet().stream().sorted(Map.Entry.comparingByValue(Collections.reverseOrder())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
         }
         
-        static PreparedStatement generatePreparedStatement(Connection c, SQLQuery query, Object... parameters) throws SQLException {
+        public static PreparedStatement generatePreparedStatement(Connection c, SQLQuery query, Object... parameters) throws SQLException {
             PreparedStatement ps = c.prepareStatement(query.name);
             try {
                 if (parameters.length > 0) {
                     for (int i = 1; i <= parameters.length; i++) {
                         Object parameter = parameters[i - 1];
+                        if (parameter == null) {
+                            throw new IllegalArgumentException("The parameter can't be null.");
+                        }
                         if (parameter instanceof String) {
                             ps.setString(i, parameter.toString());
                         } else if (parameter instanceof UUID) {

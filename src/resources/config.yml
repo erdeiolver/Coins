@@ -3,7 +3,7 @@
 # the official github repo https://github.com/Beelzebu/Coins/issues/
 
 # The version of the config, don't touch!
-version: 11
+version: 12
 
 # This is the prefix used in all the messages.
 Prefix: '&c&lCoins &6&l>&7'
@@ -60,6 +60,10 @@ General:
     '2': '%executor_displayname%'
     '3': '%ececutor_cost%'
     '4': ''
+  # If you want the users to be created when they join to the server, enable this,
+  # otherwise the players will be created when his coins are modified or consulted
+  # to the database for the first time (recommended for big servers).
+  Create Join: false
 
 # Here you can define a cost to use a specific command.
 Command Cost:
