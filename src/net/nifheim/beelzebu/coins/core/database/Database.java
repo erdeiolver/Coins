@@ -73,9 +73,9 @@ public interface Database {
     String getNick(UUID uuid);
 
     UUID getUUID(String nick);
-    
+
     Map<String, Double> getAllPlayers();
-    
+
     void shutdown();
 
     class Utils {
@@ -83,7 +83,7 @@ public interface Database {
         static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
             return map.entrySet().stream().sorted(Map.Entry.comparingByValue(Collections.reverseOrder())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
         }
-        
+
         public static PreparedStatement generatePreparedStatement(Connection c, SQLQuery query, Object... parameters) throws SQLException {
             PreparedStatement ps = c.prepareStatement(query.name);
             try {

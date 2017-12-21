@@ -162,7 +162,7 @@ public class Core {
     public boolean isOnline(UUID uuid) {
         return mi.isOnline(uuid);
     }
-    
+
     public boolean isOnline(String name) {
         return mi.isOnline(name);
     }
@@ -188,9 +188,9 @@ public class Core {
     }
 
     public String rep(String msg) {
-	if (msg == null) {
-	    return "";
-	}
+        if (msg == null) {
+            return "";
+        }
         String message = msg;
         if (getConfig() != null) {
             message = message.replaceAll("%prefix%", getConfig().getString("Prefix"));

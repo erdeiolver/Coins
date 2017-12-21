@@ -52,6 +52,13 @@ public class Main extends JavaPlugin {
         instance = this;
         core.setup(new BukkitMethods());
         DependencyManager.loadAllDependencies();
+        if (getConfig().getBoolean("Vault.Use", false)) {
+            if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
+                new CoinsEconomy(this).setup();
+            } else {
+                core.log("You enabled Vault in the config, but the plugin Vault can't be found.");
+            }
+        }
     }
 
     @Override

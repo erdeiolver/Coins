@@ -1,4 +1,4 @@
-    /**
+/**
  * This file is part of Coins
  *
  * Copyright (C) 2017 Beelzebu

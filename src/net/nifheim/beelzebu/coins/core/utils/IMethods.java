@@ -31,7 +31,7 @@ import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
 public interface IMethods {
 
     Object getPlugin();
-    
+
     CoinsConfig getConfig();
 
     MessagesManager getMessages(String lang);
@@ -59,6 +59,7 @@ public interface IMethods {
     Boolean isOnline(UUID uuid);
 
     Boolean isOnline(String name);
+
     /**
      * Get the UUID of a online player by his name.
      *
@@ -76,10 +77,10 @@ public interface IMethods {
      * @throws NullPointerException if the player with that uuid is offline.
      */
     String getName(UUID uuid) throws NullPointerException;
-    
+
     void callCoinsChangeEvent(UUID uuid, double oldCoins, double newCoins);
-    
+
     void callMultiplierEnableEvent(UUID uuid, MultiplierData multiplierData);
-    
+
     List<String> getPermissions(UUID uuid);
 }

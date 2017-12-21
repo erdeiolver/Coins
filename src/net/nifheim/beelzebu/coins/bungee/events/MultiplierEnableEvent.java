@@ -39,23 +39,23 @@ public class MultiplierEnableEvent extends Event {
     public String getEnabler() {
         return data.getEnabler();
     }
-    
+
     public UUID getEnablerUUID() {
         return enabler;
     }
-    
+
     public MultiplierData getData() {
         return data;
     }
-    
+
     public int getID() {
         return data.getID();
     }
-    
+
     public int getAmount() {
         return data.getAmount();
     }
-    
+
     public int getMinutes() {
         return data.getMinutes();
     }

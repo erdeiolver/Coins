@@ -117,7 +117,7 @@ public abstract class BaseGUI {
                 meta.setDisplayName(core.rep(config.getString(path + ".Name")));
             }
             if (data.equals("Lore")) {
-                meta.setLore(core.rep(config.getStringList(path  + ".Lore")));
+                meta.setLore(core.rep(config.getStringList(path + ".Lore")));
             }
             if (data.equals("Amount")) {
                 is.setAmount(config.getInt(path + ".Amount"));
