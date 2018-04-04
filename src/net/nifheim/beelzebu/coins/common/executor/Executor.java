@@ -19,38 +19,19 @@
 package net.nifheim.beelzebu.coins.common.executor;
 
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  *
  * @author Beelzebu
  */
+@Getter
+@AllArgsConstructor
 public class Executor {
 
     private final String ID;
     private final String displayName;
     private final double cost;
     private final List<String> commands;
-
-    public Executor(String i, String d, double c, List<String> cmds) {
-        ID = i;
-        displayName = d;
-        cost = c;
-        commands = cmds;
-    }
-
-    public String getID() {
-        return ID;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public Double getCost() {
-        return cost;
-    }
-
-    public List<String> getCommands() {
-        return commands;
-    }
 }

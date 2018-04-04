@@ -21,7 +21,7 @@ package net.nifheim.beelzebu.coins.bukkit.listener;
 import java.io.File;
 import java.io.IOException;
 import net.nifheim.beelzebu.coins.CoinsAPI;
-import net.nifheim.beelzebu.coins.bukkit.utils.LocationSerializer;
+import net.nifheim.beelzebu.coins.bukkit.utils.LocationUtils;
 import net.nifheim.beelzebu.coins.common.CoinsCore;
 import net.nifheim.beelzebu.coins.common.executor.Executor;
 import org.bukkit.Bukkit;
@@ -66,21 +66,27 @@ public class SignListener implements Listener {
             Executor ex = core.getExecutorManager().getExecutor(e.getLine(1));
             if (ex != null) {
                 int id = 0;
-                id = signs.getKeys(false).stream().map((_item) -> 1).reduce(id, Integer::sum);
-                signs.set(id + ".Location", LocationSerializer.locationToString(e.getBlock().getLocation()));
+                id = signs.getKeys(false).stream().map(i -> 1).reduce(id, Integer::sum);
+                signs.set(id + ".Location", LocationUtils.locationToString(e.getBlock().getLocation()));
                 signs.set(id + ".Executor", e.getLine(1));
                 try {
                     signs.save(signsFile);
-                    e.setLine(1, rep(core.getConfig().getString("General.Executor Sign.2"), ex));
-                    e.setLine(2, rep(core.getConfig().getString("General.Executor Sign.3"), ex));
-                    e.setLine(3, rep(core.getConfig().getString("General.Executor Sign.4"), ex));
+                    if (core.getConfig().getConfigurationSection("Command executor." + ex.getID() + ".Executor Sign") != null) {
+                        e.setLine(1, rep(core.getConfig().getString("Command executor." + ex.getID() + ".Executor Sign.2"), ex));
+                        e.setLine(2, rep(core.getConfig().getString("Command executor." + ex.getID() + ".Executor Sign.3"), ex));
+                        e.setLine(3, rep(core.getConfig().getString("Command executor." + ex.getID() + ".Executor Sign.4"), ex));
+                    } else {
+                        e.setLine(1, rep(core.getConfig().getString("General.Executor Sign.2"), ex));
+                        e.setLine(2, rep(core.getConfig().getString("General.Executor Sign.3"), ex));
+                        e.setLine(3, rep(core.getConfig().getString("General.Executor Sign.4"), ex));
+                    }
                 } catch (IOException ex1) {
                     core.log("An error has ocurred while saving the signs.yml file");
                     core.log(ex1.getMessage());
                     e.getPlayer().sendMessage(core.rep("%prefix% An error has ocurred while saving the signs.yml file, please check the console"));
                 }
             } else {
-                e.setLine(1, "Unknow Executor");
+                e.setLine(1, "Unknown Executor");
                 e.setLine(2, "");
                 e.setLine(3, "");
             }
@@ -91,11 +97,11 @@ public class SignListener implements Listener {
     public void onSignBreak(BlockBreakEvent e) {
         if (e.getBlock().getState() instanceof Sign) {
             Sign sign = (Sign) e.getBlock().getState();
-            if (sign.getLine(0).equals(core.rep(core.getConfig().getString("General.Executor Sign.1"))) && !e.getPlayer().hasPermission("coins.admin")) {
+            if ((sign.getLine(0).equals(core.rep(core.getConfig().getString("General.Executor Sign.1"))) || sign.getLine(0).equals(core.rep(core.getConfig().getString("General.Executor Sign.1")))) && !e.getPlayer().hasPermission("coins.admin")) {
                 e.setCancelled(true);
             } else {
                 for (String id : signs.getKeys(false)) {
-                    if (signs.getString(id + ".Location").equals(LocationSerializer.locationToString(e.getBlock().getLocation()))) {
+                    if (signs.getString(id + ".Location").equals(LocationUtils.locationToString(e.getBlock().getLocation()))) {
                         signs.set(id, null);
                         try {
                             signs.save(signsFile);
@@ -118,7 +124,7 @@ public class SignListener implements Listener {
         if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock().getState() instanceof Sign) {
             Player p = e.getPlayer();
             for (String id : signs.getKeys(false)) {
-                if (signs.getString(id + ".Location").equals(LocationSerializer.locationToString(e.getClickedBlock().getLocation()))) {
+                if (signs.getString(id + ".Location").equals(LocationUtils.locationToString(e.getClickedBlock().getLocation()))) {
                     Executor ex = core.getExecutorManager().getExecutor(signs.getString(id + ".Executor"));
                     if (ex == null) {
                         p.sendMessage(core.getString("Errors.No Execute", p.spigot().getLocale()));
@@ -154,8 +160,6 @@ public class SignListener implements Listener {
     }
 
     private String rep(String str, Executor ex) {
-        return core.rep(str)
-                .replaceAll("%executor_displayname%", ex.getDisplayName())
-                .replaceAll("%executor_cost%", String.valueOf(ex.getCost()));
+        return core.rep(str).replaceAll("%executor_displayname%", ex.getDisplayName()).replaceAll("%executor_cost%", String.valueOf(ex.getCost()));
     }
 }

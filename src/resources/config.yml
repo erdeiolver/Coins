@@ -3,7 +3,7 @@
 # the official github repo https://github.com/Beelzebu/Coins/issues/
 
 # The version of the config, don't touch!
-version: 12
+version: 13
 
 # This is the prefix used in all the messages.
 Prefix: '&c&lCoins &6&l>&7'
@@ -58,7 +58,7 @@ General:
   Executor Sign:
     '1': '&c&lCoins'
     '2': '%executor_displayname%'
-    '3': '%ececutor_cost%'
+    '3': '%executor_cost%'
     '4': ''
   # If you want the users to be created when they join to the server, enable this,
   # otherwise the players will be created when his coins are modified or consulted
@@ -107,6 +107,18 @@ Command executor:
     - 'crate givekey %player% 1 normal'
     - 'message:Here are your key!'
     Cost: 2
+  # This example executor allows you to define every line of the executor sign only
+  # for this executor.
+  sign2:
+    Executor Sign: # The first line must be the same that above.
+      '2': '&lVIP4'
+      '3': '10 days'
+      '4': '%executor_cost%'
+    Command:
+    - 'lp user %player% parent add vip4 10d'
+    - 'message:Here is your VIP for 10 days, enjoy! :D'
+    Cost: 500
+
 Multipliers:
   # Here you can configure some aspects of the GUI of multipliers
   GUI:
@@ -125,8 +137,8 @@ Multipliers:
       Sound: 'ENTITY_PLAYER_LEVELUP'
       Pitch: '2'
       Fail:
-    Sound: 'ENTITY_VILLAGER_NO'
-    Pitch: '1'
+        Sound: 'ENTITY_VILLAGER_NO'
+        Pitch: '1'
   # This is the server identifier, is used only if you have MySQL enabled, when a player enables a multiplier in
   # this server, this is also enabled in all the other servers that has this identifier.
   Server: 'default'

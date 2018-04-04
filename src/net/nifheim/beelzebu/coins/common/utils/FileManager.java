@@ -82,23 +82,10 @@ public class FileManager {
         try {
             List<String> lines = FileUtils.readLines(configFile, Charsets.UTF_8);
             int index;
-            if (core.getConfig().getInt("version") == 12) {
+            if (core.getConfig().getInt("version") == 13) {
                 core.log("The config file is up to date.");
             } else {
                 switch (core.getConfig().getInt("version")) {
-                    case 8:
-                        index = lines.indexOf("  Purge:") + 5;
-                        lines.addAll(index, Arrays.asList(
-                                "  Executor Sign:",
-                                "    1: '&c&lCoins'",
-                                "    2: '%executor_displayname%'",
-                                "    3: '%ececutor_cost%'",
-                                "    4: ''"
-                        ));
-                        index = lines.indexOf("version: 8");
-                        lines.set(index, "version: 9");
-                        core.log("Configuration file updated to v9");
-                        break;
                     case 9:
                         index = lines.indexOf("MySQL:") - 2;
                         lines.addAll(index, Arrays.asList(
@@ -140,6 +127,11 @@ public class FileManager {
                         index = lines.indexOf("version: 11");
                         lines.set(index, "version: 12");
                         core.log("Configuration file updated to v12");
+                        break;
+                    case 12:
+                        index = lines.indexOf("version: 12");
+                        lines.set(index, "version: 13");
+                        core.log("Configuration file updated to v13");
                         break;
                     default:
                         core.log("Seems that you hava a too old version of the config or you canged this to another number >:(");
@@ -326,10 +318,6 @@ public class FileManager {
     public void copyFiles() {
         if (!core.getDataFolder().exists()) {
             core.getDataFolder().mkdirs();
-            File zh_cfg = new File(core.getDataFolder(), "config_zh.yml");
-            if (!zh_cfg.exists()) {
-                copy(core.getResource("config_zh.yml"), zh_cfg);
-            }
         }
         if (!messagesFolder.exists()) {
             messagesFolder.mkdirs();
