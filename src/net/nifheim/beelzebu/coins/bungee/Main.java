@@ -25,9 +25,9 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.nifheim.beelzebu.coins.bungee.listener.PluginMessageListener;
 import net.nifheim.beelzebu.coins.bungee.listener.PubSubMessageListener;
 import net.nifheim.beelzebu.coins.bungee.utils.Configuration;
-import net.nifheim.beelzebu.coins.core.Core;
-import net.nifheim.beelzebu.coins.core.utils.CoinsConfig;
-import net.nifheim.beelzebu.coins.core.utils.dependencies.DependencyManager;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
+import net.nifheim.beelzebu.coins.common.utils.CoinsConfig;
+import net.nifheim.beelzebu.coins.common.utils.dependencies.DependencyManager;
 
 /**
  *
@@ -36,7 +36,7 @@ import net.nifheim.beelzebu.coins.core.utils.dependencies.DependencyManager;
 public class Main extends Plugin {
 
     private static Main instance;
-    private final Core core = Core.getInstance();
+    private final CoinsCore core = CoinsCore.getInstance();
     private Configuration config;
     private static Boolean useRedis = false;
 

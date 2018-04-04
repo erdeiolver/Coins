@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins.core.database;
+package net.nifheim.beelzebu.coins.common.database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
 
 /**
  *
@@ -35,7 +35,7 @@ import net.nifheim.beelzebu.coins.core.Core;
  */
 public interface Database {
 
-    String prefix = Core.getInstance().isMySQL() ? Core.getInstance().getConfig().getString("MySQL.Prefix") : "";
+    String prefix = CoinsCore.getInstance().isMySQL() ? CoinsCore.getInstance().getConfig().getString("MySQL.Prefix") : "";
 
     Double getCoins(String player);
 
@@ -104,15 +104,15 @@ public interface Database {
                         } else if (parameter instanceof Double) {
                             ps.setDouble(i, (double) parameter);
                         } else {
-                            Core.getInstance().debug("We can't put the object '" + parameter.toString() + "' in the query.");
+                            CoinsCore.getInstance().debug("We can't put the object '" + parameter.toString() + "' in the query.");
                         }
                     }
                 }
             } catch (SQLException ex) {
-                Core.getInstance().log("An internal error has ocurred while trying to execute a query in the database, check the logs to get more information.");
-                Core.getInstance().debug("The error code is: '" + ex.getErrorCode() + "'");
-                Core.getInstance().debug("The error message is: '" + ex.getMessage() + "'");
-                Core.getInstance().debug("Query: " + query.name);
+                CoinsCore.getInstance().log("An internal error has ocurred while trying to execute a query in the database, check the logs to get more information.");
+                CoinsCore.getInstance().debug("The error code is: '" + ex.getErrorCode() + "'");
+                CoinsCore.getInstance().debug("The error message is: '" + ex.getMessage() + "'");
+                CoinsCore.getInstance().debug("Query: " + query.name);
             }
             return ps;
         }

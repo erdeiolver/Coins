@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
-import net.nifheim.beelzebu.coins.core.utils.CoinsConfig;
+import net.nifheim.beelzebu.coins.common.utils.CoinsConfig;
 
 /**
  *

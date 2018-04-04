@@ -26,11 +26,11 @@ import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.bukkit.utils.CoinsEconomy;
 import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
 import net.nifheim.beelzebu.coins.bukkit.utils.gui.MultipliersGUI;
-import net.nifheim.beelzebu.coins.core.Core;
-import net.nifheim.beelzebu.coins.core.executor.Executor;
-import net.nifheim.beelzebu.coins.core.importer.ImportManager;
-import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
-import net.nifheim.beelzebu.coins.core.utils.CacheManager;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
+import net.nifheim.beelzebu.coins.common.executor.Executor;
+import net.nifheim.beelzebu.coins.common.importer.ImportManager;
+import net.nifheim.beelzebu.coins.common.multiplier.Multiplier;
+import net.nifheim.beelzebu.coins.common.utils.CacheManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
@@ -42,7 +42,7 @@ import org.bukkit.entity.Player;
  */
 public class CoinsCommand extends BukkitCommand {
 
-    private final Core core = Core.getInstance();
+    private final CoinsCore core = CoinsCore.getInstance();
     private final Main plugin = Main.getInstance();
     private String lang = "";
 

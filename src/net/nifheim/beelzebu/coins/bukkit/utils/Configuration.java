@@ -21,7 +21,7 @@ package net.nifheim.beelzebu.coins.bukkit.utils;
 import java.util.List;
 import java.util.Set;
 import net.nifheim.beelzebu.coins.bukkit.Main;
-import net.nifheim.beelzebu.coins.core.utils.CoinsConfig;
+import net.nifheim.beelzebu.coins.common.utils.CoinsConfig;
 import org.bukkit.configuration.file.FileConfiguration;
 
 /**

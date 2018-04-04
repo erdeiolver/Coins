@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins.core.utils;
+package net.nifheim.beelzebu.coins.common.utils;
 
 import com.google.common.base.Charsets;
 import java.io.File;
@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
-import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -43,13 +43,13 @@ import org.apache.commons.io.FileUtils;
  */
 public class FileManager {
 
-    private final Core core;
+    private final CoinsCore core;
     private final File messagesFolder;
     private final Map<String, File> messagesFiles;
     private final File configFile;
     private final File logsFolder;
 
-    public FileManager(Core c) {
+    public FileManager(CoinsCore c) {
         core = c;
         messagesFolder = new File(core.getDataFolder(), "messages");
         messagesFiles = new HashMap<>();

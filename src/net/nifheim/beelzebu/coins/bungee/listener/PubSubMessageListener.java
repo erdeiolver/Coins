@@ -24,8 +24,8 @@ import java.util.List;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
-import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
-import net.nifheim.beelzebu.coins.core.utils.CacheManager;
+import net.nifheim.beelzebu.coins.common.multiplier.Multiplier;
+import net.nifheim.beelzebu.coins.common.utils.CacheManager;
 
 /**
  *

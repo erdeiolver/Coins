@@ -23,9 +23,9 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import net.nifheim.beelzebu.coins.core.Core;
-import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
-import net.nifheim.beelzebu.coins.core.utils.CacheManager;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
+import net.nifheim.beelzebu.coins.common.multiplier.Multiplier;
+import net.nifheim.beelzebu.coins.common.utils.CacheManager;
 
 /**
  *
@@ -33,7 +33,7 @@ import net.nifheim.beelzebu.coins.core.utils.CacheManager;
  */
 public class CoinsAPI {
 
-    private static final Core core = Core.getInstance();
+    private static final CoinsCore core = CoinsCore.getInstance();
     private static final DecimalFormat DF = new DecimalFormat("#.#");
 
     /**

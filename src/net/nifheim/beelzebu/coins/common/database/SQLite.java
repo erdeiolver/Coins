@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins.core.database;
+package net.nifheim.beelzebu.coins.common.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -24,38 +24,35 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.nifheim.beelzebu.coins.CoinsAPI;
-import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
+import static net.nifheim.beelzebu.coins.common.database.Database.prefix;
 
 /**
  *
  * @author Beelzebu
  */
-public class MySQL implements Database {
+public class SQLite implements Database {
 
-    private final Core core;
+    private final CoinsCore core;
     private HikariDataSource ds;
+    private Connection connection;
 
-    private final String host;
-    private final String port;
-    private final String name;
-    private final String user;
-    private final String passwd;
-
-    public MySQL(Core c) {
+    public SQLite(CoinsCore c) {
         core = c;
-        host = core.getConfig().getString("MySQL.Host");
-        port = core.getConfig().getString("MySQL.Port");
-        name = core.getConfig().getString("MySQL.Database");
-        user = core.getConfig().getString("MySQL.User");
-        passwd = core.getConfig().getString("MySQL.Password");
-        start();
+        try {
+            setupDatabase();
+            updateDatabase();
+        } catch (SQLException ex) {
+            Logger.getLogger(SQLite.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -63,107 +60,60 @@ public class MySQL implements Database {
         return ds.getConnection();
     }
 
-    private void start() {
-        setupDatabase();
-        updateDatabase();
-        core.getMethods().runAsync(() -> {
-            core.debug("Checking the database connection ...");
-            try (Connection c = ds.getConnection()) {
-                try {
-                    if (c == null || c.isClosed()) {
-                        core.log("The database connection is null, check your MySQL settings!");
-                        if (ds != null) {
-                            ds.close();
-                        }
-                        setupDatabase();
-                    } else {
-                        core.debug("The connection to the database is still active.");
-                    }
-                } finally {
-                    c.close();
-                }
-            } catch (SQLException ex) {
-                core.log("The database connection is null, check your MySQL settings!");
-                core.debug(ex);
-            }
-        }, (long) core.getConfig().getInt("MySQL.Connection Interval") * 1200);
-    }
-
-    private void setupDatabase() {
+    private void setupDatabase() throws SQLException {
         HikariConfig hc = new HikariConfig();
-        hc.setPoolName("Coins MySQL Connection Pool");
-        hc.setDriverClassName("com.mysql.jdbc.Driver");
-        hc.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + name + "?autoReconnect=true");
-        hc.addDataSourceProperty("cachePrepStmts", "true");
-        hc.addDataSourceProperty("useServerPrepStmts", "true");
-        hc.addDataSourceProperty("prepStmtCacheSize", "250");
-        hc.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-        hc.addDataSourceProperty("characterEncoding", "utf8");
-        hc.addDataSourceProperty("encoding", "UTF-8");
-        hc.addDataSourceProperty("useUnicode", "true");
-        hc.setUsername(user);
-        hc.setPassword(passwd);
+        hc.setPoolName("Coins SQLite Connection Pool");
+        hc.setJdbcUrl("jdbc:sqlite:plugins/Coins/database.db");
+        hc.setConnectionTestQuery("SELECT 1");
         hc.setMaxLifetime(60000);
         hc.setMinimumIdle(4);
         hc.setIdleTimeout(30000);
         hc.setConnectionTimeout(10000);
-        hc.setMaximumPoolSize(10);
+        hc.setMaximumPoolSize(50);
         hc.setLeakDetectionThreshold(30000);
         hc.validate();
         ds = new HikariDataSource(hc);
 
         try (Connection c = ds.getConnection()) {
-            if (!c.isClosed()) {
-                core.log("Plugin conected sucesful to the MySQL.");
+            if (c.isClosed()) {
+                core.log("Can't connect to the database...");
             }
         } catch (SQLException ex) {
             core.log("Can't connect to the database...");
-            core.log("Check your settings and restart the server.");
             core.debug(ex);
         }
     }
 
-    public void updateDatabase() {
-        try (Connection c = ds.getConnection(); Statement st = c.createStatement()) {
+    private void updateDatabase() {
+        try (Connection c = ds.getConnection()) {
             core.debug("A database connection was opened.");
-            try {
-                DatabaseMetaData md = c.getMetaData();
-                String Data
-                        = "CREATE TABLE IF NOT EXISTS `" + prefix + "Data`"
-                        + "(`uuid` VARCHAR(50) NOT NULL,"
-                        + "`nick` VARCHAR(50) NOT NULL,"
-                        + "`balance` DOUBLE NOT NULL,"
-                        + "`lastlogin` LONG NOT NULL,"
-                        + "PRIMARY KEY (`uuid`));";
-                String Multiplier = "CREATE TABLE IF NOT EXISTS `" + prefix + "Multipliers`"
-                        + "(`id` INT NOT NULL AUTO_INCREMENT,"
-                        + "`uuid` VARCHAR(50) NOT NULL,"
-                        + "`multiplier` INT,"
-                        + "`queue` INT,"
-                        + "`minutes` INT,"
-                        + "`endtime` LONG,"
-                        + "`server` VARCHAR(50),"
-                        + "`enabled` BOOLEAN,"
-                        + "PRIMARY KEY (`id`));";
-                st.executeUpdate(Data);
-                core.debug("The data table was updated.");
-                st.executeUpdate(Multiplier);
-                if (!isColumnMissing(md, "Multipliers", "starttime")) {
-                    st.executeUpdate("ALTER TABLE `" + prefix + "Multipliers` DROP COLUMN starttime;");
-                }
-                core.debug("The multipliers table was updated");
-                if (core.getConfig().getBoolean("General.Purge.Enabled", true) && core.getConfig().getInt("General.Purge.Days") > 0) {
-                    st.executeUpdate("DELETE FROM " + prefix + "Data WHERE lastlogin < " + (System.currentTimeMillis() - (core.getConfig().getInt("General.Purge.Days", 60) * 86400000L)) + ";");
-                    core.debug("Inactive users were removed from the database.");
-                }
-            } finally {
-                st.close();
-                c.close();
-                core.debug("The connection was closed.");
+            String Data
+                    = "CREATE TABLE IF NOT EXISTS `Data`"
+                    + "(`uuid` VARCHAR(50),"
+                    + "`nick` VARCHAR(50),"
+                    + "`balance` DOUBLE,"
+                    + "`lastlogin` LONG);";
+            String Multiplier = "CREATE TABLE IF NOT EXISTS `Multipliers`"
+                    + "(`id` INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + "`uuid` VARCHAR(50),"
+                    + "`multiplier` INT,"
+                    + "`queue` INT,"
+                    + "`minutes` INT,"
+                    + "`endtime` LONG,"
+                    + "`server` VARCHAR(50),"
+                    + "`enabled` BOOLEAN);";
+            c.createStatement().executeUpdate(Data);
+            core.debug("The data table was updated.");
+            c.createStatement().executeUpdate(Multiplier);
+            core.debug("The multipliers table was updated");
+            if (core.getConfig().getBoolean("General.Purge.Enabled", true)) {
+                c.createStatement().executeUpdate("DELETE FROM Data WHERE lastlogin < " + (System.currentTimeMillis() - (core.getConfig().getInt("General.Purge.Days") * 86400000)) + ";");
+                core.debug("Inactive users were removed from the database.");
             }
         } catch (SQLException ex) {
             core.log("Something was wrong creating the default databases. Please check the debug log.");
-            core.debug(ex);
+            core.debug("The error code is: " + ex.getErrorCode());
+            core.debug(ex.getMessage());
         }
     }
 
@@ -509,7 +459,7 @@ public class MySQL implements Database {
     @Override
     public Map<String, Double> getAllPlayers() {
         Map<String, Double> data = new HashMap<>();
-        try (Connection c = ds.getConnection(); ResultSet res = c.prepareStatement("SELECT * FROM " + Core.getInstance().getConfig().getString("MySQL.Prefix") + "Data;").executeQuery()) {
+        try (Connection c = ds.getConnection(); ResultSet res = c.prepareStatement("SELECT * FROM " + CoinsCore.getInstance().getConfig().getString("MySQL.Prefix") + "Data;").executeQuery()) {
             while (res.next()) {
                 data.put(res.getString("nick") + "," + res.getString("uuid"), res.getDouble("balance"));
             }

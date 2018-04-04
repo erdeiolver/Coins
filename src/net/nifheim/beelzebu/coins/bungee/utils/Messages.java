@@ -26,8 +26,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
-import net.nifheim.beelzebu.coins.core.Core;
-import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
+import net.nifheim.beelzebu.coins.common.utils.MessagesManager;
 
 /**
  *
@@ -40,9 +40,9 @@ public class Messages extends MessagesManager {
 
     public Messages(String lang) {
         super(lang);
-        langFile = new File(Core.getInstance().getDataFolder() + "/messages", "messages_" + lang + ".yml");
+        langFile = new File(CoinsCore.getInstance().getDataFolder() + "/messages", "messages_" + lang + ".yml");
         if (!langFile.exists()) {
-            langFile = new File(Core.getInstance().getDataFolder() + "/messages", "messages.yml");
+            langFile = new File(CoinsCore.getInstance().getDataFolder() + "/messages", "messages.yml");
         }
         load(langFile);
         reload();

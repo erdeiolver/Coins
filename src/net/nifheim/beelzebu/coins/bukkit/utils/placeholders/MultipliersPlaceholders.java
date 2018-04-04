@@ -21,7 +21,7 @@ package net.nifheim.beelzebu.coins.bukkit.utils.placeholders;
 import me.clip.placeholderapi.external.EZPlaceholderHook;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
-import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
 import org.bukkit.entity.Player;
 
 /**
@@ -30,7 +30,7 @@ import org.bukkit.entity.Player;
  */
 public class MultipliersPlaceholders extends EZPlaceholderHook {
 
-    private final Core core = Core.getInstance();
+    private final CoinsCore core = CoinsCore.getInstance();
 
     public MultipliersPlaceholders(Main plugin) {
         super(plugin, "coins-multipliers");

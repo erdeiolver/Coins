@@ -28,17 +28,17 @@ import net.nifheim.beelzebu.coins.bukkit.utils.Configuration;
 import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
 import net.nifheim.beelzebu.coins.bukkit.utils.leaderheads.LeaderHeadsHook;
 import net.nifheim.beelzebu.coins.bukkit.utils.placeholders.*;
-import net.nifheim.beelzebu.coins.core.Core;
-import net.nifheim.beelzebu.coins.core.executor.Executor;
-import net.nifheim.beelzebu.coins.core.utils.CacheManager;
-import net.nifheim.beelzebu.coins.core.utils.CoinsConfig;
-import net.nifheim.beelzebu.coins.core.utils.dependencies.DependencyManager;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
+import net.nifheim.beelzebu.coins.common.executor.Executor;
+import net.nifheim.beelzebu.coins.common.utils.CacheManager;
+import net.nifheim.beelzebu.coins.common.utils.CoinsConfig;
+import net.nifheim.beelzebu.coins.common.utils.dependencies.DependencyManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
 
-    private final Core core = Core.getInstance();
+    private final CoinsCore core = CoinsCore.getInstance();
     private static Main instance;
     private CommandManager commandManager;
     private Configuration configuration;

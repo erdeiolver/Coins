@@ -21,7 +21,7 @@ package net.nifheim.beelzebu.coins.bukkit.listener;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.bukkit.events.MultiplierEnableEvent;
-import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -32,7 +32,7 @@ import org.bukkit.scheduler.BukkitRunnable;
  */
 public class InternalListener implements Listener {
 
-    private final Core core = Core.getInstance();
+    private final CoinsCore core = CoinsCore.getInstance();
 
     @EventHandler
     public void onMultiplierUse(MultiplierEnableEvent e) {

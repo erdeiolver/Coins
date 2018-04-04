@@ -16,34 +16,44 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins.core.executor;
+package net.nifheim.beelzebu.coins.common.utils;
 
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
  *
  * @author Beelzebu
  */
-public class ExecutorManager {
+public interface IConfiguration {
 
-    private final Set<Executor> executors = Collections.synchronizedSet(new HashSet<>());
+    Object get(String path);
 
-    public synchronized void addExecutor(Executor ex) {
-        executors.add(ex);
-    }
+    String getString(String path);
 
-    public synchronized Set<Executor> getExecutors() {
-        return executors;
-    }
+    List<String> getStringList(String path);
 
-    public synchronized Executor getExecutor(String id) {
-        for (Executor ex : executors) {
-            if (ex.getID().equals(id)) {
-                return ex;
-            }
-        }
-        return null;
-    }
+    boolean getBoolean(String path);
+
+    int getInt(String path);
+
+    double getDouble(String path);
+
+    Object get(String path, Object def);
+
+    String getString(String path, String def);
+
+    List<String> getStringList(String path, List<String> def);
+
+    boolean getBoolean(String path, boolean def);
+
+    int getInt(String path, int def);
+
+    double getDouble(String path, double def);
+
+    void set(String path, Object value);
+
+    Set<String> getConfigurationSection(String path);
+
+    void reload();
 }

@@ -16,14 +16,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins.core.utils;
+package net.nifheim.beelzebu.coins.common.utils;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import lombok.Getter;
-import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
+import net.nifheim.beelzebu.coins.common.multiplier.Multiplier;
 
 /**
  *

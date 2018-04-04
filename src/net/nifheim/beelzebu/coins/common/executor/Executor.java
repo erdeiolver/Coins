@@ -16,22 +16,41 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins.core.multiplier;
+package net.nifheim.beelzebu.coins.common.executor;
+
+import java.util.List;
 
 /**
  *
  * @author Beelzebu
  */
-public enum MultiplierType {
-    /**
-     * @deprecated Work in progress.
-     */
-    @Deprecated
-    GLOBAL,
-    SERVER,
-    /**
-     * @deprecated Work in progress.
-     */
-    @Deprecated
-    PERSONAL;
+public class Executor {
+
+    private final String ID;
+    private final String displayName;
+    private final double cost;
+    private final List<String> commands;
+
+    public Executor(String i, String d, double c, List<String> cmds) {
+        ID = i;
+        displayName = d;
+        cost = c;
+        commands = cmds;
+    }
+
+    public String getID() {
+        return ID;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public Double getCost() {
+        return cost;
+    }
+
+    public List<String> getCommands() {
+        return commands;
+    }
 }

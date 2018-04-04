@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins.core;
+package net.nifheim.beelzebu.coins.common;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -37,23 +37,22 @@ import net.md_5.bungee.api.ProxyServer;
 import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
 import net.nifheim.beelzebu.coins.bungee.BungeeMethods;
 import net.nifheim.beelzebu.coins.bungee.listener.PluginMessageListener;
-import net.nifheim.beelzebu.coins.core.database.*;
-import net.nifheim.beelzebu.coins.core.executor.ExecutorManager;
-import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
-import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
-import net.nifheim.beelzebu.coins.core.utils.CacheManager;
-import net.nifheim.beelzebu.coins.core.utils.CoinsConfig;
-import net.nifheim.beelzebu.coins.core.utils.FileManager;
-import net.nifheim.beelzebu.coins.core.utils.IMethods;
-import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
+import net.nifheim.beelzebu.coins.common.executor.ExecutorManager;
+import net.nifheim.beelzebu.coins.common.multiplier.Multiplier;
+import net.nifheim.beelzebu.coins.common.multiplier.MultiplierData;
+import net.nifheim.beelzebu.coins.common.utils.CacheManager;
+import net.nifheim.beelzebu.coins.common.utils.CoinsConfig;
+import net.nifheim.beelzebu.coins.common.utils.FileManager;
+import net.nifheim.beelzebu.coins.common.utils.IMethods;
+import net.nifheim.beelzebu.coins.common.utils.MessagesManager;
 
 /**
  *
  * @author Beelzebu
  */
-public class Core {
+public class CoinsCore {
 
-    private static Core instance;
+    private static CoinsCore instance;
     private IMethods mi;
     private FileManager fileUpdater;
     private Database db;
@@ -61,8 +60,8 @@ public class Core {
     private boolean mysql;
     private HashMap<String, MessagesManager> messagesMap;
 
-    public static Core getInstance() {
-        return instance == null ? instance = new Core() : instance;
+    public static CoinsCore getInstance() {
+        return instance == null ? instance = new CoinsCore() : instance;
     }
 
     public void setup(IMethods methodinterface) {
@@ -155,7 +154,7 @@ public class Core {
                 writer.close();
             }
         } catch (IOException ex) {
-            Logger.getLogger(Core.class.getName()).log(Level.WARNING, "Can''t save the debug to the file", ex);
+            Logger.getLogger(CoinsCore.class.getName()).log(Level.WARNING, "Can''t save the debug to the file", ex);
         }
     }
 

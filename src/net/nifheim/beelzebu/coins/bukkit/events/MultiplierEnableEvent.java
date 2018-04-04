@@ -19,7 +19,7 @@
 package net.nifheim.beelzebu.coins.bukkit.events;
 
 import java.util.UUID;
-import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
+import net.nifheim.beelzebu.coins.common.multiplier.MultiplierData;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 

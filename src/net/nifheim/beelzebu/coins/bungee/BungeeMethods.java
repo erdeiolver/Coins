@@ -31,11 +31,11 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.nifheim.beelzebu.coins.bungee.events.*;
 import net.nifheim.beelzebu.coins.bungee.utils.Messages;
-import net.nifheim.beelzebu.coins.core.Core;
-import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
-import net.nifheim.beelzebu.coins.core.utils.CoinsConfig;
-import net.nifheim.beelzebu.coins.core.utils.IMethods;
-import net.nifheim.beelzebu.coins.core.utils.MessagesManager;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
+import net.nifheim.beelzebu.coins.common.multiplier.MultiplierData;
+import net.nifheim.beelzebu.coins.common.utils.CoinsConfig;
+import net.nifheim.beelzebu.coins.common.utils.IMethods;
+import net.nifheim.beelzebu.coins.common.utils.MessagesManager;
 
 /**
  *
@@ -83,7 +83,7 @@ public class BungeeMethods implements IMethods {
 
     @Override
     public void log(Object log) {
-        console.sendMessage(Core.getInstance().rep("&8[&cCoins&8] &7" + log));
+        console.sendMessage(CoinsCore.getInstance().rep("&8[&cCoins&8] &7" + log));
     }
 
     @Override

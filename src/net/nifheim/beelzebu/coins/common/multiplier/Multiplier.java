@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins.core.multiplier;
+package net.nifheim.beelzebu.coins.common.multiplier;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
 
 /**
  * Handle Coins multipliers.
@@ -34,7 +34,7 @@ import net.nifheim.beelzebu.coins.core.Core;
  */
 public final class Multiplier {
 
-    private final Core core = Core.getInstance();
+    private final CoinsCore core = CoinsCore.getInstance();
     private final String prefix = core.isMySQL() ? core.getConfig().getString("MySQL.Prefix") : "";
     private final String server;
     private String enabler = null;

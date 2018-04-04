@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins.core.importer;
+package net.nifheim.beelzebu.coins.common.importer;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -28,8 +28,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.nifheim.beelzebu.coins.CoinsAPI;
-import net.nifheim.beelzebu.coins.core.Core;
-import net.nifheim.beelzebu.coins.core.database.*;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -41,9 +40,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
  */
 public class ImportManager {
 
-    private final Core core;
+    private final CoinsCore core;
 
-    public ImportManager(Core core) {
+    public ImportManager(CoinsCore core) {
         this.core = core;
     }
 

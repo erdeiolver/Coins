@@ -30,8 +30,8 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
-import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
-import net.nifheim.beelzebu.coins.core.utils.CacheManager;
+import net.nifheim.beelzebu.coins.common.multiplier.Multiplier;
+import net.nifheim.beelzebu.coins.common.utils.CacheManager;
 
 /**
  *

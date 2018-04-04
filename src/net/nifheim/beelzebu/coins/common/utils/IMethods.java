@@ -16,13 +16,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins.core.utils;
+package net.nifheim.beelzebu.coins.common.utils;
 
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
-import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
+import net.nifheim.beelzebu.coins.common.multiplier.MultiplierData;
 
 /**
  *

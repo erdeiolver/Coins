@@ -17,11 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package net.nifheim.beelzebu.coins.core.utils;
+package net.nifheim.beelzebu.coins.common.utils;
 
 import java.util.HashSet;
 import java.util.Set;
-import net.nifheim.beelzebu.coins.core.executor.Executor;
+import net.nifheim.beelzebu.coins.common.executor.Executor;
 import org.bukkit.Bukkit;
 
 /**

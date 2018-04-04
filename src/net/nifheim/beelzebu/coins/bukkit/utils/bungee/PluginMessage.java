@@ -27,10 +27,10 @@ import java.util.List;
 import java.util.UUID;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
-import net.nifheim.beelzebu.coins.core.Core;
-import net.nifheim.beelzebu.coins.core.executor.Executor;
-import net.nifheim.beelzebu.coins.core.multiplier.Multiplier;
-import net.nifheim.beelzebu.coins.core.utils.CacheManager;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
+import net.nifheim.beelzebu.coins.common.executor.Executor;
+import net.nifheim.beelzebu.coins.common.multiplier.Multiplier;
+import net.nifheim.beelzebu.coins.common.utils.CacheManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -41,7 +41,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
  */
 public class PluginMessage implements PluginMessageListener {
 
-    private final Core core = Core.getInstance();
+    private final CoinsCore core = CoinsCore.getInstance();
 
     @Override
     public synchronized void onPluginMessageReceived(String channel, Player player, byte[] message) {

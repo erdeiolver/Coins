@@ -22,7 +22,7 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package net.nifheim.beelzebu.coins.core.utils.dependencies;
+package net.nifheim.beelzebu.coins.common.utils.dependencies;
 
 import java.io.File;
 import java.io.InputStream;
@@ -38,7 +38,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.experimental.UtilityClass;
-import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
 
 /**
  * Responsible for loading runtime dependencies.
@@ -46,7 +46,7 @@ import net.nifheim.beelzebu.coins.core.Core;
 @UtilityClass
 public class DependencyManager {
 
-    private static final Core core = Core.getInstance();
+    private static final CoinsCore core = CoinsCore.getInstance();
     private static final Method ADD_URL_METHOD;
 
     static {

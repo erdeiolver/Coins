@@ -20,7 +20,7 @@ package net.nifheim.beelzebu.coins.bukkit.listener;
 
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
-import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -39,11 +39,11 @@ public class CommandListener implements Listener {
     public void onCommandEvent(PlayerCommandPreprocessEvent e) {
         // TODO: may be log the commands of the plugin and the command costs.
         String msg = e.getMessage().toLowerCase();
-        Core.getInstance().getMethods().runAsync(() -> {
+        CoinsCore.getInstance().getMethods().runAsync(() -> {
             if (config.getDouble("Command Cost." + msg) != 0) {
                 if (CoinsAPI.getCoins(e.getPlayer().getUniqueId()) < config.getDouble("Command Cost." + msg)) {
                     e.setCancelled(true);
-                    e.getPlayer().sendMessage(Core.getInstance().rep(Core.getInstance().getMessages(e.getPlayer().spigot().getLocale()).getString("Errors.No Coins")));
+                    e.getPlayer().sendMessage(CoinsCore.getInstance().rep(CoinsCore.getInstance().getMessages(e.getPlayer().spigot().getLocale()).getString("Errors.No Coins")));
                 } else {
                     CoinsAPI.takeCoins(e.getPlayer().getName(), config.getDouble("Command Cost." + msg));
                 }

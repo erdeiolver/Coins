@@ -20,7 +20,7 @@ package net.nifheim.beelzebu.coins.bukkit.command;
 
 import java.lang.reflect.Field;
 import java.util.Map;
-import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
@@ -31,7 +31,7 @@ import org.bukkit.command.CommandMap;
  */
 public class CommandManager {
 
-    private final Core core = Core.getInstance();
+    private final CoinsCore core = CoinsCore.getInstance();
     private Command cmd;
 
     public void registerCommand() {

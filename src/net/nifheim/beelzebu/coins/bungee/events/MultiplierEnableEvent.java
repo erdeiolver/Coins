@@ -20,7 +20,7 @@ package net.nifheim.beelzebu.coins.bungee.events;
 
 import java.util.UUID;
 import net.md_5.bungee.api.plugin.Event;
-import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
+import net.nifheim.beelzebu.coins.common.multiplier.MultiplierData;
 
 /**
  *

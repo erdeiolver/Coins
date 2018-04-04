@@ -21,8 +21,8 @@ package net.nifheim.beelzebu.coins.bukkit.utils.gui;
 import java.util.ArrayList;
 import java.util.List;
 import net.nifheim.beelzebu.coins.CoinsAPI;
-import net.nifheim.beelzebu.coins.core.Core;
-import net.nifheim.beelzebu.coins.core.multiplier.MultiplierData;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
+import net.nifheim.beelzebu.coins.common.multiplier.MultiplierData;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -38,7 +38,7 @@ import org.bukkit.potion.PotionEffectType;
  */
 public class MultipliersGUI extends BaseGUI {
 
-    private final Core core = Core.getInstance();
+    private final CoinsCore core = CoinsCore.getInstance();
     private final Player p;
 
     public MultipliersGUI(Player player, String name) {

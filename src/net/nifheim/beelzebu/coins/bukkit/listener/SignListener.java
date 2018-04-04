@@ -22,8 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.utils.LocationSerializer;
-import net.nifheim.beelzebu.coins.core.Core;
-import net.nifheim.beelzebu.coins.core.executor.Executor;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
+import net.nifheim.beelzebu.coins.common.executor.Executor;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -42,7 +42,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
  */
 public class SignListener implements Listener {
 
-    private final Core core = Core.getInstance();
+    private final CoinsCore core = CoinsCore.getInstance();
     private final File signsFile;
     private final FileConfiguration signs;
 

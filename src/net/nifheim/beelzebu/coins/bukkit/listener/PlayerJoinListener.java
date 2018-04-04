@@ -21,7 +21,7 @@ package net.nifheim.beelzebu.coins.bukkit.listener;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
-import net.nifheim.beelzebu.coins.core.Core;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -35,7 +35,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 public class PlayerJoinListener implements Listener {
 
     private final Main plugin;
-    private final Core core = Core.getInstance();
+    private final CoinsCore core = CoinsCore.getInstance();
     private static boolean first = true;
 
     public PlayerJoinListener(Main main) {
