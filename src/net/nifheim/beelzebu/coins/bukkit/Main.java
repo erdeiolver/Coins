@@ -88,19 +88,19 @@ public class Main extends JavaPlugin {
         // Create the command
         commandManager.registerCommand();
         // Hook placeholders
-        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             core.getMethods().log("PlaceholderAPI found, hooking into it.");
             new CoinsPlaceholders(this).hook();
             new MultipliersPlaceholders(this).hook();
         }
         if (getConfig().getBoolean("Vault.Use", false)) {
-            if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
+            if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
                 new CoinsEconomy(this).setup();
             } else {
                 core.log("You enabled Vault in the config, but the plugin Vault can't be found.");
             }
         }
-        if (Bukkit.getPluginManager().isPluginEnabled("LeaderHeads")) {
+        if (Bukkit.getPluginManager().getPlugin("LeaderHeads") != null) {
             core.getMethods().log("LeaderHeads found, hooking into it.");
             new LeaderHeadsHook();
         }
