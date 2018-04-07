@@ -165,6 +165,7 @@ public class CoinsCommand extends BukkitCommand {
         }
         if (args.length < 3 || args.length > 4) {
             sender.sendMessage(core.getString("Help.Give Usage", lang));
+            return true;
         }
         if (!CoinsAPI.isindb(args[1])) {
             sender.sendMessage(core.getString("Errors.Unknow player", lang).replaceAll("%target%", args[1]));
