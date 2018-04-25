@@ -35,6 +35,7 @@ import net.nifheim.beelzebu.coins.common.utils.CoinsConfig;
 import net.nifheim.beelzebu.coins.common.utils.dependencies.DependencyManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class Main extends JavaPlugin {
 
@@ -102,7 +103,20 @@ public class Main extends JavaPlugin {
         }
         if (Bukkit.getPluginManager().getPlugin("LeaderHeads") != null) {
             core.getMethods().log("LeaderHeads found, hooking into it.");
-            new LeaderHeadsHook();
+            new BukkitRunnable() {
+                boolean leaderheads = false;
+
+                @Override
+                public void run() {
+                    if (Bukkit.getPluginManager().getPlugin("LeaderHeads").isEnabled()) {
+                        new LeaderHeadsHook();
+                        leaderheads = true;
+                    }
+                    if (leaderheads) {
+                        cancel();
+                    }
+                }
+            }.runTaskTimerAsynchronously(this, 20, 20);
         }
     }
 
