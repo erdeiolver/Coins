@@ -22,6 +22,7 @@ package net.nifheim.beelzebu.coins.bukkit.utils;
 import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.economy.EconomyResponse.ResponseType;
@@ -270,7 +271,8 @@ public class CoinsEconomy implements Economy {
 
     @Override
     public boolean createPlayerAccount(String string) {
-        CoinsAPI.createPlayer(string, CoinsCore.getInstance().getUUID(string));
+        UUID uuid = CoinsCore.getInstance().getUUID(string);
+        CoinsAPI.createPlayer(string, uuid != null ? uuid : UUID.randomUUID());
         return !CoinsAPI.getCoinsString(string).equals("This player isn't in the database");
     }
 
@@ -282,7 +284,8 @@ public class CoinsEconomy implements Economy {
 
     @Override
     public boolean createPlayerAccount(String string, String string1) {
-        CoinsAPI.createPlayer(string, CoinsCore.getInstance().getUUID(string));
+        UUID uuid = CoinsCore.getInstance().getUUID(string);
+        CoinsAPI.createPlayer(string, uuid != null ? uuid : UUID.randomUUID());
         return !CoinsAPI.getCoinsString(string).equals("This player isn't in the database");
     }
 
