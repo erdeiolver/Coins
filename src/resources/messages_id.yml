@@ -1,0 +1,109 @@
+# Coins messages file.
+# If you need support or find a bug open a issuse in
+# the official github repo https://github.com/Beelzebu/Coins/issuses/
+
+# The version of this file, is used to auto update this file, don't change it
+# unless you know what you do.
+version: 10
+
+Help:
+  User:
+  - '&8&m+-------------------------------------------------+'
+  - '%prefix% Perintah yang tersedia:'
+  - ' '
+  - ' &a/coins help &f- &7Menampilkan pesan ini.'
+  - ' &a/coins &f- &7Melihat coin milikmu.'
+  - ' &a/coins <name> &f- &7Melihat coin pemain lain.'
+  - ' &a/coins pay <name> <amount> &f- &7Membayar pemain lain dengan jumlah tertentu.'
+  - ' &a/coins top &f- &7Melihat coin 10 besar.'
+  - '&8&m+-------------------------------------------------+'
+  Admin:
+  - '&8&m+-------------------------------------------------+'
+  - '%prefix% Perintah Admin:'
+  - ' '
+  - ' &c/coins give <name> <amount> (boolean) &f- &7Memberi coin pada pemain.'
+  - '   &a&oTrue &f&ountuk memberi coin menggunakan Multiplier server yang aktif.'
+  - ' &c/coins take <name> <amount> &f- &7Mengambil milik coin pemain.'
+  - ' &c/coins set <name> <amount> &f- &7Setel coin milik pemain.'
+  - ' &c/coins reset <name> &f- &7Reset coin milik pemain.'
+  - ' &c/coins reload &f- &7Memuat ulang konfigurasi dan pesan.'
+  - ' &c/coins about &f- &7Menampilkan informasi tentang plugin ini.'
+  - ' &c/coins import &f- &7Impor data dari plugin lain.'
+  - ' &c/coins importdb &f- &7Impor data dari penyimpanan lain.'
+  - ' &c/coins multiplier &f- &7Menampilkan perintah multiplier.'
+  - ' &8&m+-------------------------------------------------+'
+  Pay Usage: '%prefix% &cMohon gunakan &f/coins pay <name> <coins>'
+  Give Usage: '%prefix% &cMohon gunakan &f/coins give <name> <coins>'
+  Take Usage: '%prefix% &cMohon gunakan &f/coins take <name> <coins>'
+  Reset Usage: '%prefix% &cMohon gunakan &f/coins reset <name>'
+  Set Usage: '%prefix% &cMohon gunakan &f/coins set <name> <coins>'
+  Multiplier Usage: '%prefix% &cMohon gunakan &f/coins multiplier'
+  Multiplier Create: '%prefix% &cMohon gunakan &f/coins multiplier create <name> <amount> <minutes> (server)'
+  Multiplier Set: '%prefix% &cMohon gunakan &f/coins multiplier set <amount> <enabler> <minutes> (server)'
+  Multiplier:
+  - '&8&m+-------------------------------------------------+'
+  - '%prefix% Perintah multiplier'
+  - ' '
+  - ' &ccreate <player> <amount> <minutes> (server) &f- &7Membuat multiplier.'
+  - ' &cset <amount> <enabler> <minutes> (server) &f- &7Setel multiplier.'
+  - '&8&m+-------------------------------------------------+'
+Errors:
+  No permissions: '%prefix% &cKamu tidak mempunyai izin.'
+  Unknow command: '%prefix% &cPerintah tidak diketahui, gunakan &f/coins help &cuntuk melihat perintah yang tersedia.'
+  Unknow player: '%prefix% &cPemain %target% tidak ditemukan di Database.'
+  Console: '%prefix% &cHanya pemain yang dapat menggunakan perintah ini.'
+  No Negative: '%prefix% &cKamu tidak bisa setel coin ke negatif!'
+  No Zero: '%prefix% &cJumlah tidak bisa nol.'
+  No Coins: '%prefix% &cCoin tidak cukup.'
+  No Execute: '%prefix% &cTidak dapat menemukan perintah untuk dijalankan dengan ID ini.'
+Coins:
+  Top:
+    Header: '&8&m+-------------------&8- &c&lTOP Coin &8&m--------------------+'
+    List: ' &c%top%. &8%player%&f: &7%coins%'
+  Get: '%prefix% &a%target% &7mempunyai &f%coins%&7 coin.'
+  Own coins: '%prefix% Kamu mempunyai &f%coins%&7 coin.'
+  Pay: '%prefix% Kamu membayar &f%coins%&7 coin pada &f%target%&7.'
+  Pay target: '%prefix% &f%from%&7 membayarmu &f%coins%&7 coin.'
+  Give: '%prefix% Kamu memberi &f%coins%&7 coin pada &f%target%&7.'
+  Give target: '%prefix% Kamu menerima &f%coins%&7. %multiplier_format%'
+  Take: '%prefix% Kamu menghapus &f%coins%&7 dari &f%target%&7, coin baru: &f%newcoins%&7.'
+  Take target: '%prefix% Coin milikmu telah diubah menjadi &f%coins%&7.'
+  Set: '%prefix% Coin milik %target% telah disetel menjadi &f%coins%&7.'
+  Set target: '%prefix% Coin milikmu telah disetel menjadi &f%coins%&7.'
+  Reset: '%prefix% Coin milik %target% telah direset.'
+  Reset target: '%prefix% Coin milikmu telah direset.'
+Multipliers:
+  Menu:
+    Title: '&6Multipliers GUI'
+    Confirm:
+      Title: '&8Apa kamu yakin?'
+      Accept: '&a¡YA!'
+      Decline: '&cTIDAK'
+    Multipliers:
+      Name: '&6Multiplier &cx%amount%'
+      Lore:
+      - ''
+      - '&7Jumlah: &c%amount%'
+      - '&7Server: &c%server%'
+      - '&7Menit: &c%minutes%'
+      - ''
+      - '&7ID: &c#%id%'
+    No Multipliers:
+      Name: '&cKamu tidak mempunyai multiplier :('
+      Lore:
+      - ''
+      - '&7Kamu bisa membeli multiplier di Tokok kami'
+      - '&6&nstore.servername.net'
+  Placeholders:
+    Enabler:
+      Message: '&8➠ Multiplier diaktifkan oleh &a%enabler%'
+      Anyone: '&8➠ Tidak ada multiplier yang aktif :('
+  Created: '%prefix% Kamu berhasil membuat multiplier untuk %player%.'
+  Set:
+  - '%prefix% Multiplier dengan data berikut telah disetel untuk %server%'
+  - '  &7Pengaktif: &c%enabler%'
+  - '  &7Jumlah: &c%amount%'
+  - '  &7Menit: &c%minutes%'
+  No Multipliers: '%prefix% Kamu tidak mempunyai multiplier.'
+  Already active: '%prefix% Multiplier lain telah aktif, multiplier milikmu akan diaktifkan ketika multiplier yang sedang aktif selesai.'
+  Format: '&8(&bx%multiplier%&8) &aMultiplier diaktifkan oleh &c%enabler%&a!'
