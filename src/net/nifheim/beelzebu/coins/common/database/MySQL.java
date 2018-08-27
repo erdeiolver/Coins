@@ -32,21 +32,20 @@ import java.util.Map;
 import java.util.UUID;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.common.CoinsCore;
+import net.nifheim.beelzebu.coins.common.utils.CacheManager;
 
 /**
- *
  * @author Beelzebu
  */
 public class MySQL implements Database {
 
     private final CoinsCore core;
-    private HikariDataSource ds;
-
     private final String host;
     private final String port;
     private final String name;
     private final String user;
     private final String passwd;
+    private HikariDataSource ds;
 
     public MySQL(CoinsCore c) {
         core = c;
@@ -182,6 +181,7 @@ public class MySQL implements Database {
                         core.debug("An entry in the database was created for: " + player);
                     } else {
                         Utils.generatePreparedStatement(c, SQLQuery.UPDATE_USER_ONLINE, player, System.currentTimeMillis(), uuid).executeUpdate();
+                        CacheManager.updateCoins(uuid, getCoins(uuid));
                         core.debug("The nickname of: " + player + " was updated in the database.");
                     }
                 } else {
@@ -192,6 +192,7 @@ public class MySQL implements Database {
                         core.debug("An entry in the database was created for: " + player);
                     } else {
                         Utils.generatePreparedStatement(c, SQLQuery.UPDATE_USER_OFFLINE, uuid, System.currentTimeMillis(), player).executeUpdate();
+                        CacheManager.updateCoins(uuid, getCoins(uuid));
                         core.debug("The uuid of: " + core.getNick(uuid) + " was updated in the database.");
                     }
                 }
@@ -211,7 +212,7 @@ public class MySQL implements Database {
     @Override
     public Double getCoins(String player) {
         double coins = -1;
-        try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();) {
+        try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery()) {
             if (CoinsAPI.isindb(player)) {
                 res.next();
                 coins = res.getDouble("balance");

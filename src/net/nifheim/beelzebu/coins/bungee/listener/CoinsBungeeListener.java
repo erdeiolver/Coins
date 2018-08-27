@@ -30,7 +30,6 @@ import net.nifheim.beelzebu.coins.common.CoinsCore;
 import net.nifheim.beelzebu.coins.common.utils.IConfiguration;
 
 /**
- *
  * @author Beelzebu
  */
 public abstract class CoinsBungeeListener {
@@ -61,9 +60,7 @@ public abstract class CoinsBungeeListener {
     public void sendToBukkit(String channel, List<String> messages, ServerInfo server, boolean wait) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF(channel);
-        messages.forEach((msg) -> {
-            out.writeUTF(msg);
-        });
-        server.sendData("Coins", out.toByteArray(), wait);
+        messages.forEach(out::writeUTF);
+        server.sendData(CoinsCore.MESSAGING_CHANNEL, out.toByteArray(), wait);
     }
 }

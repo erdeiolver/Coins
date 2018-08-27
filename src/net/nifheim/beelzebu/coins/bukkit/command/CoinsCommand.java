@@ -37,7 +37,6 @@ import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.entity.Player;
 
 /**
- *
  * @author Beelzebu
  */
 public class CoinsCommand extends BukkitCommand {
@@ -56,50 +55,48 @@ public class CoinsCommand extends BukkitCommand {
 
     @Override
     public boolean execute(CommandSender sender, String alias, String[] args) {
-        core.getMethods().runAsync(() -> {
+        if (sender instanceof Player) {
+            lang = ((Player) sender).spigot().getLocale().split("_")[0];
+        } else {
+            lang = "";
+        }
+        if (args.length == 0) {
             if (sender instanceof Player) {
-                lang = ((Player) sender).spigot().getLocale().split("_")[0];
+                sender.sendMessage(core.getString("Coins.Own coins", lang).replaceAll("%coins%", CoinsAPI.getCoinsString(sender.getName())));
             } else {
-                lang = "";
+                sender.sendMessage(core.getString("Errors.Console", ""));
             }
-            if (args.length == 0) {
-                if (sender instanceof Player) {
-                    sender.sendMessage(core.getString("Coins.Own coins", lang).replaceAll("%coins%", CoinsAPI.getCoinsString(sender.getName())));
-                } else {
-                    sender.sendMessage(core.getString("Errors.Console", ""));
-                }
-            } else if (args[0].equalsIgnoreCase("execute")) {
-                execute(sender, args);
-            } else if ((args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("ayuda")) && args.length == 1) {
-                help(sender, args);
-            } else if ((args[0].equalsIgnoreCase("pay") || args[0].equalsIgnoreCase("p") || args[0].equalsIgnoreCase("pagar"))) {
-                pay(sender, args);
-            } else if ((args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("dar"))) {
-                give(sender, args);
-            } else if ((args[0].equalsIgnoreCase("take") || args[0].equalsIgnoreCase("quitar"))) {
-                take(sender, args);
-            } else if ((args[0].equalsIgnoreCase("reset"))) {
-                reset(sender, args);
-            } else if ((args[0].equalsIgnoreCase("set"))) {
-                set(sender, args);
-            } else if (args[0].equalsIgnoreCase("multiplier") || args[0].equalsIgnoreCase("multipliers")) {
-                multiplier(sender, args);
-            } else if (args[0].equalsIgnoreCase("top") && args.length == 1) {
-                top(sender, args);
-            } else if (args[0].equalsIgnoreCase("import")) {
-                imporT(sender, args);
-            } else if (args[0].equalsIgnoreCase("importdb")) {
-                importDB(sender, args);
-            } else if (args[0].equalsIgnoreCase("reload")) {
-                reload(sender);
-            } else if (args[0].equalsIgnoreCase("about")) {
-                about(sender);
-            } else if (args.length == 1 && CoinsAPI.isindb(args[0])) {
-                target(sender, args);
-            } else {
-                sender.sendMessage(core.getString("Errors.Unknow command", lang));
-            }
-        });
+        } else if (args[0].equalsIgnoreCase("execute")) {
+            execute(sender, args);
+        } else if ((args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("ayuda")) && args.length == 1) {
+            help(sender, args);
+        } else if ((args[0].equalsIgnoreCase("pay") || args[0].equalsIgnoreCase("p") || args[0].equalsIgnoreCase("pagar"))) {
+            pay(sender, args);
+        } else if ((args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("dar"))) {
+            give(sender, args);
+        } else if ((args[0].equalsIgnoreCase("take") || args[0].equalsIgnoreCase("quitar"))) {
+            take(sender, args);
+        } else if ((args[0].equalsIgnoreCase("reset"))) {
+            reset(sender, args);
+        } else if ((args[0].equalsIgnoreCase("set"))) {
+            set(sender, args);
+        } else if (args[0].equalsIgnoreCase("multiplier") || args[0].equalsIgnoreCase("multipliers")) {
+            multiplier(sender, args);
+        } else if (args[0].equalsIgnoreCase("top") && args.length == 1) {
+            top(sender, args);
+        } else if (args[0].equalsIgnoreCase("import")) {
+            imporT(sender, args);
+        } else if (args[0].equalsIgnoreCase("importdb")) {
+            importDB(sender, args);
+        } else if (args[0].equalsIgnoreCase("reload")) {
+            reload(sender);
+        } else if (args[0].equalsIgnoreCase("about")) {
+            about(sender);
+        } else if (args.length == 1 && CoinsAPI.isindb(args[0])) {
+            target(sender, args);
+        } else {
+            sender.sendMessage(core.getString("Errors.Unknow command", lang));
+        }
         return true;
     }
 

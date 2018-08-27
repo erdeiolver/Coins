@@ -22,26 +22,25 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import net.nifheim.beelzebu.coins.common.CoinsCore;
 import net.nifheim.beelzebu.coins.common.multiplier.Multiplier;
 import net.nifheim.beelzebu.coins.common.utils.CacheManager;
 
 /**
- *
  * @author Beelzebu
  */
 public class PluginMessageListener extends CoinsBungeeListener implements Listener {
 
     @EventHandler
     public void onMessageReceive(PluginMessageEvent e) {
-        if (!e.getTag().equals("Coins")) {
+        if (!e.getTag().equals(CoinsCore.MESSAGING_CHANNEL)) {
             return;
         }
         ByteArrayDataInput in = ByteStreams.newDataInput(e.getData());
@@ -70,9 +69,7 @@ public class PluginMessageListener extends CoinsBungeeListener implements Listen
                         if (plugin.useRedis()) {
                             RedisBungee.getApi().sendChannelMessage("Update", updatemsg[1] + " " + updatemsg[2]);
                         } else {
-                            ProxyServer.getInstance().getServers().keySet().forEach(server -> {
-                                sendToBukkit("Update", Arrays.asList(updatemsg[1] + " " + updatemsg[2]), ProxyServer.getInstance().getServerInfo(server), true);
-                            });
+                            ProxyServer.getInstance().getServers().keySet().forEach(server -> sendToBukkit("Update", Collections.singletonList(updatemsg[1] + " " + updatemsg[2]), ProxyServer.getInstance().getServerInfo(server), true));
                         }
                     }
                 }
@@ -87,11 +84,7 @@ public class PluginMessageListener extends CoinsBungeeListener implements Listen
                         core.updateMultiplier(multiplier);
                     }
                 } else if (input.equals("getAllMultipliers")) { // update all multipliers
-                    Iterator<String> it = CacheManager.getMultipliersData().keySet().iterator();
-                    while (it.hasNext()) {
-                        String server = it.next();
-                        core.updateMultiplier(CacheManager.getMultiplier(server));
-                    }
+                    CacheManager.getMultipliersData().keySet().stream().map(CacheManager::getMultiplier).forEach(core::updateMultiplier);
                 } else if (input.startsWith("disable ")) {
                     Multiplier multiplier = CacheManager.getMultiplier(input.split(" ")[1]);
                     if (multiplier != null) {
@@ -118,9 +111,7 @@ public class PluginMessageListener extends CoinsBungeeListener implements Listen
                                 core.getMethods().callMultiplierEnableEvent(core.getUUID(multiplier.getEnabler()), multiplier.getData());
                             }
                         }
-                        ProxyServer.getInstance().getServers().keySet().forEach(server -> {
-                            sendToBukkit("Multiplier", multiplierData, ProxyServer.getInstance().getServerInfo(server), false);
-                        });
+                        ProxyServer.getInstance().getServers().keySet().forEach(server -> sendToBukkit("Multiplier", multiplierData, ProxyServer.getInstance().getServerInfo(server), false));
                     }
                 }
                 break;

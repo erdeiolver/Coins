@@ -50,11 +50,11 @@ import net.nifheim.beelzebu.coins.common.utils.IMethods;
 import net.nifheim.beelzebu.coins.common.utils.MessagesManager;
 
 /**
- *
  * @author Beelzebu
  */
 public class CoinsCore {
 
+    public static String MESSAGING_CHANNEL = "coins:messaging";
     private static CoinsCore instance;
     private IMethods mi;
     private FileManager fileUpdater;

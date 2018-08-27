@@ -36,7 +36,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
 /**
- *
  * @author Beelzebu
  */
 public class PluginMessage implements PluginMessageListener {
@@ -45,7 +44,7 @@ public class PluginMessage implements PluginMessageListener {
 
     @Override
     public synchronized void onPluginMessageReceived(String channel, Player player, byte[] message) {
-        if (!channel.equals("Coins")) {
+        if (!channel.equals(CoinsCore.MESSAGING_CHANNEL)) {
             return;
         }
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
@@ -70,9 +69,7 @@ public class PluginMessage implements PluginMessageListener {
                     core.debug("Displayname: " + ex.getDisplayName());
                     core.debug("Cost: " + ex.getCost());
                     core.debug("Commands: ");
-                    ex.getCommands().forEach((command) -> {
-                        core.debug(command);
-                    });
+                    ex.getCommands().forEach(core::debug);
                 } else {
                     core.debug("An executor with the id: " + ex.getID() + " was received from BungeeCord but a local Executor with that id already exists.");
                 }
@@ -108,19 +105,17 @@ public class PluginMessage implements PluginMessageListener {
         out.writeUTF(message);
         Player p = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
         if (p != null) {
-            p.sendPluginMessage(Main.getInstance(), "Coins", out.toByteArray());
+            p.sendPluginMessage(Main.getInstance(), CoinsCore.MESSAGING_CHANNEL, out.toByteArray());
         }
     }
 
     public void sendToBungeeCord(String channel, List<String> messages) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF(channel);
-        messages.forEach(message -> {
-            out.writeUTF(message);
-        });
+        messages.forEach(out::writeUTF);
         Player p = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
         if (p != null) {
-            p.sendPluginMessage(Main.getInstance(), "Coins", out.toByteArray());
+            p.sendPluginMessage(Main.getInstance(), CoinsCore.MESSAGING_CHANNEL, out.toByteArray());
         }
     }
 }
