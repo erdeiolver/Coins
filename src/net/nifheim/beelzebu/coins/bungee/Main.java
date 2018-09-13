@@ -30,15 +30,14 @@ import net.nifheim.beelzebu.coins.common.utils.CoinsConfig;
 import net.nifheim.beelzebu.coins.common.utils.dependencies.DependencyManager;
 
 /**
- *
  * @author Beelzebu
  */
 public class Main extends Plugin {
 
     private static Main instance;
+    private static Boolean useRedis = false;
     private final CoinsCore core = CoinsCore.getInstance();
     private Configuration config;
-    private static Boolean useRedis = false;
 
     public static Main getInstance() {
         return instance;
@@ -62,7 +61,7 @@ public class Main extends Plugin {
             core.log("Using RedisBungee for plugin messaging.");
         }
         ProxyServer.getInstance().getPluginManager().registerListener(this, new PluginMessageListener());
-        ProxyServer.getInstance().registerChannel("Coins");
+        ProxyServer.getInstance().registerChannel(CoinsCore.MESSAGING_CHANNEL);
     }
 
     @Override

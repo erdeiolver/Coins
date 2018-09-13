@@ -22,12 +22,17 @@ import java.util.Iterator;
 import java.util.UUID;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.command.CommandManager;
-import net.nifheim.beelzebu.coins.bukkit.listener.*;
+import net.nifheim.beelzebu.coins.bukkit.listener.CommandListener;
+import net.nifheim.beelzebu.coins.bukkit.listener.GUIListener;
+import net.nifheim.beelzebu.coins.bukkit.listener.InternalListener;
+import net.nifheim.beelzebu.coins.bukkit.listener.PlayerJoinListener;
+import net.nifheim.beelzebu.coins.bukkit.listener.SignListener;
 import net.nifheim.beelzebu.coins.bukkit.utils.CoinsEconomy;
 import net.nifheim.beelzebu.coins.bukkit.utils.Configuration;
 import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
 import net.nifheim.beelzebu.coins.bukkit.utils.leaderheads.LeaderHeadsHook;
-import net.nifheim.beelzebu.coins.bukkit.utils.placeholders.*;
+import net.nifheim.beelzebu.coins.bukkit.utils.placeholders.CoinsPlaceholders;
+import net.nifheim.beelzebu.coins.bukkit.utils.placeholders.MultipliersPlaceholders;
 import net.nifheim.beelzebu.coins.common.CoinsCore;
 import net.nifheim.beelzebu.coins.common.executor.Executor;
 import net.nifheim.beelzebu.coins.common.utils.CacheManager;
@@ -39,8 +44,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class Main extends JavaPlugin {
 
-    private final CoinsCore core = CoinsCore.getInstance();
     private static Main instance;
+    private final CoinsCore core = CoinsCore.getInstance();
     private CommandManager commandManager;
     private Configuration configuration;
 
@@ -69,9 +74,7 @@ public class Main extends JavaPlugin {
         commandManager = new CommandManager();
         loadManagers();
         startListeners();
-        getConfig().getConfigurationSection("Command executor").getKeys(false).forEach((id) -> {
-            core.getExecutorManager().addExecutor(new Executor(id, getConfig().getString("Command executor." + id + ".Displayname", id), getConfig().getDouble("Command executor." + id + ".Cost", 0), getConfig().getStringList("Command executor." + id + ".Command")));
-        });
+        getConfig().getConfigurationSection("Command executor").getKeys(false).forEach(id -> core.getExecutorManager().addExecutor(new Executor(id, getConfig().getString("Command executor." + id + ".Displayname", id), getConfig().getDouble("Command executor." + id + ".Cost", 0), getConfig().getStringList("Command executor." + id + ".Command"))));
         startTasks();
     }
 
@@ -131,21 +134,17 @@ public class Main extends JavaPlugin {
     private void startTasks() {
         if (core.getConfig().useBungee()) {
             PluginMessage pmsg = new PluginMessage();
-            Bukkit.getMessenger().registerOutgoingPluginChannel(this, "Coins");
-            Bukkit.getMessenger().registerIncomingPluginChannel(this, "Coins", pmsg);
+            Bukkit.getMessenger().registerOutgoingPluginChannel(this, CoinsCore.MESSAGING_CHANNEL);
+            Bukkit.getMessenger().registerIncomingPluginChannel(this, CoinsCore.MESSAGING_CHANNEL, pmsg);
             Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
                 pmsg.sendToBungeeCord("Multiplier", "getAllMultipliers");
                 pmsg.sendToBungeeCord("Coins", "getExecutors");
             }, 20);
         }
-        Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
-            Bukkit.getOnlinePlayers().forEach((p) -> {
-                CoinsAPI.createPlayer(p.getName(), p.getUniqueId());
-            });
-        }, 30);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> Bukkit.getOnlinePlayers().forEach(p -> CoinsAPI.createPlayer(p.getName(), p.getUniqueId())), 30);
         core.debug("Starting cache cleanup task");
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
-            for (Iterator<UUID> it = CacheManager.getPlayersData().keySet().iterator(); it.hasNext();) {
+            for (Iterator<UUID> it = CacheManager.getPlayersData().keySet().iterator(); it.hasNext(); ) {
                 UUID uuid = it.next();
                 if (!core.getMethods().isOnline(uuid)) {
                     it.remove();

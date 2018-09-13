@@ -69,7 +69,7 @@ public class PluginMessageListener extends CoinsBungeeListener implements Listen
                         if (plugin.useRedis()) {
                             RedisBungee.getApi().sendChannelMessage("Update", updatemsg[1] + " " + updatemsg[2]);
                         } else {
-                            ProxyServer.getInstance().getServers().keySet().forEach(server -> sendToBukkit("Update", Collections.singletonList(updatemsg[1] + " " + updatemsg[2]), ProxyServer.getInstance().getServerInfo(server), true));
+                            ProxyServer.getInstance().getServers().forEach((server, serverInfo) -> sendToBukkit("Update", Collections.singletonList(updatemsg[1] + " " + updatemsg[2]), serverInfo, true));
                         }
                     }
                 }

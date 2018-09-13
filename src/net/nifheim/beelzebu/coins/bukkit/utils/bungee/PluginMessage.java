@@ -23,6 +23,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import net.nifheim.beelzebu.coins.CoinsAPI;
@@ -100,13 +101,7 @@ public class PluginMessage implements PluginMessageListener {
     }
 
     public void sendToBungeeCord(String channel, String message) {
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF(channel);
-        out.writeUTF(message);
-        Player p = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
-        if (p != null) {
-            p.sendPluginMessage(Main.getInstance(), CoinsCore.MESSAGING_CHANNEL, out.toByteArray());
-        }
+        sendToBungeeCord(channel, Collections.singletonList(message));
     }
 
     public void sendToBungeeCord(String channel, List<String> messages) {

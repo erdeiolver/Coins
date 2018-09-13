@@ -29,14 +29,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 /**
- *
  * @author Beelzebu
  */
 public class PlayerJoinListener implements Listener {
 
+    private static boolean first = true;
     private final Main plugin;
     private final CoinsCore core = CoinsCore.getInstance();
-    private static boolean first = true;
 
     public PlayerJoinListener(Main main) {
         plugin = main;
@@ -44,19 +43,21 @@ public class PlayerJoinListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent e) {
-        if (core.getConfig().getBoolean("General.Create Join", false)) {
-            CoinsAPI.createPlayer(e.getPlayer().getName(), e.getPlayer().getUniqueId());
-        }
-        if (!core.getConfig().useBungee()) {
-            return;
-        }
-        PluginMessage pmsg = new PluginMessage();
-        if (first) {
-            Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(plugin, () -> {
-                pmsg.sendToBungeeCord("Multiplier", "getAllMultipliers");
-                pmsg.sendToBungeeCord("Coins", "getExecutors");
-            }, 30);
-            first = false;
-        }
+        core.getMethods().runAsync(() -> {
+            if (core.getConfig().getBoolean("General.Create Join", false)) {
+                CoinsAPI.createPlayer(e.getPlayer().getName(), e.getPlayer().getUniqueId());
+            }
+            if (!core.getConfig().useBungee()) {
+                return;
+            }
+            PluginMessage pmsg = new PluginMessage();
+            if (first) {
+                Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+                    pmsg.sendToBungeeCord("Multiplier", "getAllMultipliers");
+                    pmsg.sendToBungeeCord("Coins", "getExecutors");
+                }, 30);
+                first = false;
+            }
+        });
     }
 }

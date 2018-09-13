@@ -23,7 +23,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import net.nifheim.beelzebu.coins.bukkit.events.*;
+import net.nifheim.beelzebu.coins.bukkit.events.CoinsChangeEvent;
+import net.nifheim.beelzebu.coins.bukkit.events.MultiplierEnableEvent;
 import net.nifheim.beelzebu.coins.bukkit.utils.Messages;
 import net.nifheim.beelzebu.coins.common.CoinsCore;
 import net.nifheim.beelzebu.coins.common.multiplier.MultiplierData;
@@ -35,7 +36,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
 /**
- *
  * @author Beelzebu
  */
 public class BukkitMethods implements IMethods {
@@ -146,9 +146,7 @@ public class BukkitMethods implements IMethods {
     public List<String> getPermissions(UUID uuid) {
         List<String> permissions = new ArrayList<>();
         if (isOnline(uuid)) {
-            Bukkit.getPlayer(uuid).getEffectivePermissions().forEach(perm -> {
-                permissions.add(perm.getPermission());
-            });
+            Bukkit.getPlayer(uuid).getEffectivePermissions().forEach(perm -> permissions.add(perm.getPermission()));
         }
         return permissions;
     }

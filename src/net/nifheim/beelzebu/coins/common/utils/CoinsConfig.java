@@ -25,7 +25,6 @@ import net.nifheim.beelzebu.coins.common.executor.Executor;
 import org.bukkit.Bukkit;
 
 /**
- *
  * @author Beelzebu
  */
 public abstract class CoinsConfig implements IConfiguration {
@@ -33,9 +32,7 @@ public abstract class CoinsConfig implements IConfiguration {
     private final Set<Executor> executors = new HashSet<>();
 
     public void loadExecutors() {
-        getConfigurationSection("Command executor").forEach((id) -> {
-            executors.add(new Executor(id, getString("Command executor." + id + ".Displayname", id), getDouble("Command executor." + id + ".Cost", 0), getStringList("Command executor." + id + ".Command")));
-        });
+        getConfigurationSection("Command executor").forEach(id -> executors.add(new Executor(id, getString("Command executor." + id + ".Displayname", id), getDouble("Command executor." + id + ".Cost", 0), getStringList("Command executor." + id + ".Command"))));
     }
 
     public Set<Executor> getExecutors() {

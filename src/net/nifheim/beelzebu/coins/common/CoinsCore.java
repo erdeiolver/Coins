@@ -26,12 +26,13 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
@@ -101,13 +102,13 @@ public class CoinsCore {
         mi.sendMessage(mi.getConsole(), rep("&6-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"));
         mi.sendMessage(mi.getConsole(), rep("           &4Coins &fBy:  &7Beelzebu"));
         mi.sendMessage(mi.getConsole(), rep(""));
-        String version = "";
+        StringBuilder version = new StringBuilder();
         int spaces = (42 - ("v: " + mi.getVersion()).length()) / 2;
         for (int i = 0; i < spaces; i++) {
-            version += " ";
+            version.append(" ");
         }
-        version += rep("&4v: &f" + mi.getVersion());
-        mi.sendMessage(mi.getConsole(), version);
+        version.append(rep("&4v: &f" + mi.getVersion()));
+        mi.sendMessage(mi.getConsole(), version.toString());
         mi.sendMessage(mi.getConsole(), rep("&6-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"));
         mi.sendMessage(mi.getConsole(), rep(""));
         // Only send this in the onEnable
@@ -214,19 +215,11 @@ public class CoinsCore {
     }
 
     public List<String> rep(List<String> msgs) {
-        List<String> message = new ArrayList<>();
-        msgs.forEach(msg -> {
-            message.add(rep(msg));
-        });
-        return message;
+        return msgs.stream().map(this::rep).collect(Collectors.toList());
     }
 
     public List<String> rep(List<String> msgs, MultiplierData multiplierData) {
-        List<String> message = new ArrayList<>();
-        msgs.forEach(msg -> {
-            message.add(rep(msg, multiplierData));
-        });
-        return message;
+        return msgs.stream().map(line -> rep(line, multiplierData)).collect(Collectors.toList());
     }
 
     public String removeColor(String str) {
@@ -280,7 +273,7 @@ public class CoinsCore {
         if (isBungee()) {
             ProxyServer.getInstance().getServers().keySet().forEach(server -> {
                 PluginMessageListener pml = new PluginMessageListener();
-                pml.sendToBukkit("Update", Arrays.asList(player + " " + coins), ProxyServer.getInstance().getServerInfo(server), false);
+                pml.sendToBukkit("Update", Collections.singletonList(player + " " + coins), ProxyServer.getInstance().getServerInfo(server), false);
             });
         } else if (getConfig().useBungee()) {
             PluginMessage pm = new PluginMessage();
@@ -308,8 +301,6 @@ public class CoinsCore {
     }
 
     public void reloadMessages() {
-        messagesMap.keySet().forEach((lang) -> {
-            messagesMap.get(lang).reload();
-        });
+        messagesMap.keySet().forEach(lang -> messagesMap.get(lang).reload());
     }
 }
