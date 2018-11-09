@@ -3,18 +3,16 @@
  *
  * Copyright (C) 2017 Beelzebu
  *
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Affero General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 package net.nifheim.beelzebu.coins.common;
 
@@ -37,6 +35,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
 import net.nifheim.beelzebu.coins.bungee.BungeeMethods;
+import net.nifheim.beelzebu.coins.bungee.listener.CoinsBungeeListener;
 import net.nifheim.beelzebu.coins.bungee.listener.PluginMessageListener;
 import net.nifheim.beelzebu.coins.common.database.Database;
 import net.nifheim.beelzebu.coins.common.database.MySQL;
@@ -271,13 +270,9 @@ public class CoinsCore {
     public void updateCache(UUID player, Double coins) {
         CacheManager.updateCoins(player, coins);
         if (isBungee()) {
-            ProxyServer.getInstance().getServers().keySet().forEach(server -> {
-                PluginMessageListener pml = new PluginMessageListener();
-                pml.sendToBukkit("Update", Collections.singletonList(player + " " + coins), ProxyServer.getInstance().getServerInfo(server), false);
-            });
+            ProxyServer.getInstance().getServers().forEach((k, v) -> PluginMessageListener.sendToBukkit("Update", Collections.singletonList(player + " " + coins), v, true));
         } else if (getConfig().useBungee()) {
-            PluginMessage pm = new PluginMessage();
-            pm.sendToBungeeCord("Update", "updateCache " + player + " " + coins);
+            PluginMessage.sendToBungeeCord("Update", "updateCache " + player + " " + coins);
         }
     }
 
@@ -292,11 +287,11 @@ public class CoinsCore {
         if (isBungee()) {
             ProxyServer.getInstance().getServers().keySet().forEach(server -> {
                 PluginMessageListener pml = new PluginMessageListener();
-                pml.sendToBukkit("Multiplier", message, ProxyServer.getInstance().getServerInfo(server), false);
+                CoinsBungeeListener.sendToBukkit("Multiplier", message, ProxyServer.getInstance().getServerInfo(server), false);
             });
         } else if (getConfig().useBungee()) {
             PluginMessage pm = new PluginMessage();
-            pm.sendToBungeeCord("Multiplier", message);
+            PluginMessage.sendToBungeeCord("Multiplier", message);
         }
     }
 

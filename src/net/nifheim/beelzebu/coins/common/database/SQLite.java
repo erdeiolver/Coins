@@ -3,18 +3,16 @@
  *
  * Copyright (C) 2017 Beelzebu
  *
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Affero General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 package net.nifheim.beelzebu.coins.common.database;
 
@@ -33,10 +31,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.common.CoinsCore;
-import static net.nifheim.beelzebu.coins.common.database.Database.prefix;
 
 /**
- *
  * @author Beelzebu
  */
 public class SQLite implements Database {
@@ -161,7 +157,7 @@ public class SQLite implements Database {
     @Override
     public Double getCoins(String player) {
         double coins = -1;
-        try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();) {
+        try (Connection c = ds.getConnection(); ResultSet res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery()) {
             if (CoinsAPI.isindb(player)) {
                 res.next();
                 coins = res.getDouble("balance");
@@ -407,7 +403,7 @@ public class SQLite implements Database {
     }
 
     private boolean isColumnMissing(DatabaseMetaData metaData, String table, String column) throws SQLException {
-        try (ResultSet res = metaData.getColumns(null, null, prefix + table, column)) {
+        try (ResultSet res = metaData.getColumns(null, null, Database.prefix + table, column)) {
             return !res.next();
         }
     }

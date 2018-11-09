@@ -34,7 +34,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.ServicePriority;
 
 /**
- *
  * @author Beelzebu
  */
 public class CoinsEconomy implements Economy {

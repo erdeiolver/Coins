@@ -3,18 +3,16 @@
  *
  * Copyright (C) 2017 Beelzebu
  *
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Affero General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 package net.nifheim.beelzebu.coins.bungee;
 
@@ -29,7 +27,8 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
-import net.nifheim.beelzebu.coins.bungee.events.*;
+import net.nifheim.beelzebu.coins.bungee.events.CoinsChangeEvent;
+import net.nifheim.beelzebu.coins.bungee.events.MultiplierEnableEvent;
 import net.nifheim.beelzebu.coins.bungee.utils.Messages;
 import net.nifheim.beelzebu.coins.common.CoinsCore;
 import net.nifheim.beelzebu.coins.common.multiplier.MultiplierData;
@@ -38,7 +37,6 @@ import net.nifheim.beelzebu.coins.common.utils.IMethods;
 import net.nifheim.beelzebu.coins.common.utils.MessagesManager;
 
 /**
- *
  * @author Beelzebu
  */
 public class BungeeMethods implements IMethods {
@@ -67,7 +65,7 @@ public class BungeeMethods implements IMethods {
     }
 
     @Override
-    public void runAsync(Runnable rn, Long timer) {
+    public void runAsync(Runnable rn, long timer) {
         ProxyServer.getInstance().getScheduler().schedule((Plugin) getPlugin(), rn, 0, timer / 20, TimeUnit.SECONDS);
     }
 

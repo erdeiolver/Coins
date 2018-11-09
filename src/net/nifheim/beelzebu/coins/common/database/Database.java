@@ -3,18 +3,16 @@
  *
  * Copyright (C) 2017 Beelzebu
  *
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Affero General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 package net.nifheim.beelzebu.coins.common.database;
 
@@ -30,7 +28,6 @@ import java.util.stream.Collectors;
 import net.nifheim.beelzebu.coins.common.CoinsCore;
 
 /**
- *
  * @author Beelzebu
  */
 public interface Database {
@@ -78,6 +75,23 @@ public interface Database {
 
     void shutdown();
 
+    enum SQLQuery {
+        SEARCH_USER_ONLINE("SELECT * FROM `" + Database.prefix + "Data` WHERE uuid = ?;"),
+        SEARCH_USER_OFFLINE("SELECT * FROM `" + Database.prefix + "Data` WHERE nick = ?;"),
+        CREATE_USER("INSERT INTO `" + Database.prefix + "Data` (`uuid`, `nick`, `balance`, `lastlogin`) VALUES (?, ?, ?, ?);"),
+        UPDATE_USER_ONLINE("UPDATE `" + Database.prefix + "Data` SET nick = ?, lastlogin = ? WHERE uuid = ?;"),
+        UPDATE_USER_OFFLINE("UPDATE `" + Database.prefix + "Data` SET uuid = ?, lastlogin = ? WHERE nick = ?;"),
+        UPDATE_COINS_ONLINE("UPDATE `" + Database.prefix + "Data` SET balance = ? WHERE uuid = ?;"),
+        UPDATE_COINS_OFFLINE("UPDATE `" + Database.prefix + "Data` SET balance = ? WHERE nick = ?;"),
+        SELECT_TOP("SELECT * FROM `" + Database.prefix + "Data` ORDER BY balance DESC LIMIT ?;");
+
+        private final String name;
+
+        SQLQuery(String query) {
+            name = query;
+        }
+    }
+
     class Utils {
 
         static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
@@ -115,23 +129,6 @@ public interface Database {
                 CoinsCore.getInstance().debug("Query: " + query.name);
             }
             return ps;
-        }
-    }
-
-    enum SQLQuery {
-        SEARCH_USER_ONLINE("SELECT * FROM `" + prefix + "Data` WHERE uuid = ?;"),
-        SEARCH_USER_OFFLINE("SELECT * FROM `" + prefix + "Data` WHERE nick = ?;"),
-        CREATE_USER("INSERT INTO `" + prefix + "Data` (`uuid`, `nick`, `balance`, `lastlogin`) VALUES (?, ?, ?, ?);"),
-        UPDATE_USER_ONLINE("UPDATE `" + prefix + "Data` SET nick = ?, lastlogin = ? WHERE uuid = ?;"),
-        UPDATE_USER_OFFLINE("UPDATE `" + prefix + "Data` SET uuid = ?, lastlogin = ? WHERE nick = ?;"),
-        UPDATE_COINS_ONLINE("UPDATE `" + prefix + "Data` SET balance = ? WHERE uuid = ?;"),
-        UPDATE_COINS_OFFLINE("UPDATE `" + prefix + "Data` SET balance = ? WHERE nick = ?;"),
-        SELECT_TOP("SELECT * FROM `" + prefix + "Data` ORDER BY balance DESC LIMIT ?;");
-
-        private final String name;
-
-        SQLQuery(String query) {
-            name = query;
         }
     }
 }

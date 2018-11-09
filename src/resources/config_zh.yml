@@ -27,9 +27,9 @@ Vault:
 
 # 本插件特殊功能也就是BC跨服和Mysql数据库的支持中的MySql数据库，本地储存，请在底下输入你的数据库信息
 MySQL:
-#是否开启Mysql数据库功能，不开启则默认本地储存
+  #是否开启Mysql数据库功能，不开启则默认本地储存
   Use: false
-#数据库地址
+  #数据库地址
   Host: 'localhost'
   #数据库端口
   Port: '3306'
@@ -61,12 +61,12 @@ General:
   # 在这里您可是设置删除指定时间没上线的用户删除
   Purge:
     # 启用服务器开启后自动删除不活跃的用户
-    Enabled: true 
+    Enabled: true
     #用户多久不上线后删除账户，已时间为单位
-    Days: 60 
+    Days: 60
     Logs:
       #保留插件日志的时间【天】
-      Days: 10 
+      Days: 10
   Executor Sign:
     '1': '&c&lCoins'
     '2': '%executor_displayname%'
@@ -76,9 +76,9 @@ General:
 # 在这里您可以设置使用指定命令需要花费的钱，按照下面的方法添加命令，默认扣除本插件的钱
 Command Cost:
   #使用这个命令后扣除玩家100元
-  /example: 100.0 
+  /example: 100.0
   #如上面所说
-  /command: 5.5 
+  /command: 5.5
   #例如：
   #/stop: 1000000.0 使用stop时扣除10000000.0元
 
@@ -89,12 +89,12 @@ Command executor:
   # With the command below you should use /coins execute example1
   example1:
     # 这是后台使用的命令
-    Command: 
+    Command:
     - 'eco give %player% 10000' # Note the %player% placeholder, this is replaced by the player that runs the command.
     Cost: 100 # This is the cost of the command.
   '2':
     # You can create executors without cost.
-    Command: 
+    Command:
     - 'broadcast: %player% Is awesome!'
   list:
     # 你也可以设置xxxxx     # You can also create a list of commands to run when the executor is called.
@@ -102,7 +102,7 @@ Command executor:
     - 'kill %player%'
     - 'msg %player% we''re sorry :('
   all:
-       #当输入一些特殊命令时，给玩家的消息
+    #当输入一些特殊命令时，给玩家的消息
     Command:
     - 'message: You win 100 $'
     - 'broadcast: %player% winned 100 $'
@@ -132,7 +132,7 @@ Multipliers:
       Fail:
         Sound: 'ENTITY_VILLAGER_NO'
         Pitch: '1'
-#重要如果您将本插件用于跨服经济插件时必须使用Mysql数据库，下面请填写启用本插件的蹦极子服务器名称【须是BC配置内填写的】
+  #重要如果您将本插件用于跨服经济插件时必须使用Mysql数据库，下面请填写启用本插件的蹦极子服务器名称【须是BC配置内填写的】
   Server: 'default'
 
 #调试模式，如果插件发生BUG后无法查看原因，请打开这个，但请及时关闭

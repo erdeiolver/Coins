@@ -3,18 +3,16 @@
  *
  * Copyright (C) 2017 Beelzebu
  *
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Affero General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 package net.nifheim.beelzebu.coins.bukkit.listener;
 
@@ -22,23 +20,23 @@ import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import net.nifheim.beelzebu.coins.bukkit.utils.bungee.PluginMessage;
 import net.nifheim.beelzebu.coins.common.CoinsCore;
-import org.bukkit.Bukkit;
+import net.nifheim.beelzebu.coins.common.utils.CacheManager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 /**
  * @author Beelzebu
  */
 public class PlayerJoinListener implements Listener {
 
-    private static boolean first = true;
-    private final Main plugin;
     private final CoinsCore core = CoinsCore.getInstance();
+    private boolean first = true;
 
     public PlayerJoinListener(Main main) {
-        plugin = main;
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -50,14 +48,21 @@ public class PlayerJoinListener implements Listener {
             if (!core.getConfig().useBungee()) {
                 return;
             }
-            PluginMessage pmsg = new PluginMessage();
             if (first) {
-                Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(plugin, () -> {
-                    pmsg.sendToBungeeCord("Multiplier", "getAllMultipliers");
-                    pmsg.sendToBungeeCord("Coins", "getExecutors");
-                }, 30);
+                PluginMessage.sendToBungeeCord("Multiplier", "getAllMultipliers");
+                PluginMessage.sendToBungeeCord("Coins", "getExecutors");
                 first = false;
             }
         });
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerQuit(PlayerQuitEvent e) {
+        CacheManager.removePlayer(e.getPlayer().getUniqueId());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerQuit(PlayerKickEvent e) {
+        CacheManager.removePlayer(e.getPlayer().getUniqueId());
     }
 }

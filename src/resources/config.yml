@@ -77,12 +77,12 @@ Command executor:
   # With the command below you should use /coins execute example1
   example1:
     # This is the command that the console gonna run.
-    Command: 
+    Command:
     - 'eco give %player% 10000' # Note the %player% placeholder, this is replaced by the player that runs the command.
     Cost: 100 # This is the cost of the command.
   '2':
     # You can create executors without cost.
-    Command: 
+    Command:
     - 'broadcast: %player% Is awesome!'
   list:
     # You can also create a list of commands to run when the executor is called.

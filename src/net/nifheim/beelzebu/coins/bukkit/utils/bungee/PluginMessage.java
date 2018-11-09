@@ -3,18 +3,16 @@
  *
  * Copyright (C) 2017 Beelzebu
  *
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Affero General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 package net.nifheim.beelzebu.coins.bukkit.utils.bungee;
 
@@ -42,6 +40,20 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 public class PluginMessage implements PluginMessageListener {
 
     private final CoinsCore core = CoinsCore.getInstance();
+
+    public static void sendToBungeeCord(String subchannel, String message) {
+        sendToBungeeCord(subchannel, Collections.singletonList(message));
+    }
+
+    public static void sendToBungeeCord(String subchannel, List<String> messages) {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF(subchannel);
+        messages.forEach(out::writeUTF);
+        Player p = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
+        if (p != null) {
+            p.sendPluginMessage(Main.getInstance(), CoinsCore.MESSAGING_CHANNEL, out.toByteArray());
+        }
+    }
 
     @Override
     public synchronized void onPluginMessageReceived(String channel, Player player, byte[] message) {
@@ -79,9 +91,7 @@ public class PluginMessage implements PluginMessageListener {
                 String data = in.readUTF();
                 if (data.split(" ").length == 2) {
                     UUID puuid = UUID.fromString(data.split(" ")[0]);
-                    if (CacheManager.getCoins(puuid) > -1) {
-                        CacheManager.updateCoins(puuid, Double.valueOf(data.split(" ")[1]));
-                    }
+                    CacheManager.updateCoins(puuid, Double.valueOf(data.split(" ")[1]));
                 }
                 break;
             case "Multiplier":
@@ -97,20 +107,6 @@ public class PluginMessage implements PluginMessageListener {
                 break;
             default:
                 break;
-        }
-    }
-
-    public void sendToBungeeCord(String channel, String message) {
-        sendToBungeeCord(channel, Collections.singletonList(message));
-    }
-
-    public void sendToBungeeCord(String channel, List<String> messages) {
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF(channel);
-        messages.forEach(out::writeUTF);
-        Player p = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
-        if (p != null) {
-            p.sendPluginMessage(Main.getInstance(), CoinsCore.MESSAGING_CHANNEL, out.toByteArray());
         }
     }
 }

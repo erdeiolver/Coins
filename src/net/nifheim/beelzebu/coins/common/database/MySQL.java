@@ -3,18 +3,16 @@
  *
  * Copyright (C) 2017 Beelzebu
  *
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Affero General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 package net.nifheim.beelzebu.coins.common.database;
 
@@ -67,6 +65,9 @@ public class MySQL implements Database {
         updateDatabase();
         core.getMethods().runAsync(() -> {
             core.debug("Checking the database connection ...");
+            if (ds == null || !ds.isRunning() || ds.isClosed()) {
+                setupDatabase();
+            }
             try (Connection c = ds.getConnection()) {
                 try {
                     if (c == null || c.isClosed()) {
@@ -79,13 +80,15 @@ public class MySQL implements Database {
                         core.debug("The connection to the database is still active.");
                     }
                 } finally {
-                    c.close();
+                    if (c != null) {
+                        c.close();
+                    }
                 }
             } catch (SQLException ex) {
                 core.log("The database connection is null, check your MySQL settings!");
                 core.debug(ex);
             }
-        }, (long) core.getConfig().getInt("MySQL.Connection Interval") * 1200);
+        }, core.getConfig().getInt("MySQL.Connection Interval") * 1200);
     }
 
     private void setupDatabase() {
@@ -128,13 +131,13 @@ public class MySQL implements Database {
             try {
                 DatabaseMetaData md = c.getMetaData();
                 String Data
-                        = "CREATE TABLE IF NOT EXISTS `" + prefix + "Data`"
+                        = "CREATE TABLE IF NOT EXISTS `" + Database.prefix + "Data`"
                         + "(`uuid` VARCHAR(50) NOT NULL,"
                         + "`nick` VARCHAR(50) NOT NULL,"
                         + "`balance` DOUBLE NOT NULL,"
                         + "`lastlogin` LONG NOT NULL,"
                         + "PRIMARY KEY (`uuid`));";
-                String Multiplier = "CREATE TABLE IF NOT EXISTS `" + prefix + "Multipliers`"
+                String Multiplier = "CREATE TABLE IF NOT EXISTS `" + Database.prefix + "Multipliers`"
                         + "(`id` INT NOT NULL AUTO_INCREMENT,"
                         + "`uuid` VARCHAR(50) NOT NULL,"
                         + "`multiplier` INT,"
@@ -148,11 +151,11 @@ public class MySQL implements Database {
                 core.debug("The data table was updated.");
                 st.executeUpdate(Multiplier);
                 if (!isColumnMissing(md, "Multipliers", "starttime")) {
-                    st.executeUpdate("ALTER TABLE `" + prefix + "Multipliers` DROP COLUMN starttime;");
+                    st.executeUpdate("ALTER TABLE `" + Database.prefix + "Multipliers` DROP COLUMN starttime;");
                 }
                 core.debug("The multipliers table was updated");
                 if (core.getConfig().getBoolean("General.Purge.Enabled", true) && core.getConfig().getInt("General.Purge.Days") > 0) {
-                    st.executeUpdate("DELETE FROM " + prefix + "Data WHERE lastlogin < " + (System.currentTimeMillis() - (core.getConfig().getInt("General.Purge.Days", 60) * 86400000L)) + ";");
+                    st.executeUpdate("DELETE FROM " + Database.prefix + "Data WHERE lastlogin < " + (System.currentTimeMillis() - (core.getConfig().getInt("General.Purge.Days", 60) * 86400000L)) + ";");
                     core.debug("Inactive users were removed from the database.");
                 }
             } finally {
@@ -167,7 +170,7 @@ public class MySQL implements Database {
     }
 
     @Override
-    public void createPlayer(Connection c, String player, UUID uuid, double balance) {
+    public void createPlayer(Connection c, String name, UUID uuid, double balance) {
         try {
             core.debug("A database connection was opened.");
             ResultSet res = null;
@@ -177,21 +180,29 @@ public class MySQL implements Database {
                     core.debug("Preparing to create or update an entry for online mode.");
                     res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, uuid).executeQuery();
                     if (!res.next()) {
-                        Utils.generatePreparedStatement(c, SQLQuery.CREATE_USER, uuid, player, balance, System.currentTimeMillis()).executeUpdate();
-                        core.debug("An entry in the database was created for: " + player);
+                        Utils.generatePreparedStatement(c, SQLQuery.CREATE_USER, uuid, name, balance, System.currentTimeMillis()).executeUpdate();
+                        core.debug("An entry in the database was created for: " + name);
                     } else {
-                        Utils.generatePreparedStatement(c, SQLQuery.UPDATE_USER_ONLINE, player, System.currentTimeMillis(), uuid).executeUpdate();
+                        Utils.generatePreparedStatement(c, SQLQuery.UPDATE_USER_ONLINE, name, System.currentTimeMillis(), uuid).executeUpdate();
                         CacheManager.updateCoins(uuid, getCoins(uuid));
-                        core.debug("The nickname of: " + player + " was updated in the database.");
+                        core.debug("The nickname of: " + name + " was updated in the database.");
                     }
                 } else {
                     core.debug("Preparing to create or update an entry for offline mode.");
-                    res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, player).executeQuery();
+                    res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_OFFLINE, name).executeQuery();
                     if (!res.next()) {
-                        Utils.generatePreparedStatement(c, SQLQuery.CREATE_USER, uuid, player, balance, System.currentTimeMillis()).executeUpdate();
-                        core.debug("An entry in the database was created for: " + player);
+                        res = Utils.generatePreparedStatement(c, SQLQuery.SEARCH_USER_ONLINE, uuid).executeQuery();
+                        if (res.next()) {
+                            core.log("Looks like " + name + " changed his name, his old name was: " + res.getString("nick") + ". We'll update it in the database.");
+                            Utils.generatePreparedStatement(c, SQLQuery.UPDATE_USER_ONLINE, name, System.currentTimeMillis(), uuid).executeUpdate();
+                            core.debug("Updated nick for " + name + " in the database.");
+                            CacheManager.updateCoins(uuid, res.getDouble("balance"));
+                            return;
+                        }
+                        Utils.generatePreparedStatement(c, SQLQuery.CREATE_USER, uuid, name, balance, System.currentTimeMillis()).executeUpdate();
+                        core.debug("An entry in the database was created for: " + name);
                     } else {
-                        Utils.generatePreparedStatement(c, SQLQuery.UPDATE_USER_OFFLINE, uuid, System.currentTimeMillis(), player).executeUpdate();
+                        Utils.generatePreparedStatement(c, SQLQuery.UPDATE_USER_OFFLINE, uuid, System.currentTimeMillis(), name).executeUpdate();
                         CacheManager.updateCoins(uuid, getCoins(uuid));
                         core.debug("The uuid of: " + core.getNick(uuid) + " was updated in the database.");
                     }
@@ -204,7 +215,7 @@ public class MySQL implements Database {
                 core.debug("The connection was closed.");
             }
         } catch (SQLException ex) {
-            core.log("&cAn internal error has occurred creating the player: " + player + " in the database.");
+            core.log("&cAn internal error has occurred creating the player: " + name + " in the database.");
             core.debug(ex);
         }
     }
@@ -458,7 +469,7 @@ public class MySQL implements Database {
     }
 
     private boolean isColumnMissing(DatabaseMetaData metaData, String table, String column) throws SQLException {
-        try (ResultSet res = metaData.getColumns(null, null, prefix + table, column)) {
+        try (ResultSet res = metaData.getColumns(null, null, Database.prefix + table, column)) {
             return !res.next();
         }
     }

@@ -3,18 +3,16 @@
  *
  * Copyright (C) 2017 Beelzebu
  *
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Affero General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 package net.nifheim.beelzebu.coins.bungee.events;
 
@@ -24,7 +22,6 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Event;
 
 /**
- *
  * @author Beelzebu
  */
 public class CoinsChangeEvent extends Event {
@@ -44,8 +41,7 @@ public class CoinsChangeEvent extends Event {
     }
 
     /**
-     * Get the coins that the player involved in this event had before this
-     * change.
+     * Get the coins that the player involved in this event had before this change.
      *
      * @return the old coins of the player.
      */
@@ -63,9 +59,8 @@ public class CoinsChangeEvent extends Event {
     }
 
     /**
-     * Get the difference between the old coins and the new coins, this value
-     * can be possitive if we added coins to the player or negative if we've
-     * taken coins from him.
+     * Get the difference between the old coins and the new coins, this value can be possitive if we added coins to the
+     * player or negative if we've taken coins from him.
      *
      * @return the difference in coins.
      */

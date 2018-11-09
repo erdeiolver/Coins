@@ -3,18 +3,16 @@
  *
  * Copyright (C) 2017 Beelzebu
  *
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Affero General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 package net.nifheim.beelzebu.coins.bungee.listener;
 
@@ -22,6 +20,7 @@ import com.imaginarycode.minecraft.redisbungee.events.PubSubMessageEvent;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
@@ -46,9 +45,9 @@ public class PubSubMessageListener extends CoinsBungeeListener implements Listen
                 }
                 break;
             case "Update":
-                ProxyServer.getInstance().getServers().keySet().forEach(server -> {
-                    sendToBukkit("Update", Collections.singletonList(e.getMessage()), ProxyServer.getInstance().getServerInfo(server), true);
-                });
+                ProxyServer.getInstance().getServers().forEach((k, v) -> CoinsBungeeListener.sendToBukkit("Update", Collections.singletonList(e.getMessage()), v, true));
+                String[] updatemsg = e.getMessage().split(" ");
+                CacheManager.updateCoins(UUID.fromString(updatemsg[0]), Double.parseDouble(updatemsg[1]));
                 break;
             case "Multiplier":
                 if (e.getMessage().startsWith("disable ")) {

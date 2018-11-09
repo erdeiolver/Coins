@@ -3,18 +3,16 @@
  *
  * Copyright (C) 2017 Beelzebu
  *
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Affero General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 package net.nifheim.beelzebu.coins.bukkit.utils.gui;
 
@@ -31,16 +29,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 /**
- *
  * @author Beelzebu
  */
 public abstract class BaseGUI {
 
+    private static final Map<UUID, BaseGUI> inventoriesByUUID = new HashMap<>();
+    private static final Map<UUID, UUID> openInventories = new HashMap<>();
     private final CoinsCore core = CoinsCore.getInstance();
     private final Inventory inv;
     private final Map<Integer, GUIAction> actions;
-    private static final Map<UUID, BaseGUI> inventoriesByUUID = new HashMap<>();
-    private static final Map<UUID, UUID> openInventories = new HashMap<>();
     private final UUID uuid;
 
     public BaseGUI(int size, String name) {
@@ -50,13 +47,16 @@ public abstract class BaseGUI {
         inventoriesByUUID.put(getUUID(), this);
     }
 
-    public Inventory getInv() {
-        return inv;
+    public static Map<UUID, BaseGUI> getInventoriesByUUID() {
+        return inventoriesByUUID;
     }
 
-    public interface GUIAction {
+    public static Map<UUID, UUID> getOpenInventories() {
+        return openInventories;
+    }
 
-        void click(Player p);
+    public Inventory getInv() {
+        return inv;
     }
 
     public void setItem(int slot, ItemStack is, GUIAction action) {
@@ -78,14 +78,6 @@ public abstract class BaseGUI {
 
     private UUID getUUID() {
         return uuid;
-    }
-
-    public static Map<UUID, BaseGUI> getInventoriesByUUID() {
-        return inventoriesByUUID;
-    }
-
-    public static Map<UUID, UUID> getOpenInventories() {
-        return openInventories;
     }
 
     public Map<Integer, GUIAction> getActions() {
@@ -128,5 +120,10 @@ public abstract class BaseGUI {
         });
         is.setItemMeta(meta);
         return is;
+    }
+
+    public interface GUIAction {
+
+        void click(Player p);
     }
 }

@@ -3,23 +3,19 @@
  *
  * Copyright (C) 2017 Beelzebu
  *
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Affero General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 package net.nifheim.beelzebu.coins.bukkit;
 
-import java.util.Iterator;
-import java.util.UUID;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.command.CommandManager;
 import net.nifheim.beelzebu.coins.bukkit.listener.CommandListener;
@@ -35,7 +31,6 @@ import net.nifheim.beelzebu.coins.bukkit.utils.placeholders.CoinsPlaceholders;
 import net.nifheim.beelzebu.coins.bukkit.utils.placeholders.MultipliersPlaceholders;
 import net.nifheim.beelzebu.coins.common.CoinsCore;
 import net.nifheim.beelzebu.coins.common.executor.Executor;
-import net.nifheim.beelzebu.coins.common.utils.CacheManager;
 import net.nifheim.beelzebu.coins.common.utils.CoinsConfig;
 import net.nifheim.beelzebu.coins.common.utils.dependencies.DependencyManager;
 import org.bukkit.Bukkit;
@@ -136,22 +131,8 @@ public class Main extends JavaPlugin {
             PluginMessage pmsg = new PluginMessage();
             Bukkit.getMessenger().registerOutgoingPluginChannel(this, CoinsCore.MESSAGING_CHANNEL);
             Bukkit.getMessenger().registerIncomingPluginChannel(this, CoinsCore.MESSAGING_CHANNEL, pmsg);
-            Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
-                pmsg.sendToBungeeCord("Multiplier", "getAllMultipliers");
-                pmsg.sendToBungeeCord("Coins", "getExecutors");
-            }, 20);
         }
         Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> Bukkit.getOnlinePlayers().forEach(p -> CoinsAPI.createPlayer(p.getName(), p.getUniqueId())), 30);
-        core.debug("Starting cache cleanup task");
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
-            for (Iterator<UUID> it = CacheManager.getPlayersData().keySet().iterator(); it.hasNext(); ) {
-                UUID uuid = it.next();
-                if (!core.getMethods().isOnline(uuid)) {
-                    it.remove();
-                    core.debug("Removed '" + uuid + "' from the cache.");
-                }
-            }
-        }, 100, 12000);
     }
 
     public CoinsConfig getConfiguration() {
