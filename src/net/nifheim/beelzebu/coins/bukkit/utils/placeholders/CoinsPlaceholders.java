@@ -18,7 +18,7 @@ package net.nifheim.beelzebu.coins.bukkit.utils.placeholders;
 
 import java.text.NumberFormat;
 import java.util.Locale;
-import me.clip.placeholderapi.external.EZPlaceholderHook;
+import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.nifheim.beelzebu.coins.CoinsAPI;
 import net.nifheim.beelzebu.coins.bukkit.Main;
 import org.bukkit.entity.Player;
@@ -26,7 +26,7 @@ import org.bukkit.entity.Player;
 /**
  * @author Beelzebu
  */
-public class CoinsPlaceholders extends EZPlaceholderHook {
+public class CoinsPlaceholders extends PlaceholderExpansion {
 
     public CoinsPlaceholders(Main main) {
         super(main, "coins");
